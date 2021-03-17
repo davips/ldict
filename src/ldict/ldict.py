@@ -1,19 +1,19 @@
 #  Copyright (c) 2021. Davi Pereira dos Santos
-#  This file is part of the dictid project.
+#  This file is part of the ldict project.
 #  Please respect the license - more about this in the section (*) below.
 #
-#  dictid is free software: you can redistribute it and/or modify
+#  ldict is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
 #  the Free Software Foundation, either version 3 of the License, or
 #  (at your option) any later version.
 #
-#  dictid is distributed in the hope that it will be useful,
+#  ldict is distributed in the hope that it will be useful,
 #  but WITHOUT ANY WARRANTY; without even the implied warranty of
 #  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #  GNU General Public License for more details.
 #
 #  You should have received a copy of the GNU General Public License
-#  along with dictid.  If not, see <http://www.gnu.org/licenses/>.
+#  along with ldict.  If not, see <http://www.gnu.org/licenses/>.
 #
 #  (*) Removing authorship by any means, e.g. by distribution of derived
 #  works or verbatim, obfuscated, compiled or rewritten versions of any
@@ -21,31 +21,31 @@
 #  time spent here.
 #  Relevant employers or funding agencies will be notified accordingly.
 
-# Initially based on https://stackoverflow.com/a/64323140/9681577
+# Dict typing ineritance initially based on https://stackoverflow.com/a/64323140/9681577
 import hashlib
 import re
 from collections import abc
 from functools import cached_property
 from inspect import signature, getsourcelines
 from itertools import chain
-from typing import Dict as Dict_, Iterator, MutableMapping, TypeVar, Iterable
+from typing import Iterator, TypeVar, Iterable, Dict
 
-from dictid.base62 import b62enc
 from orjson import dumps, OPT_SORT_KEYS
 
-KT = TypeVar('KT')
 VT = TypeVar('VT')
 
 
-class Dict(MutableMapping[KT, VT]):
-
-    def __init__(self, _dictionary=None, /, **kwargs) -> None:
-        """Uniquely Identified dict of hashable items."""
-        self.data: Dict_[str, VT] = {}
+class Ldict(Dict[str, VT]):
+    def __init__(self, /, blob=False, _dictionary=None, **kwargs) -> None:
+        """Uniquely identified lazy dict for serializable pairs str->value
+        (serializable in the project 'orjson' sense)."""
+        super().__init__()
+        self.data: Dict[str, VT] = {}
         if _dictionary is not None:
             self.update(_dictionary)
-        self.bytes = dumps(self.data, option=OPT_SORT_KEYS)
-        self.md5 = hashlib.md5(self.bytes)
+        bytes = dumps(self.data, option=OPT_SORT_KEYS)
+        self.bytes = bytes if blob else None
+        self.n, self.bin,self.id= self.hash.n, self.hash.bin, self.hash.id
         self.bid = self.md5.digest()
         self.n = int.from_bytes(self.bid, 'big')  # Spent 912ns up to this point.
         kwargs["n"] = self.n
@@ -53,18 +53,14 @@ class Dict(MutableMapping[KT, VT]):
             self.update(kwargs)
 
     @cached_property
-    def hid(self):
-        return self.md5.hexdigest()  # Extra 290ns.
+    def hex(self):
+        return hex(self.n)[2:]
 
-    @cached_property
-    def id(self):
-        return b62enc(self.n)  # Spent 5.72µs up to this point.
-
-    def __getitem__(self, field: KT) -> VT:
+    def __getitem__(self, field: str) -> VT:
         if field in self.data:
             content = self.data[field]
             if callable(content):
-                return self.data[field](**self.getargs(content))
+                return self.data[field](**self._getargs(field, content))
             else:
                 return self.data[field]
         raise KeyError(field)
@@ -78,10 +74,10 @@ class Dict(MutableMapping[KT, VT]):
         rx = r"(?:[\"'])([a-zA-Z]+[a-zA-Z0-9_]*)(?:[\"'])"
         output_fields = re.findall(rx, returns[0])
         fargs = signature(f).parameters.keys()
-        self.update({k: self.trigger(k, f, fargs) for k in output_fields})
+        self.update({k: self._trigger(k, f, fargs) for k in output_fields})
         return self
 
-    def getargs(self, f, fargs=None):
+    def _getargs(self, field, f, fargs=None):
         fargs = fargs or signature(f).parameters.keys()
         dic = {}
         for k in fargs:
@@ -91,9 +87,9 @@ class Dict(MutableMapping[KT, VT]):
             dic[k] = self[k]
         return dic
 
-    def trigger(self, field, f, fargs):
+    def _trigger(self, field, f, fargs):
         def closure():
-            dic = self.getargs(f, fargs)
+            dic = self._getargs(field, f, fargs)
             self.update(**f(**dic))
             return self[field]
 
@@ -110,10 +106,10 @@ class Dict(MutableMapping[KT, VT]):
             return self.n == other.n
         return NotImplemented
 
-    def __contains__(self, field: KT) -> bool:
+    def __contains__(self, field: str) -> bool:
         return field in self.data
 
-    def __delitem__(self, field: KT) -> None:
+    def __delitem__(self, field: str) -> None:
         del self.data[field]
 
     def __getattr__(self, item):
@@ -122,14 +118,14 @@ class Dict(MutableMapping[KT, VT]):
     def __len__(self) -> int:
         return len(self.data)
 
-    def __iter__(self) -> Iterator[KT]:
+    def __iter__(self) -> Iterator[str]:
         return chain(iter(self.data), ["n"])
 
-    def __setitem__(self, field: KT, value: VT) -> None:
+    def __setitem__(self, field: str, value: VT) -> None:
         self.data[field] = value
 
     @classmethod
-    def fromkeys(cls, iterable: Iterable[KT], value: VT) -> "Dict":
+    def fromkeys(cls, iterable: Iterable[str], value: VT) -> "Dict":
         """Create a new dictionary with keys from `iterable` and values set to `value`.
 
         Args:

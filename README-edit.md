@@ -1,10 +1,10 @@
-![test](https://github.com/davips/dictid/workflows/test/badge.svg)
-[![codecov](https://codecov.io/gh/davips/dictid/branch/main/graph/badge.svg)](https://codecov.io/gh/davips/dictid)
+![test](https://github.com/davips/ldict/workflows/test/badge.svg)
+[![codecov](https://codecov.io/gh/davips/ldict/branch/main/graph/badge.svg)](https://codecov.io/gh/davips/ldict)
 
-# dictid
+# ldict
 Uniquely identified lazy dict.
 
-[Latest version](https://github.com/davips/dictid)
+[Latest version](https://github.com/davips/ldict)
 
 ## Installation
 ### as a standalone lib.
@@ -15,19 +15,19 @@ source venv/bin/activate
 
 # Install from PyPI...
 pip install --upgrade pip
-pip install -U dictid
+pip install -U ldict
 
 # ...or, install from updated source code.
-pip install git+https://github.com/davips/dictid
+pip install git+https://github.com/davips/ldict
 ```
 
 ### as an editable lib inside your project.
 ```bash
 cd your-project
 source venv/bin/activate
-git clone https://github.com/davips/dictid ../dictid
+git clone https://github.com/davips/ldict ../ldict
 pip install --upgrade pip
-pip install -e ../dictid
+pip install -e ../ldict
 ```
 
 ## Examples
