@@ -31,7 +31,7 @@ pip install -e ../ldict
 ```
 
 ## Examples
-
+<<merging>>
 
 ## Features (current or planned)
 

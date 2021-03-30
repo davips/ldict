@@ -31,7 +31,29 @@ pip install -e ../ldict
 ```
 
 ## Examples
+**Merging two ldicts**
+<details>
+<p>
 
+```python3
+from ldict import ldict
+
+a = ldict(x=3)
+b = ldict(y=5)
+print(a + b)
+"""
+{
+    "id": "0000000000000000000000hej1v389Ot74b8VUuE5X1",
+    "x": 3,
+    "y": 5,
+    "id_...": "..."
+}
+"""
+```
+
+
+</p>
+</details>
 
 ## Features (current or planned)
 

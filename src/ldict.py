@@ -41,9 +41,9 @@ class Ldict(Dict[str, VT]):
         >>> from ldict import ldict
         >>> print(ldict(X=123123))
         {
+            "id": "0000000000000000000007LGxmlWgkN894sZEneXuIp",
             "X": 123123,
-            "id_X": "0000000000000000000007LGxmlWgkN894sZEneXuIp",
-            "id": "0000000000000000000007LGxmlWgkN894sZEneXuIp"
+            "id_...": "..."
         }
         """
         super().__init__()
@@ -78,6 +78,47 @@ class Ldict(Dict[str, VT]):
         return self.hash.id
 
     @property
+    def ids(self):
+        """
+        Usage:
+        >>> from ldict import ldict
+        >>> ldict(x=134124).ids
+        {'x': '0000000000000000000002Uir4UFhytZSbfZqV8rALj'}
+        """
+        return {f: h.id for f, h in self.hashes.items()}
+
+    @property
+    def all(self):
+        """
+        Usage:
+        >>> from ldict import ldict
+        >>> print(ldict(x=134124, y= 56).all)
+        {
+            "id": "\x1b[38;5;167m\x1b[1m0\x1b[0m\x1b[38;5;167m\x1b[1m0\x1b[0m\x1b[38;5;167m\x1b[1m0\x1b[0m\x1b[38;5;167m\x1b[1m0\x1b[0m\x1b[38;5;167m\x1b[1m0\x1b[0m\x1b[38;5;167m\x1b[1m0\x1b[0m\x1b[38;5;167m\x1b[1m0\x1b[0m\x1b[38;5;167m\x1b[1m0\x1b[0m\x1b[38;5;167m\x1b[1m0\x1b[0m\x1b[38;5;167m\x1b[1m0\x1b[0m\x1b[38;5;167m\x1b[1m0\x1b[0m\x1b[38;5;167m\x1b[1m0\x1b[0m\x1b[38;5;167m\x1b[1m0\x1b[0m\x1b[38;5;167m\x1b[1m0\x1b[0m\x1b[38;5;167m\x1b[1m0\x1b[0m\x1b[38;5;167m\x1b[1m0\x1b[0m\x1b[38;5;167m\x1b[1m0\x1b[0m\x1b[38;5;167m\x1b[1m0\x1b[0m\x1b[38;5;167m\x1b[1m0\x1b[0m\x1b[38;5;167m\x1b[1m0\x1b[0m\x1b[38;5;167m\x1b[1m0\x1b[0m\x1b[38;5;167m\x1b[1m0\x1b[0m\x1b[38;5;203m\x1b[1mt\x1b[0m\x1b[38;5;173m\x1b[1mT\x1b[0m\x1b[38;5;167m\x1b[1mH\x1b[0m\x1b[38;5;167m\x1b[1ma\x1b[0m\x1b[38;5;173m\x1b[1mz\x1b[0m\x1b[38;5;167m\x1b[1mK\x1b[0m\x1b[38;5;203m\x1b[1m6\x1b[0m\x1b[38;5;167m\x1b[1mb\x1b[0m\x1b[38;5;209m\x1b[1mE\x1b[0m\x1b[38;5;167m\x1b[1m5\x1b[0m\x1b[38;5;209m\x1b[1mU\x1b[0m\x1b[38;5;203m\x1b[1mI\x1b[0m\x1b[38;5;167m\x1b[1m1\x1b[0m\x1b[38;5;203m\x1b[1mQ\x1b[0m\x1b[38;5;203m\x1b[1mN\x1b[0m\x1b[38;5;167m\x1b[1mP\x1b[0m\x1b[38;5;203m\x1b[1mo\x1b[0m\x1b[38;5;203m\x1b[1mJ\x1b[0m\x1b[38;5;203m\x1b[1mc\x1b[0m\x1b[38;5;173m\x1b[1mD\x1b[0m\x1b[38;5;203m\x1b[1mI\x1b[0m",
+            "x": 134124,
+            "id_x": "\x1b[38;5;61m\x1b[1m0\x1b[0m\x1b[38;5;61m\x1b[1m0\x1b[0m\x1b[38;5;61m\x1b[1m0\x1b[0m\x1b[38;5;61m\x1b[1m0\x1b[0m\x1b[38;5;61m\x1b[1m0\x1b[0m\x1b[38;5;61m\x1b[1m0\x1b[0m\x1b[38;5;61m\x1b[1m0\x1b[0m\x1b[38;5;61m\x1b[1m0\x1b[0m\x1b[38;5;61m\x1b[1m0\x1b[0m\x1b[38;5;61m\x1b[1m0\x1b[0m\x1b[38;5;61m\x1b[1m0\x1b[0m\x1b[38;5;61m\x1b[1m0\x1b[0m\x1b[38;5;61m\x1b[1m0\x1b[0m\x1b[38;5;61m\x1b[1m0\x1b[0m\x1b[38;5;61m\x1b[1m0\x1b[0m\x1b[38;5;61m\x1b[1m0\x1b[0m\x1b[38;5;61m\x1b[1m0\x1b[0m\x1b[38;5;61m\x1b[1m0\x1b[0m\x1b[38;5;61m\x1b[1m0\x1b[0m\x1b[38;5;61m\x1b[1m0\x1b[0m\x1b[38;5;61m\x1b[1m0\x1b[0m\x1b[38;5;97m\x1b[1m2\x1b[0m\x1b[38;5;98m\x1b[1mU\x1b[0m\x1b[38;5;62m\x1b[1mi\x1b[0m\x1b[38;5;63m\x1b[1mr\x1b[0m\x1b[38;5;61m\x1b[1m4\x1b[0m\x1b[38;5;98m\x1b[1mU\x1b[0m\x1b[38;5;97m\x1b[1mF\x1b[0m\x1b[38;5;98m\x1b[1mh\x1b[0m\x1b[38;5;63m\x1b[1my\x1b[0m\x1b[38;5;99m\x1b[1mt\x1b[0m\x1b[38;5;98m\x1b[1mZ\x1b[0m\x1b[38;5;62m\x1b[1mS\x1b[0m\x1b[38;5;62m\x1b[1mb\x1b[0m\x1b[38;5;62m\x1b[1mf\x1b[0m\x1b[38;5;98m\x1b[1mZ\x1b[0m\x1b[38;5;63m\x1b[1mq\x1b[0m\x1b[38;5;98m\x1b[1mV\x1b[0m\x1b[38;5;61m\x1b[1m8\x1b[0m\x1b[38;5;63m\x1b[1mr\x1b[0m\x1b[38;5;97m\x1b[1mA\x1b[0m\x1b[38;5;62m\x1b[1mL\x1b[0m\x1b[38;5;62m\x1b[1mj\x1b[0m",
+            "y": 56,
+            "id_y": "\x1b[38;5;239m\x1b[1m0\x1b[0m\x1b[38;5;239m\x1b[1m0\x1b[0m\x1b[38;5;239m\x1b[1m0\x1b[0m\x1b[38;5;239m\x1b[1m0\x1b[0m\x1b[38;5;239m\x1b[1m0\x1b[0m\x1b[38;5;239m\x1b[1m0\x1b[0m\x1b[38;5;239m\x1b[1m0\x1b[0m\x1b[38;5;239m\x1b[1m0\x1b[0m\x1b[38;5;239m\x1b[1m0\x1b[0m\x1b[38;5;239m\x1b[1m0\x1b[0m\x1b[38;5;239m\x1b[1m0\x1b[0m\x1b[38;5;239m\x1b[1m0\x1b[0m\x1b[38;5;239m\x1b[1m0\x1b[0m\x1b[38;5;239m\x1b[1m0\x1b[0m\x1b[38;5;239m\x1b[1m0\x1b[0m\x1b[38;5;239m\x1b[1m0\x1b[0m\x1b[38;5;239m\x1b[1m0\x1b[0m\x1b[38;5;239m\x1b[1m0\x1b[0m\x1b[38;5;239m\x1b[1m0\x1b[0m\x1b[38;5;239m\x1b[1m0\x1b[0m\x1b[38;5;239m\x1b[1m0\x1b[0m\x1b[38;5;59m\x1b[1m6\x1b[0m\x1b[38;5;65m\x1b[1mB\x1b[0m\x1b[38;5;61m\x1b[1mo\x1b[0m\x1b[38;5;66m\x1b[1mS\x1b[0m\x1b[38;5;66m\x1b[1mj\x1b[0m\x1b[38;5;66m\x1b[1ml\x1b[0m\x1b[38;5;66m\x1b[1mQ\x1b[0m\x1b[38;5;66m\x1b[1mU\x1b[0m\x1b[38;5;59m\x1b[1m6\x1b[0m\x1b[38;5;239m\x1b[1m0\x1b[0m\x1b[38;5;240m\x1b[1mH\x1b[0m\x1b[38;5;66m\x1b[1ml\x1b[0m\x1b[38;5;61m\x1b[1mq\x1b[0m\x1b[38;5;65m\x1b[1m8\x1b[0m\x1b[38;5;67m\x1b[1mz\x1b[0m\x1b[38;5;241m\x1b[1mJ\x1b[0m\x1b[38;5;61m\x1b[1mn\x1b[0m\x1b[38;5;61m\x1b[1mm\x1b[0m\x1b[38;5;66m\x1b[1mi\x1b[0m\x1b[38;5;65m\x1b[1m9\x1b[0m\x1b[38;5;243m\x1b[1mR\x1b[0m\x1b[38;5;65m\x1b[1m8\x1b[0m"
+        }
+        """
+        return self.__repr__(all=True)
+
+    def show(self):
+        """
+        Usage:
+        >>> from ldict import ldict
+        >>> ldict(x=134124, y= 56).show()
+        {
+            "id": "\x1b[38;5;167m\x1b[1m0\x1b[0m\x1b[38;5;167m\x1b[1m0\x1b[0m\x1b[38;5;167m\x1b[1m0\x1b[0m\x1b[38;5;167m\x1b[1m0\x1b[0m\x1b[38;5;167m\x1b[1m0\x1b[0m\x1b[38;5;167m\x1b[1m0\x1b[0m\x1b[38;5;167m\x1b[1m0\x1b[0m\x1b[38;5;167m\x1b[1m0\x1b[0m\x1b[38;5;167m\x1b[1m0\x1b[0m\x1b[38;5;167m\x1b[1m0\x1b[0m\x1b[38;5;167m\x1b[1m0\x1b[0m\x1b[38;5;167m\x1b[1m0\x1b[0m\x1b[38;5;167m\x1b[1m0\x1b[0m\x1b[38;5;167m\x1b[1m0\x1b[0m\x1b[38;5;167m\x1b[1m0\x1b[0m\x1b[38;5;167m\x1b[1m0\x1b[0m\x1b[38;5;167m\x1b[1m0\x1b[0m\x1b[38;5;167m\x1b[1m0\x1b[0m\x1b[38;5;167m\x1b[1m0\x1b[0m\x1b[38;5;167m\x1b[1m0\x1b[0m\x1b[38;5;167m\x1b[1m0\x1b[0m\x1b[38;5;167m\x1b[1m0\x1b[0m\x1b[38;5;203m\x1b[1mt\x1b[0m\x1b[38;5;173m\x1b[1mT\x1b[0m\x1b[38;5;167m\x1b[1mH\x1b[0m\x1b[38;5;167m\x1b[1ma\x1b[0m\x1b[38;5;173m\x1b[1mz\x1b[0m\x1b[38;5;167m\x1b[1mK\x1b[0m\x1b[38;5;203m\x1b[1m6\x1b[0m\x1b[38;5;167m\x1b[1mb\x1b[0m\x1b[38;5;209m\x1b[1mE\x1b[0m\x1b[38;5;167m\x1b[1m5\x1b[0m\x1b[38;5;209m\x1b[1mU\x1b[0m\x1b[38;5;203m\x1b[1mI\x1b[0m\x1b[38;5;167m\x1b[1m1\x1b[0m\x1b[38;5;203m\x1b[1mQ\x1b[0m\x1b[38;5;203m\x1b[1mN\x1b[0m\x1b[38;5;167m\x1b[1mP\x1b[0m\x1b[38;5;203m\x1b[1mo\x1b[0m\x1b[38;5;203m\x1b[1mJ\x1b[0m\x1b[38;5;203m\x1b[1mc\x1b[0m\x1b[38;5;173m\x1b[1mD\x1b[0m\x1b[38;5;203m\x1b[1mI\x1b[0m",
+            "x": 134124,
+            "id_x": "\x1b[38;5;61m\x1b[1m0\x1b[0m\x1b[38;5;61m\x1b[1m0\x1b[0m\x1b[38;5;61m\x1b[1m0\x1b[0m\x1b[38;5;61m\x1b[1m0\x1b[0m\x1b[38;5;61m\x1b[1m0\x1b[0m\x1b[38;5;61m\x1b[1m0\x1b[0m\x1b[38;5;61m\x1b[1m0\x1b[0m\x1b[38;5;61m\x1b[1m0\x1b[0m\x1b[38;5;61m\x1b[1m0\x1b[0m\x1b[38;5;61m\x1b[1m0\x1b[0m\x1b[38;5;61m\x1b[1m0\x1b[0m\x1b[38;5;61m\x1b[1m0\x1b[0m\x1b[38;5;61m\x1b[1m0\x1b[0m\x1b[38;5;61m\x1b[1m0\x1b[0m\x1b[38;5;61m\x1b[1m0\x1b[0m\x1b[38;5;61m\x1b[1m0\x1b[0m\x1b[38;5;61m\x1b[1m0\x1b[0m\x1b[38;5;61m\x1b[1m0\x1b[0m\x1b[38;5;61m\x1b[1m0\x1b[0m\x1b[38;5;61m\x1b[1m0\x1b[0m\x1b[38;5;61m\x1b[1m0\x1b[0m\x1b[38;5;97m\x1b[1m2\x1b[0m\x1b[38;5;98m\x1b[1mU\x1b[0m\x1b[38;5;62m\x1b[1mi\x1b[0m\x1b[38;5;63m\x1b[1mr\x1b[0m\x1b[38;5;61m\x1b[1m4\x1b[0m\x1b[38;5;98m\x1b[1mU\x1b[0m\x1b[38;5;97m\x1b[1mF\x1b[0m\x1b[38;5;98m\x1b[1mh\x1b[0m\x1b[38;5;63m\x1b[1my\x1b[0m\x1b[38;5;99m\x1b[1mt\x1b[0m\x1b[38;5;98m\x1b[1mZ\x1b[0m\x1b[38;5;62m\x1b[1mS\x1b[0m\x1b[38;5;62m\x1b[1mb\x1b[0m\x1b[38;5;62m\x1b[1mf\x1b[0m\x1b[38;5;98m\x1b[1mZ\x1b[0m\x1b[38;5;63m\x1b[1mq\x1b[0m\x1b[38;5;98m\x1b[1mV\x1b[0m\x1b[38;5;61m\x1b[1m8\x1b[0m\x1b[38;5;63m\x1b[1mr\x1b[0m\x1b[38;5;97m\x1b[1mA\x1b[0m\x1b[38;5;62m\x1b[1mL\x1b[0m\x1b[38;5;62m\x1b[1mj\x1b[0m",
+            "y": 56,
+            "id_y": "\x1b[38;5;239m\x1b[1m0\x1b[0m\x1b[38;5;239m\x1b[1m0\x1b[0m\x1b[38;5;239m\x1b[1m0\x1b[0m\x1b[38;5;239m\x1b[1m0\x1b[0m\x1b[38;5;239m\x1b[1m0\x1b[0m\x1b[38;5;239m\x1b[1m0\x1b[0m\x1b[38;5;239m\x1b[1m0\x1b[0m\x1b[38;5;239m\x1b[1m0\x1b[0m\x1b[38;5;239m\x1b[1m0\x1b[0m\x1b[38;5;239m\x1b[1m0\x1b[0m\x1b[38;5;239m\x1b[1m0\x1b[0m\x1b[38;5;239m\x1b[1m0\x1b[0m\x1b[38;5;239m\x1b[1m0\x1b[0m\x1b[38;5;239m\x1b[1m0\x1b[0m\x1b[38;5;239m\x1b[1m0\x1b[0m\x1b[38;5;239m\x1b[1m0\x1b[0m\x1b[38;5;239m\x1b[1m0\x1b[0m\x1b[38;5;239m\x1b[1m0\x1b[0m\x1b[38;5;239m\x1b[1m0\x1b[0m\x1b[38;5;239m\x1b[1m0\x1b[0m\x1b[38;5;239m\x1b[1m0\x1b[0m\x1b[38;5;59m\x1b[1m6\x1b[0m\x1b[38;5;65m\x1b[1mB\x1b[0m\x1b[38;5;61m\x1b[1mo\x1b[0m\x1b[38;5;66m\x1b[1mS\x1b[0m\x1b[38;5;66m\x1b[1mj\x1b[0m\x1b[38;5;66m\x1b[1ml\x1b[0m\x1b[38;5;66m\x1b[1mQ\x1b[0m\x1b[38;5;66m\x1b[1mU\x1b[0m\x1b[38;5;59m\x1b[1m6\x1b[0m\x1b[38;5;239m\x1b[1m0\x1b[0m\x1b[38;5;240m\x1b[1mH\x1b[0m\x1b[38;5;66m\x1b[1ml\x1b[0m\x1b[38;5;61m\x1b[1mq\x1b[0m\x1b[38;5;65m\x1b[1m8\x1b[0m\x1b[38;5;67m\x1b[1mz\x1b[0m\x1b[38;5;241m\x1b[1mJ\x1b[0m\x1b[38;5;61m\x1b[1mn\x1b[0m\x1b[38;5;61m\x1b[1mm\x1b[0m\x1b[38;5;66m\x1b[1mi\x1b[0m\x1b[38;5;65m\x1b[1m9\x1b[0m\x1b[38;5;243m\x1b[1mR\x1b[0m\x1b[38;5;65m\x1b[1m8\x1b[0m"
+        }
+        """
+        return print(self.all)
+
+    @property
     def perm(self):
         """
         For new data, it is always the identity permutation.
@@ -94,13 +135,11 @@ class Ldict(Dict[str, VT]):
         >>> f = lambda x: {'z': x ** 2}
         >>> print(b >> f)
         {
+            "id": "DJCI4NHm3GUzL4KQt7W3dWh3JkAGSMz5Ttx9lzoNnMQ",
             "x": 134124,
-            "id_x": "0000000000000000000002Uir4UFhytZSbfZqV8rALj",
             "y": 134124,
-            "id_y": "0000000000000000000006YNzuLzChIdKCDysjks4q0",
             "z": "<unevaluated lazy field>",
-            "id_z": "LRnxIr8lENbWhEnm6uBNSuqbTwdIAJJt6jZwNsEJAyz",
-            "id": "LRnxIr8lENbWhEnm6uBNSqoJ7ZR4c147rpYnNq2OBNJ"
+            "id_...": "..."
         }
         """
         return self.hash.perm
@@ -162,23 +201,30 @@ class Ldict(Dict[str, VT]):
     def __hash__(self):
         return self.n
 
-    def __str__(self):
+    def __str__(self, all=False):
         dic = self.data.copy()
         for k, v in self.data.items():
-            if callable(v):
+            if not all and k.startswith("id_"):
+                del dic[k]
+            elif callable(v):
                 dic[k] = "<unevaluated lazy field>"
+        dic["id_..."] = "..."
         return json.dumps(dic, indent=4)
 
-    def __repr__(self):
+    def __repr__(self, all=False):
         dic = self.data.copy()
         for k, v in self.data.items():
             if callable(v):
                 dic[k] = "<unevaluated lazy field>"
+            if not all and k.startswith("id_"):
+                del dic[k]
+        if not all:
+            dic["ids_..."] = "..."
         txt = json.dumps(dic, indent=4)
-        for k, v in self.data.items():
+        for k, v in dic.items():
             if k == "id":
                 txt = txt.replace(dic[k], self.hash.idc)
-            elif k.startswith("id_"):
+            elif all and k.startswith("id_"):
                 txt = txt.replace(dic[k], self.hashes[k[3:]].idc)
         return txt
 
@@ -195,7 +241,9 @@ class Ldict(Dict[str, VT]):
         raise Exception("Not implemented")
 
     def __getattr__(self, item):
-        return self[item]
+        if item in self:
+            return self[item]
+        return self.__getattribute__(item)
 
     def __len__(self) -> int:
         return len(self.data)
@@ -204,18 +252,19 @@ class Ldict(Dict[str, VT]):
         return iter(self.data)
 
     def __setitem__(self, field: str, value: VT) -> None:
+        self.data["id"] = None
         self.data[field] = value
         fid = f"id_{field}"
+        h = None
         if fid not in self.data:
             h, blob = process(field, value)
             if blob and self.keepblob:
                 self.blobs[field] = blob
-            self.data["id_" + field] = h and h.id
             self.hashes[field] = h
         self.hash *= self.hashes[field]
-        if "id" in self.data:
-            del self.data["id"]
         self.data["id"] = self.hash.id
+        if h:
+            self.data["id_" + field] = h.id
 
     @classmethod
     def fromkeys(cls, iterable: Iterable[str], value: VT) -> "Ldict":
@@ -246,24 +295,23 @@ class Ldict(Dict[str, VT]):
         >>> a = ldict(x=123)
         >>> print(a)
         {
+            "id": "0000000000000000000006pnWvaKVQbhfaIl82A1WD6",
             "x": 123,
-            "id_x": "0000000000000000000006pnWvaKVQbhfaIl82A1WD6",
-            "id": "0000000000000000000006pnWvaKVQbhfaIl82A1WD6"
+            "id_...": "..."
         }
         >>> b = ldict(y="some text")
         >>> print(b)
         {
+            "id": "00000000000000000000001Q5vqu6zuQ864lVfx25Vw",
             "y": "some text",
-            "id_y": "00000000000000000000001Q5vqu6zuQ864lVfx25Vw",
-            "id": "00000000000000000000001Q5vqu6zuQ864lVfx25Vw"
+            "id_...": "..."
         }
         >>> print(b.update(a))
         {
+            "id": "0000000000000000000006rDcrREcQW7ngNWdi73bj2",
             "y": "some text",
-            "id_y": "00000000000000000000001Q5vqu6zuQ864lVfx25Vw",
             "x": 123,
-            "id_x": "0000000000000000000006pnWvaKVQbhfaIl82A1WD6",
-            "id": "0000000000000000000006rDcrREcQW7ngNWdi73bj2"
+            "id_...": "..."
         }
         """
         kwds.update(other)

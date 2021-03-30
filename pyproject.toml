@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ldict"
-version = "0.210317.0"
+version = "0.210330.0"
 description = "Uniquely identified lazy dict"
 authors = ["davips <dpsabc@gmail.com>"]
 license = "GPL"
@@ -11,7 +11,7 @@ packages = [
 [tool.poetry.dependencies]
 python = "^3.8"
 orjson = "^3.5.0"
-garoupa = "^1.210330.0"
+garoupa = "^1.210328.3"
 
 [tool.poetry.dev-dependencies]
 autoreadme = "^0.2102.20"
