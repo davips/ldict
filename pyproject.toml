@@ -5,16 +5,18 @@ description = "Uniquely identified lazy dict"
 authors = ["davips <dpsabc@gmail.com>"]
 license = "GPL"
 packages = [
-    { include = "ldict", from = "src" },
+    { include = "ldict.py", from = "src" },
 ]
 
 [tool.poetry.dependencies]
 python = "^3.8"
 orjson = "^3.5.0"
-hosh = "^0.2103.0"
+garoupa = "^1.210330.0"
 
 [tool.poetry.dev-dependencies]
 autoreadme = "^0.2102.20"
+pytest = "^6.2.2"
+pytest-cov = "^2.11.1"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
