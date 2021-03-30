@@ -9,10 +9,9 @@ def process(field, data):
         obj = dis.Bytecode(data).dis()
         bytes = dumps(obj, option=OPT_SORT_KEYS)
         return Hash(bytes), None
-    else:
-        obj = {field: data}
-        bytes = dumps(obj, option=OPT_SORT_KEYS)
-        return Hash(bytes, commutative=True), bytes
+    obj = {field: data}
+    bytes = dumps(obj, option=OPT_SORT_KEYS)
+    return Hash(bytes, commutative=True), bytes
 
 
 def fid(f):

@@ -27,7 +27,7 @@ import re
 from inspect import signature, getsourcelines
 from typing import Iterator, TypeVar, Iterable, Dict
 
-from data import process
+from ldict.data import process
 from garoupa.hash import identity
 
 VT = TypeVar('VT')
