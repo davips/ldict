@@ -47,7 +47,7 @@ class Ldict(Dict[str, VT]):
         self.bytes = bytes if blob else None
         self.n, self.bin,self.id= self.hash.n, self.hash.bin, self.hash.id
         self.bid = self.md5.digest()
-        self.n = int.from_bytes(self.bid, 'big')  # Spent 912ns up to this point.
+        self.n = int.from_bytes(self.bid, 'big')
         kwargs["n"] = self.n
         if kwargs:
             self.update(kwargs)
