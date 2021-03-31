@@ -29,7 +29,7 @@ from typing import Dict
 from garoupa.hash import identity
 
 from ldict.abs.mixin.aux import Aux, VT
-from ldict.data import process
+from ldict.data import process, fhash
 
 
 class Ldict(Aux, Dict[str, VT]):
@@ -46,9 +46,9 @@ class Ldict(Aux, Dict[str, VT]):
         }
         """
         super().__init__()
-        self.data: Dict[str, VT] = {}
-        self.hashes, self.blobs = {}, {}
         self.keepblob, self.hash = keepblob, identity
+        self.hashes, self.blobs = {}, {}
+        self.data: Dict[str, VT] = {"id": self.hash.id}  # 'id' will always be the first field
         if _dictionary is not None:
             self.update(_dictionary)  # REMINDER: update() acts on self.data.
         if kwargs:
@@ -76,26 +76,31 @@ class Ldict(Aux, Dict[str, VT]):
 
     def _trigger(self, field, f, fargs):
         def closure():
-            dic = self._getargs(field, f, fargs)
-            self.update(**f(**dic))
+            dic = f(**self._getargs(field, f, fargs))
+            for arg, value in dic.items():
+                self.data[arg] = value
             return self[field]
 
         return closure
 
     def __setitem__(self, field: str, value: VT) -> None:
-        self.data["id"] = None
+        if field in self.data:
+            raise OverwriteException("Only function application (operator '>>') can overwrite fields.")
+        # Create field hash and update ldict hash.
+        h, blob = process(field, value)
+        old_hash = self.hash
+        self.hash *= h
+        field_hash = self.hash / old_hash
+        self.hashes[field] = field_hash
+
+        # Update data.
         self.data[field] = value
-        fid = f"id_{field}"
-        h = None
-        if fid not in self.data:
-            h, blob = process(field, value)
-            if blob and self.keepblob:
-                self.blobs[field] = blob
-            self.hashes[field] = h
-        self.hash *= self.hashes[field]
         self.data["id"] = self.hash.id
-        if h:
-            self.data["id_" + field] = h.id
+        self.data["id_" + field] = field_hash.id
+
+        # Keep blob if required.
+        if blob and self.keepblob:
+            self.blobs[field] = blob
 
     def __rshift__(self, f):
         """Used for multiple return values, or to avoid inplace update."""
@@ -113,17 +118,27 @@ class Ldict(Aux, Dict[str, VT]):
         rx = r"(?:[\"'])([a-zA-Z]+[a-zA-Z0-9_]*)(?:[\"'])"
         output_fields = re.findall(rx, returns[0])
         if not output_fields:
-            raise Exception("Cannot detect output fields: Missing some structure in the function body.")
+            raise Exception("Cannot detect output fields: Missing dict as return value.")
 
         # Detect input fields.
         fargs = signature(f).parameters.keys()
 
-        # Add triggers for future evaluation.
-        for k in output_fields:
-            self.data[k]= self._trigger(k, f, fargs)
+        # Attach hash to f if needed.
+        if not hasattr(f, "hash"):
+            f.hash = fhash(f)
 
-        if f.hash.s==0 and k in self.data:
-            raise Exception("Cannot overwrite fields using a function that commutes, i.e. with s=0.")
+        # Add triggers for future evaluation.
+        for field in output_fields:
+            if f.hash.s == 0 and field in self.data:
+                raise OverwriteException("Cannot overwrite fields using a function that commutes, i.e. with s=0.")
+            old_hash = self.hash
+            self.hash *= f.hash
+            field_hash = self.hash / old_hash
+            self.hashes[field] = field_hash
+            self.data[field] = self._trigger(field, f, fargs)
+            self.data["id"] = self.hash.id
+            self.data["id_" + field] = field_hash.id
+
         return self
 
     def __delitem__(self, field: str) -> None:
@@ -132,3 +147,7 @@ class Ldict(Aux, Dict[str, VT]):
 
 
 ldict = Ldict
+
+
+class OverwriteException(Exception):
+    pass

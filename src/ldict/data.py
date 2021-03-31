@@ -4,15 +4,14 @@ from garoupa import Hash
 from orjson import dumps, OPT_SORT_KEYS
 
 
-def process(field, data):
-    if callable(data):
-        obj = dis.Bytecode(data).dis()
-        bytes = dumps(obj, option=OPT_SORT_KEYS)
-        return Hash(bytes), None
-    obj = {field: data}
+def process(field, value):
+    if callable(value):
+        h = value.hash if hasattr(value, "hash") else fhash(value)
+        return h, None
+    obj = {field: value}
     bytes = dumps(obj, option=OPT_SORT_KEYS)
     return Hash(bytes, commutative=True), bytes
 
 
-def fid(f):
-    return dis.Bytecode(f).dis()
+def fhash(f):
+    return Hash(dumps(dis.Bytecode(f).dis()))

@@ -103,15 +103,34 @@ class Aux:
         """
         return self.hash.perm
 
+    def __str__(self, all=False):
+        dic = self.data.copy()
+        k = None
+        for k, v in self.data.items():
+            if not all and k.startswith("id_"):
+                del dic[k]
+            elif callable(v):
+                dic[k] = "<unevaluated lazy field>"
+        if not all:
+            if len(self) == 3:
+                dic[k] = "<hidden field>"
+            elif len(self) > 3:
+                dic["id_*"] = f"<{(len(self) - 1) // 2} hidden fields>"
+        return json.dumps(dic, indent=4)
+
     def __repr__(self, all=False):
         dic = self.data.copy()
+        k = None
         for k, v in self.data.items():
             if callable(v):
                 dic[k] = "<unevaluated lazy field>"
             if not all and k.startswith("id_"):
                 del dic[k]
         if not all:
-            dic["id_*"] = "<hidden fields>"
+            if len(self) == 3:
+                dic[k] = f"<hidden field>"
+            elif len(self) > 3:
+                dic["id_*"] = f"<{(len(self) - 1) // 2} hidden fields>"
         txt = json.dumps(dic, indent=4)
         for k, v in dic.items():
             if k == "id":
@@ -150,16 +169,6 @@ class Aux:
 
     def __hash__(self):
         return self.n
-
-    def __str__(self, all=False):
-        dic = self.data.copy()
-        for k, v in self.data.items():
-            if not all and k.startswith("id_"):
-                del dic[k]
-            elif callable(v):
-                dic[k] = "<unevaluated lazy field>"
-        dic["id_*"] = "<hidden fields>"
-        return json.dumps(dic, indent=4)
 
     def __eq__(self, other):
         from ldict import Ldict
