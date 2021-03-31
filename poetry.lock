@@ -77,7 +77,7 @@ toml = ["toml"]
 
 [[package]]
 name = "garoupa"
-version = "1.210328.10"
+version = "1.210328.11"
 description = "Cryptographic hash, abstract algebra and operators (previously known as 'hoshy') - see package hosh for a faster, native (compiled) hash/ops approach "
 category = "main"
 optional = false
@@ -252,7 +252,7 @@ python-versions = "*"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "65626622605f78d25d6bc1f9aa98f3cad5d440968570e5196c9f8f160369cd0e"
+content-hash = "fdde63574a0acdaacedb299b3569d52a4da1f015e69d1253bd7a738e4580a0b0"
 
 [metadata.files]
 astroid = [
@@ -356,8 +356,8 @@ coverage = [
     {file = "coverage-5.5.tar.gz", hash = "sha256:ebe78fe9a0e874362175b02371bdfbee64d8edc42a044253ddf4ee7d3c15212c"},
 ]
 garoupa = [
-    {file = "garoupa-1.210328.10-py3-none-any.whl", hash = "sha256:e1dfb1985324cc04c6778cdbcd08e5f5a88af0bf30f5dc24b07661cf229688a3"},
-    {file = "garoupa-1.210328.10.tar.gz", hash = "sha256:9e1bfe0ab350528e5c694806ee43232b7c0f202e43970030bd48fbf72d45ae94"},
+    {file = "garoupa-1.210328.11-py3-none-any.whl", hash = "sha256:0b84f3a8158a25fcb5c20593ba2ba349397dc2ea848b3290a62a03f7d08afe3c"},
+    {file = "garoupa-1.210328.11.tar.gz", hash = "sha256:1d95beb3068a81d8cf5489fda83123cdca0a31d4eea54df059cd58df11710b94"},
 ]
 iniconfig = [
     {file = "iniconfig-1.1.1-py2.py3-none-any.whl", hash = "sha256:011e24c64b7f47f6ebd835bb12a743f2fbe9a26d4cecaa7f53bc4f35ee9da8b3"},

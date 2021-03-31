@@ -1,4 +1,5 @@
 import json
+import re
 from typing import Iterator, Iterable, TypeVar, Union
 from typing import TYPE_CHECKING
 
@@ -22,7 +23,7 @@ class Aux:
         Usage:
         >>> from ldict import ldict
         >>> ldict(x=134124).n
-        108990846591764296187947743094879269859
+        42705542750959941452191592945617646912015657253877602974646311981218661400576
         """
         return self.hash.n
 
@@ -32,7 +33,7 @@ class Aux:
         Usage:
         >>> from ldict import ldict
         >>> ldict(x=134124).id
-        '0000000000000000000002Uir4UFhytZSbfZqV8rALj'
+        'MO72GzebQLg1Q6EfBqPlpor9I5P7XXDByDrXsj9kdSS'
         """
         return self.hash.id
 
@@ -42,7 +43,7 @@ class Aux:
         Usage:
         >>> from ldict import ldict
         >>> ldict(x=134124).ids
-        {'x': '0000000000000000000002Uir4UFhytZSbfZqV8rALj'}
+        {'x': 'MO72GzebQLg1Q6EfBqPlpor9I5P7XXDByDrXsj9kdSS'}
         """
         return {f: h.id for f, h in self.hashes.items()}
 
@@ -51,42 +52,45 @@ class Aux:
         """
         Usage:
         >>> from ldict import ldict
-        >>> print(ldict(x=134124, y= 56).all)
+        >>> out = ldict(x=134124, y= 56).all
+        >>> print(ansi_escape.sub('', out))  # doctest: +SKIP
         {
-            "id": "\x1b[38;5;167m\x1b[1m0\x1b[0m\x1b[38;5;167m\x1b[1m0\x1b[0m\x1b[38;5;167m\x1b[1m0\x1b[0m\x1b[38;5;167m\x1b[1m0\x1b[0m\x1b[38;5;167m\x1b[1m0\x1b[0m\x1b[38;5;167m\x1b[1m0\x1b[0m\x1b[38;5;167m\x1b[1m0\x1b[0m\x1b[38;5;167m\x1b[1m0\x1b[0m\x1b[38;5;167m\x1b[1m0\x1b[0m\x1b[38;5;167m\x1b[1m0\x1b[0m\x1b[38;5;167m\x1b[1m0\x1b[0m\x1b[38;5;167m\x1b[1m0\x1b[0m\x1b[38;5;167m\x1b[1m0\x1b[0m\x1b[38;5;167m\x1b[1m0\x1b[0m\x1b[38;5;167m\x1b[1m0\x1b[0m\x1b[38;5;167m\x1b[1m0\x1b[0m\x1b[38;5;167m\x1b[1m0\x1b[0m\x1b[38;5;167m\x1b[1m0\x1b[0m\x1b[38;5;167m\x1b[1m0\x1b[0m\x1b[38;5;167m\x1b[1m0\x1b[0m\x1b[38;5;167m\x1b[1m0\x1b[0m\x1b[38;5;167m\x1b[1m0\x1b[0m\x1b[38;5;203m\x1b[1mt\x1b[0m\x1b[38;5;173m\x1b[1mT\x1b[0m\x1b[38;5;167m\x1b[1mH\x1b[0m\x1b[38;5;167m\x1b[1ma\x1b[0m\x1b[38;5;173m\x1b[1mz\x1b[0m\x1b[38;5;167m\x1b[1mK\x1b[0m\x1b[38;5;203m\x1b[1m6\x1b[0m\x1b[38;5;167m\x1b[1mb\x1b[0m\x1b[38;5;209m\x1b[1mE\x1b[0m\x1b[38;5;167m\x1b[1m5\x1b[0m\x1b[38;5;209m\x1b[1mU\x1b[0m\x1b[38;5;203m\x1b[1mI\x1b[0m\x1b[38;5;167m\x1b[1m1\x1b[0m\x1b[38;5;203m\x1b[1mQ\x1b[0m\x1b[38;5;203m\x1b[1mN\x1b[0m\x1b[38;5;167m\x1b[1mP\x1b[0m\x1b[38;5;203m\x1b[1mo\x1b[0m\x1b[38;5;203m\x1b[1mJ\x1b[0m\x1b[38;5;203m\x1b[1mc\x1b[0m\x1b[38;5;173m\x1b[1mD\x1b[0m\x1b[38;5;203m\x1b[1mI\x1b[0m",
+            "id": "LI2jBaxgZwh8khoYlfAYikEI8gnGnN5NX2h6kBwL6v2",
             "x": 134124,
-            "id_x": "\x1b[38;5;61m\x1b[1m0\x1b[0m\x1b[38;5;61m\x1b[1m0\x1b[0m\x1b[38;5;61m\x1b[1m0\x1b[0m\x1b[38;5;61m\x1b[1m0\x1b[0m\x1b[38;5;61m\x1b[1m0\x1b[0m\x1b[38;5;61m\x1b[1m0\x1b[0m\x1b[38;5;61m\x1b[1m0\x1b[0m\x1b[38;5;61m\x1b[1m0\x1b[0m\x1b[38;5;61m\x1b[1m0\x1b[0m\x1b[38;5;61m\x1b[1m0\x1b[0m\x1b[38;5;61m\x1b[1m0\x1b[0m\x1b[38;5;61m\x1b[1m0\x1b[0m\x1b[38;5;61m\x1b[1m0\x1b[0m\x1b[38;5;61m\x1b[1m0\x1b[0m\x1b[38;5;61m\x1b[1m0\x1b[0m\x1b[38;5;61m\x1b[1m0\x1b[0m\x1b[38;5;61m\x1b[1m0\x1b[0m\x1b[38;5;61m\x1b[1m0\x1b[0m\x1b[38;5;61m\x1b[1m0\x1b[0m\x1b[38;5;61m\x1b[1m0\x1b[0m\x1b[38;5;61m\x1b[1m0\x1b[0m\x1b[38;5;97m\x1b[1m2\x1b[0m\x1b[38;5;98m\x1b[1mU\x1b[0m\x1b[38;5;62m\x1b[1mi\x1b[0m\x1b[38;5;63m\x1b[1mr\x1b[0m\x1b[38;5;61m\x1b[1m4\x1b[0m\x1b[38;5;98m\x1b[1mU\x1b[0m\x1b[38;5;97m\x1b[1mF\x1b[0m\x1b[38;5;98m\x1b[1mh\x1b[0m\x1b[38;5;63m\x1b[1my\x1b[0m\x1b[38;5;99m\x1b[1mt\x1b[0m\x1b[38;5;98m\x1b[1mZ\x1b[0m\x1b[38;5;62m\x1b[1mS\x1b[0m\x1b[38;5;62m\x1b[1mb\x1b[0m\x1b[38;5;62m\x1b[1mf\x1b[0m\x1b[38;5;98m\x1b[1mZ\x1b[0m\x1b[38;5;63m\x1b[1mq\x1b[0m\x1b[38;5;98m\x1b[1mV\x1b[0m\x1b[38;5;61m\x1b[1m8\x1b[0m\x1b[38;5;63m\x1b[1mr\x1b[0m\x1b[38;5;97m\x1b[1mA\x1b[0m\x1b[38;5;62m\x1b[1mL\x1b[0m\x1b[38;5;62m\x1b[1mj\x1b[0m",
+            "id_x": "MO72GzebQLg1Q6EfBqPlpor9I5P7XXDByDrXsj9kdSS",
             "y": 56,
-            "id_y": "\x1b[38;5;239m\x1b[1m0\x1b[0m\x1b[38;5;239m\x1b[1m0\x1b[0m\x1b[38;5;239m\x1b[1m0\x1b[0m\x1b[38;5;239m\x1b[1m0\x1b[0m\x1b[38;5;239m\x1b[1m0\x1b[0m\x1b[38;5;239m\x1b[1m0\x1b[0m\x1b[38;5;239m\x1b[1m0\x1b[0m\x1b[38;5;239m\x1b[1m0\x1b[0m\x1b[38;5;239m\x1b[1m0\x1b[0m\x1b[38;5;239m\x1b[1m0\x1b[0m\x1b[38;5;239m\x1b[1m0\x1b[0m\x1b[38;5;239m\x1b[1m0\x1b[0m\x1b[38;5;239m\x1b[1m0\x1b[0m\x1b[38;5;239m\x1b[1m0\x1b[0m\x1b[38;5;239m\x1b[1m0\x1b[0m\x1b[38;5;239m\x1b[1m0\x1b[0m\x1b[38;5;239m\x1b[1m0\x1b[0m\x1b[38;5;239m\x1b[1m0\x1b[0m\x1b[38;5;239m\x1b[1m0\x1b[0m\x1b[38;5;239m\x1b[1m0\x1b[0m\x1b[38;5;239m\x1b[1m0\x1b[0m\x1b[38;5;59m\x1b[1m6\x1b[0m\x1b[38;5;65m\x1b[1mB\x1b[0m\x1b[38;5;61m\x1b[1mo\x1b[0m\x1b[38;5;66m\x1b[1mS\x1b[0m\x1b[38;5;66m\x1b[1mj\x1b[0m\x1b[38;5;66m\x1b[1ml\x1b[0m\x1b[38;5;66m\x1b[1mQ\x1b[0m\x1b[38;5;66m\x1b[1mU\x1b[0m\x1b[38;5;59m\x1b[1m6\x1b[0m\x1b[38;5;239m\x1b[1m0\x1b[0m\x1b[38;5;240m\x1b[1mH\x1b[0m\x1b[38;5;66m\x1b[1ml\x1b[0m\x1b[38;5;61m\x1b[1mq\x1b[0m\x1b[38;5;65m\x1b[1m8\x1b[0m\x1b[38;5;67m\x1b[1mz\x1b[0m\x1b[38;5;241m\x1b[1mJ\x1b[0m\x1b[38;5;61m\x1b[1mn\x1b[0m\x1b[38;5;61m\x1b[1mm\x1b[0m\x1b[38;5;66m\x1b[1mi\x1b[0m\x1b[38;5;65m\x1b[1m9\x1b[0m\x1b[38;5;243m\x1b[1mR\x1b[0m\x1b[38;5;65m\x1b[1m8\x1b[0m"
+            "id_y": "xbfZfXwFFza8UwbSM6HM5ig8VqYmwXewLkX7LW7SAV6"
         }
         """
         return self.__repr__(all=True)
 
-    def show(self):
+    def show(self, colored=True):
         """
         Usage:
         >>> from ldict import ldict
-        >>> ldict(x=134124, y= 56).show()
+        >>> ldict(x=134124, y= 56).show(colored=False)
         {
-            "id": "\x1b[38;5;167m\x1b[1m0\x1b[0m\x1b[38;5;167m\x1b[1m0\x1b[0m\x1b[38;5;167m\x1b[1m0\x1b[0m\x1b[38;5;167m\x1b[1m0\x1b[0m\x1b[38;5;167m\x1b[1m0\x1b[0m\x1b[38;5;167m\x1b[1m0\x1b[0m\x1b[38;5;167m\x1b[1m0\x1b[0m\x1b[38;5;167m\x1b[1m0\x1b[0m\x1b[38;5;167m\x1b[1m0\x1b[0m\x1b[38;5;167m\x1b[1m0\x1b[0m\x1b[38;5;167m\x1b[1m0\x1b[0m\x1b[38;5;167m\x1b[1m0\x1b[0m\x1b[38;5;167m\x1b[1m0\x1b[0m\x1b[38;5;167m\x1b[1m0\x1b[0m\x1b[38;5;167m\x1b[1m0\x1b[0m\x1b[38;5;167m\x1b[1m0\x1b[0m\x1b[38;5;167m\x1b[1m0\x1b[0m\x1b[38;5;167m\x1b[1m0\x1b[0m\x1b[38;5;167m\x1b[1m0\x1b[0m\x1b[38;5;167m\x1b[1m0\x1b[0m\x1b[38;5;167m\x1b[1m0\x1b[0m\x1b[38;5;167m\x1b[1m0\x1b[0m\x1b[38;5;203m\x1b[1mt\x1b[0m\x1b[38;5;173m\x1b[1mT\x1b[0m\x1b[38;5;167m\x1b[1mH\x1b[0m\x1b[38;5;167m\x1b[1ma\x1b[0m\x1b[38;5;173m\x1b[1mz\x1b[0m\x1b[38;5;167m\x1b[1mK\x1b[0m\x1b[38;5;203m\x1b[1m6\x1b[0m\x1b[38;5;167m\x1b[1mb\x1b[0m\x1b[38;5;209m\x1b[1mE\x1b[0m\x1b[38;5;167m\x1b[1m5\x1b[0m\x1b[38;5;209m\x1b[1mU\x1b[0m\x1b[38;5;203m\x1b[1mI\x1b[0m\x1b[38;5;167m\x1b[1m1\x1b[0m\x1b[38;5;203m\x1b[1mQ\x1b[0m\x1b[38;5;203m\x1b[1mN\x1b[0m\x1b[38;5;167m\x1b[1mP\x1b[0m\x1b[38;5;203m\x1b[1mo\x1b[0m\x1b[38;5;203m\x1b[1mJ\x1b[0m\x1b[38;5;203m\x1b[1mc\x1b[0m\x1b[38;5;173m\x1b[1mD\x1b[0m\x1b[38;5;203m\x1b[1mI\x1b[0m",
+            "id": "LI2jBaxgZwh8khoYlfAYikEI8gnGnN5NX2h6kBwL6v2",
             "x": 134124,
-            "id_x": "\x1b[38;5;61m\x1b[1m0\x1b[0m\x1b[38;5;61m\x1b[1m0\x1b[0m\x1b[38;5;61m\x1b[1m0\x1b[0m\x1b[38;5;61m\x1b[1m0\x1b[0m\x1b[38;5;61m\x1b[1m0\x1b[0m\x1b[38;5;61m\x1b[1m0\x1b[0m\x1b[38;5;61m\x1b[1m0\x1b[0m\x1b[38;5;61m\x1b[1m0\x1b[0m\x1b[38;5;61m\x1b[1m0\x1b[0m\x1b[38;5;61m\x1b[1m0\x1b[0m\x1b[38;5;61m\x1b[1m0\x1b[0m\x1b[38;5;61m\x1b[1m0\x1b[0m\x1b[38;5;61m\x1b[1m0\x1b[0m\x1b[38;5;61m\x1b[1m0\x1b[0m\x1b[38;5;61m\x1b[1m0\x1b[0m\x1b[38;5;61m\x1b[1m0\x1b[0m\x1b[38;5;61m\x1b[1m0\x1b[0m\x1b[38;5;61m\x1b[1m0\x1b[0m\x1b[38;5;61m\x1b[1m0\x1b[0m\x1b[38;5;61m\x1b[1m0\x1b[0m\x1b[38;5;61m\x1b[1m0\x1b[0m\x1b[38;5;97m\x1b[1m2\x1b[0m\x1b[38;5;98m\x1b[1mU\x1b[0m\x1b[38;5;62m\x1b[1mi\x1b[0m\x1b[38;5;63m\x1b[1mr\x1b[0m\x1b[38;5;61m\x1b[1m4\x1b[0m\x1b[38;5;98m\x1b[1mU\x1b[0m\x1b[38;5;97m\x1b[1mF\x1b[0m\x1b[38;5;98m\x1b[1mh\x1b[0m\x1b[38;5;63m\x1b[1my\x1b[0m\x1b[38;5;99m\x1b[1mt\x1b[0m\x1b[38;5;98m\x1b[1mZ\x1b[0m\x1b[38;5;62m\x1b[1mS\x1b[0m\x1b[38;5;62m\x1b[1mb\x1b[0m\x1b[38;5;62m\x1b[1mf\x1b[0m\x1b[38;5;98m\x1b[1mZ\x1b[0m\x1b[38;5;63m\x1b[1mq\x1b[0m\x1b[38;5;98m\x1b[1mV\x1b[0m\x1b[38;5;61m\x1b[1m8\x1b[0m\x1b[38;5;63m\x1b[1mr\x1b[0m\x1b[38;5;97m\x1b[1mA\x1b[0m\x1b[38;5;62m\x1b[1mL\x1b[0m\x1b[38;5;62m\x1b[1mj\x1b[0m",
+            "id_x": "MO72GzebQLg1Q6EfBqPlpor9I5P7XXDByDrXsj9kdSS",
             "y": 56,
-            "id_y": "\x1b[38;5;239m\x1b[1m0\x1b[0m\x1b[38;5;239m\x1b[1m0\x1b[0m\x1b[38;5;239m\x1b[1m0\x1b[0m\x1b[38;5;239m\x1b[1m0\x1b[0m\x1b[38;5;239m\x1b[1m0\x1b[0m\x1b[38;5;239m\x1b[1m0\x1b[0m\x1b[38;5;239m\x1b[1m0\x1b[0m\x1b[38;5;239m\x1b[1m0\x1b[0m\x1b[38;5;239m\x1b[1m0\x1b[0m\x1b[38;5;239m\x1b[1m0\x1b[0m\x1b[38;5;239m\x1b[1m0\x1b[0m\x1b[38;5;239m\x1b[1m0\x1b[0m\x1b[38;5;239m\x1b[1m0\x1b[0m\x1b[38;5;239m\x1b[1m0\x1b[0m\x1b[38;5;239m\x1b[1m0\x1b[0m\x1b[38;5;239m\x1b[1m0\x1b[0m\x1b[38;5;239m\x1b[1m0\x1b[0m\x1b[38;5;239m\x1b[1m0\x1b[0m\x1b[38;5;239m\x1b[1m0\x1b[0m\x1b[38;5;239m\x1b[1m0\x1b[0m\x1b[38;5;239m\x1b[1m0\x1b[0m\x1b[38;5;59m\x1b[1m6\x1b[0m\x1b[38;5;65m\x1b[1mB\x1b[0m\x1b[38;5;61m\x1b[1mo\x1b[0m\x1b[38;5;66m\x1b[1mS\x1b[0m\x1b[38;5;66m\x1b[1mj\x1b[0m\x1b[38;5;66m\x1b[1ml\x1b[0m\x1b[38;5;66m\x1b[1mQ\x1b[0m\x1b[38;5;66m\x1b[1mU\x1b[0m\x1b[38;5;59m\x1b[1m6\x1b[0m\x1b[38;5;239m\x1b[1m0\x1b[0m\x1b[38;5;240m\x1b[1mH\x1b[0m\x1b[38;5;66m\x1b[1ml\x1b[0m\x1b[38;5;61m\x1b[1mq\x1b[0m\x1b[38;5;65m\x1b[1m8\x1b[0m\x1b[38;5;67m\x1b[1mz\x1b[0m\x1b[38;5;241m\x1b[1mJ\x1b[0m\x1b[38;5;61m\x1b[1mn\x1b[0m\x1b[38;5;61m\x1b[1mm\x1b[0m\x1b[38;5;66m\x1b[1mi\x1b[0m\x1b[38;5;65m\x1b[1m9\x1b[0m\x1b[38;5;243m\x1b[1mR\x1b[0m\x1b[38;5;65m\x1b[1m8\x1b[0m"
+            "id_y": "xbfZfXwFFza8UwbSM6HM5ig8VqYmwXewLkX7LW7SAV6"
         }
         """
-        return print(self.all)
+        ansi_escape = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])')
+        return print(self.all if colored else ansi_escape.sub("", self.all))
 
     @property
     def perm(self):
         """
-        For new data, it is always the identity permutation.
+        For new untransformed data, it is always the identity permutation.
         Usage:
         >>> from ldict import ldict
         >>> a = ldict(x=134124)
+        >>> b = ldict(y=134124)
         >>> a.perm
         [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33]
-        >>> (a + a).perm
+        >>> (a + b).perm
         [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33]
         >>> b = a + ldict(y=134124)
         >>> b.perm
@@ -94,11 +98,11 @@ class Aux:
         >>> f = lambda x: {'z': x ** 2}
         >>> print(b >> f)
         {
-            "id": "DJCI4NHm3GUzL4KQt7W3dWh3JkAGSMz5Ttx9lzoNnMQ",
+            "id": "C17Mr4mTIkxhTyWav1AHAgcXYAVgFivx1aqnfvhHxng",
             "x": 134124,
             "y": 134124,
             "z": "<unevaluated lazy field>",
-            "id_*": "<hidden fields>"
+            "id_*": "<3 hidden fields>"
         }
         """
         return self.hash.perm
@@ -146,13 +150,13 @@ class Aux:
         >>> a = ldict(x=134124)
         >>> b = ldict(y=542542)
         >>> a.id, b.id
-        ('0000000000000000000002Uir4UFhytZSbfZqV8rALj', '0000000000000000000004BL8Zqg8riPMdIaO6eMAC9')
+        ('MO72GzebQLg1Q6EfBqPlpor9I5P7XXDByDrXsj9kdSS', 'W7cGnj0REY7cd4sABgl63msGq30vtvVrxEoXrt64obY')
         >>> print(a + b)
         {
-            "id": "0000000000000000000006g3zeKvqqbypEyAEbnDKXs",
+            "id": "sVjJ4if2etne3B6pNXArtbjQ88Q3RSj3vSg5kcFpS40",
             "x": 134124,
             "y": 542542,
-            "id_*": "<hidden fields>"
+            "id_*": "<2 hidden fields>"
         }
         """
         from ldict import ldict
@@ -219,23 +223,23 @@ class Aux:
         >>> a = ldict(x=123)
         >>> print(a)
         {
-            "id": "0000000000000000000006pnWvaKVQbhfaIl82A1WD6",
+            "id": "60jQU3QwRj32mVemRtQ5wydSMS8whbv5EGQOTZni8sy",
             "x": 123,
-            "id_*": "<hidden fields>"
+            "id_x": "<hidden field>"
         }
         >>> b = ldict(y="some text")
         >>> print(b)
         {
-            "id": "00000000000000000000001Q5vqu6zuQ864lVfx25Vw",
+            "id": "MUDScy6oRARmYxSUOBTy6vWpxn9WoTEOksUhxsOVK6q",
             "y": "some text",
-            "id_*": "<hidden fields>"
+            "id_y": "<hidden field>"
         }
         >>> print(b.update(a))
         {
-            "id": "0000000000000000000006rDcrREcQW7ngNWdi73bj2",
+            "id": "SUwt71XkstUpLT7Gq4u43uAIKFITW59Tz8v6RSCDSzo",
             "y": "some text",
             "x": 123,
-            "id_*": "<hidden fields>"
+            "id_*": "<2 hidden fields>"
         }
         """
         from ldict import Ldict

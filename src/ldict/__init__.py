@@ -40,9 +40,9 @@ class Ldict(Aux, Dict[str, VT]):
         >>> from ldict import ldict
         >>> print(ldict(X=123123))
         {
-            "id": "0000000000000000000007LGxmlWgkN894sZEneXuIp",
+            "id": "1qQTqcJj9iEQB5aNnfviRk55kDEVyiOmrgDEdchosCW",
             "X": 123123,
-            "id_*": "<hidden fields>"
+            "id_X": "<hidden field>"
         }
         """
         super().__init__()
