@@ -21,13 +21,11 @@ pip install -U ldict
 pip install git+https://github.com/davips/ldict
 ```
 
-### as an editable lib inside your project.
+### from source
 ```bash
-cd your-project
-source venv/bin/activate
-git clone https://github.com/davips/ldict ../ldict
-pip install --upgrade pip
-pip install -e ../ldict
+git clone https://github.com/davips/ldict
+cd ldict
+poetry install
 ```
 
 ## Examples
@@ -39,14 +37,38 @@ pip install -e ../ldict
 from ldict import ldict
 
 a = ldict(x=3)
+print(a)
+"""
+{
+    "id": "uRA8YjINbaaHpS1fSCh9QOAjGHk1T8YfaQ8lKavy0sy",
+    "x": 3,
+    "id_x": "<hidden field>"
+}
+"""
+```
+
+```python3
+
 b = ldict(y=5)
+print(b)
+"""
+{
+    "id": "RooMUsgK3ZdP3bftcewZsoqbsch3bVVeeOYng8OumIa",
+    "y": 5,
+    "id_y": "<hidden field>"
+}
+"""
+```
+
+```python3
+
 print(a + b)
 """
 {
-    "id": "0000000000000000000000hej1v389Ot74b8VUuE5X1",
+    "id": "NYEcIfLXYlefiig0Ia7A6PiLTfGRNwHZRt00Wg01692",
     "x": 3,
     "y": 5,
-    "id_*": "<hidden fields>"
+    "id_*": "<2 hidden fields>"
 }
 """
 ```

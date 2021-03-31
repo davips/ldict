@@ -21,13 +21,11 @@ pip install -U ldict
 pip install git+https://github.com/davips/ldict
 ```
 
-### as an editable lib inside your project.
+### from source
 ```bash
-cd your-project
-source venv/bin/activate
-git clone https://github.com/davips/ldict ../ldict
-pip install --upgrade pip
-pip install -e ../ldict
+git clone https://github.com/davips/ldict
+cd ldict
+poetry install
 ```
 
 ## Examples
