@@ -142,8 +142,15 @@ class Ldict(Aux, Dict[str, VT]):
         return self
 
     def __delitem__(self, field: str) -> None:
+        field_hash = self.hashes[field]
+        if field_hash.s == 0:
+            raise Exception("Cannot delete an unchanged field (commutative field)."
+                            "It would seem like it never existed."
+                            "TODO: allow unchanged to be deleted if it was never used"
+                            "in the generation of other fields.")
+
         del self.data[field]
-        raise Exception("Not implemented")
+        self.hash /= field_hash
 
 
 ldict = Ldict
