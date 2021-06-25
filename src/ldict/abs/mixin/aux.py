@@ -16,6 +16,7 @@ class Aux:
     hashes: dict
     data: dict
     keepblob: bool
+    _ids = None
 
     @property
     def n(self):
@@ -34,18 +35,11 @@ class Aux:
         >>> from ldict import ldict
         >>> ldict(x=134124).id
         'MO72GzebQLg1Q6EfBqPlpor9I5P7XXDByDrXsj9kdSS'
-        """
-        return self.hash.id
-
-    @property
-    def ids(self):
-        """
-        Usage:
         >>> from ldict import ldict
         >>> ldict(x=134124).ids
         {'x': 'MO72GzebQLg1Q6EfBqPlpor9I5P7XXDByDrXsj9kdSS'}
         """
-        return {f: h.id for f, h in self.hashes.items()}
+        return self.hash.id
 
     @property
     def all(self):
@@ -102,7 +96,7 @@ class Aux:
             "x": 134124,
             "y": 134124,
             "z": "<unevaluated lazy field>",
-            "id_*": "<3 hidden fields>"
+            "id*": "<3 hidden fields>"
         }
         """
         return self.hash.perm
@@ -111,36 +105,26 @@ class Aux:
         dic = self.data.copy()
         k = None
         for k, v in self.data.items():
-            if not all and k.startswith("id_"):
-                del dic[k]
-            elif callable(v):
+            if callable(v):
                 dic[k] = "<unevaluated lazy field>"
         if not all:
-            if len(self) == 3:
-                dic[k] = "<hidden field>"
-            elif len(self) > 3:
-                dic["id_*"] = f"<{(len(self) - 1) // 2} hidden fields>"
+            dic["ids"] = "1 hidden id" if len(dic["ids"]) == 1 else f"<{(len(self) - 1) // 2} hidden ids>"
         return json.dumps(dic, indent=4)
 
     def __repr__(self, all=False):
         dic = self.data.copy()
-        k = None
         for k, v in self.data.items():
             if callable(v):
                 dic[k] = "<unevaluated lazy field>"
-            if not all and k.startswith("id_"):
-                del dic[k]
         if not all:
-            if len(self) == 3:
-                dic[k] = f"<hidden field>"
-            elif len(self) > 3:
-                dic["id_*"] = f"<{(len(self) - 1) // 2} hidden fields>"
+            dic["ids"] = "1 hidden id" if len(dic["ids"]) == 1 else f"<{(len(self) - 1) // 2} hidden ids>"
         txt = json.dumps(dic, indent=4)
         for k, v in dic.items():
             if k == "id":
                 txt = txt.replace(dic[k], self.hash.idc)
-            elif all and k.startswith("id_"):
-                txt = txt.replace(dic[k], self.hashes[k[3:]].idc)
+        if all:
+            for k, v in self.hashes.items():
+                txt = txt.replace(v.id, v.idc)  # REMINDER: workaround to avoid json messing with colors
         return txt
 
     def __add__(self, other):
@@ -156,7 +140,7 @@ class Aux:
             "id": "sVjJ4if2etne3B6pNXArtbjQ88Q3RSj3vSg5kcFpS40",
             "x": 134124,
             "y": 542542,
-            "id_*": "<2 hidden fields>"
+            "ids*": "<2 ids>"
         }
         """
         from ldict import ldict
@@ -225,7 +209,7 @@ class Aux:
         {
             "id": "60jQU3QwRj32mVemRtQ5wydSMS8whbv5EGQOTZni8sy",
             "x": 123,
-            "id_x": "<hidden field>"
+            "ids": "<1 hidden id>"
         }
         >>> b = ldict(y="some text")
         >>> print(b)
@@ -246,15 +230,15 @@ class Aux:
         kwds.update(other)
         ids = {}
         for field, value in kwds.items():
-            if not field.startswith("id_") and field != "id":
+            if field not in ["id", "ids"]:
                 if field in self.data:
                     raise Exception(f"Conflict in field {field}")
-                idk = f"id_{field}"
                 self[field] = value
-                if idk in kwds:
-                    ids[idk] = kwds[idk]
+                if "ids" in kwds and field in kwds["ids"]:
+                    ids[field] = kwds["ids"][field]
                     if isinstance(other, Ldict):
                         self.hashes[field] = other.hashes[field]
+                        self.ids[field] = other.ids[field]
                         self.keepblob = other.keepblob
                         if field in other.blobs:
                             self.blobs[field] = other.blobs[field]

@@ -48,7 +48,7 @@ class Ldict(Aux, Dict[str, VT]):
         super().__init__()
         self.keepblob, self.hash = keepblob, identity
         self.hashes, self.blobs, self.previous = {}, {}, {}
-        self.data: Dict[str, VT] = {"id": self.hash.id}  # 'id' will always be the first field
+        self.data: Dict[str, VT] = {"id": self.hash.id, "ids": {}}  # 'id' will always be the first field
         if _dictionary is not None:
             self.update(_dictionary)  # REMINDER: update() acts on self.data.
         if kwargs:
@@ -97,11 +97,12 @@ class Ldict(Aux, Dict[str, VT]):
         self.hash *= h
         field_hash = self.hash / old_hash
         self.hashes[field] = field_hash
+        self.ids[field] = field_hash.id
 
         # Update data.
         self.data[field] = value
         self.data["id"] = self.hash.id
-        self.data["id_" + field] = field_hash.id
+        self.data["ids"][field] = field_hash.id
 
         # Keep blob if required.
         if blob and self.keepblob:
@@ -145,9 +146,10 @@ class Ldict(Aux, Dict[str, VT]):
             self.hash *= f.hash
             field_hash = self.hash / old_hash
             self.hashes[field] = field_hash
+            self.ids[field] = field_hash.id
             self.data[field] = self._trigger(field, f, fargs)
             self.data["id"] = self.hash.id
-            self.data["id_" + field] = field_hash.id
+            self.data["ids"][field] = field_hash.id
 
         return self
 
@@ -160,6 +162,8 @@ class Ldict(Aux, Dict[str, VT]):
                             "in the generation of other fields.")
 
         del self.data[field]
+        del self.hashes[field]
+        del self.ids[field]
         self.hash /= field_hash
 
 
