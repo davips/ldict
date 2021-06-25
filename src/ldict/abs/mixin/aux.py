@@ -16,7 +16,6 @@ class Aux:
     hashes: dict
     data: dict
     keepblob: bool
-    _ids = None
 
     @property
     def n(self):
@@ -40,6 +39,10 @@ class Aux:
         {'x': 'MO72GzebQLg1Q6EfBqPlpor9I5P7XXDByDrXsj9kdSS'}
         """
         return self.hash.id
+
+    @property
+    def ids(self):
+        return self.data["ids"]
 
     @property
     def all(self):
@@ -103,7 +106,6 @@ class Aux:
 
     def __str__(self, all=False):
         dic = self.data.copy()
-        k = None
         for k, v in self.data.items():
             if callable(v):
                 dic[k] = "<unevaluated lazy field>"
@@ -149,7 +151,18 @@ class Aux:
 
     def copy(self):
         from ldict import ldict
-        return ldict(self)
+        obj = ldict()
+        obj.data = self.data.copy()
+        obj.hashes = self.hashes.copy()
+        obj.hash = self.hash
+        obj.previous = self.previous.copy()
+        obj.blobs = self.blobs.copy()
+        obj.keepblob = self.keepblob
+        return obj
+
+    # def copy(self):
+    #     from ldict import ldict
+    #     return ldict(self)
 
     @property
     def hex(self):
@@ -200,8 +213,8 @@ class Aux:
     def keys(self):
         yield from self.data.keys()
 
-    def update(self, other=(), /, **kwds) -> "Union[Ldict, Aux]":
-        """Update the dictionary with the key/value pairs from other, overwriting existing keys. Return self.
+    def update(self, other=(), /, **kwds):
+        """Update the dictionary with the key/value pairs from other, overwriting existing keys.
         Usage:
         >>> from ldict import ldict
         >>> a = ldict(x=123)
@@ -218,7 +231,8 @@ class Aux:
             "y": "some text",
             "id_y": "<hidden field>"
         }
-        >>> print(b.update(a))
+        >>> b.update(a)
+        >>> print(b)
         {
             "id": "SUwt71XkstUpLT7Gq4u43uAIKFITW59Tz8v6RSCDSzo",
             "y": "some text",
@@ -238,9 +252,8 @@ class Aux:
                     ids[field] = kwds["ids"][field]
                     if isinstance(other, Ldict):
                         self.hashes[field] = other.hashes[field]
-                        self.ids[field] = other.ids[field]
+                        self.data["ids"][field] = other.ids[field]
                         self.keepblob = other.keepblob
                         if field in other.blobs:
                             self.blobs[field] = other.blobs[field]
-        self.data.update(ids)
-        return self
+        self.data["ids"].update(ids)

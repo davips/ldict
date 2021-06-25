@@ -97,7 +97,6 @@ class Ldict(Aux, Dict[str, VT]):
         self.hash *= h
         field_hash = self.hash / old_hash
         self.hashes[field] = field_hash
-        self.ids[field] = field_hash.id
 
         # Update data.
         self.data[field] = value
@@ -110,8 +109,13 @@ class Ldict(Aux, Dict[str, VT]):
 
     def __rshift__(self, f):
         """Used for multiple return values, or to avoid inplace update of the ldict."""
-        if not callable(f):
-            raise Exception("f should be callable.")
+        clone = self.copy()
+        if isinstance(f, dict):
+            for k, v in f.items():
+                clone[k] = v
+            return clone
+        elif not callable(f):
+            raise Exception("f should be callable or dict.")
 
         # Extract output fields.
         lines = getsourcelines(f)[0]
@@ -128,8 +132,8 @@ class Ldict(Aux, Dict[str, VT]):
 
         # Work around field overwrite.
         for field in output_fields:
-            if field in self.data:
-                self.previous[field] = self.data[field]
+            if field in clone.data:
+                clone.previous[field] = clone.data[field]
 
         # Detect input fields.
         fargs = signature(f).parameters.keys()
@@ -140,18 +144,17 @@ class Ldict(Aux, Dict[str, VT]):
 
         # Add triggers for future evaluation.
         for field in output_fields:
-            if f.hash.s == 0 and field in self.data:
+            if f.hash.s == 0 and field in clone.data:
                 raise OverwriteException("Cannot overwrite fields using a function that commutes, i.e. with s=0.")
-            old_hash = self.hash
-            self.hash *= f.hash
-            field_hash = self.hash / old_hash
-            self.hashes[field] = field_hash
-            self.ids[field] = field_hash.id
-            self.data[field] = self._trigger(field, f, fargs)
-            self.data["id"] = self.hash.id
-            self.data["ids"][field] = field_hash.id
+            old_hash = clone.hash
+            clone.hash *= f.hash
+            field_hash = clone.hash / old_hash
+            clone.hashes[field] = field_hash
+            clone.data[field] = clone._trigger(field, f, fargs)
+            clone.data["id"] = clone.hash.id
+            clone.data["ids"][field] = field_hash.id
 
-        return self
+        return clone
 
     def __delitem__(self, field: str) -> None:
         field_hash = self.hashes[field]
@@ -163,7 +166,7 @@ class Ldict(Aux, Dict[str, VT]):
 
         del self.data[field]
         del self.hashes[field]
-        del self.ids[field]
+        del self.data["ids"][field]
         self.hash /= field_hash
 
 
