@@ -47,7 +47,7 @@ class Ldict(Aux, Dict[str, VT]):
         """
         super().__init__()
         self.keepblob, self.hash = keepblob, identity
-        self.hashes, self.blobs = {}, {}
+        self.hashes, self.blobs, self.previous = {}, {}, {}
         self.data: Dict[str, VT] = {"id": self.hash.id}  # 'id' will always be the first field
         if _dictionary is not None:
             self.update(_dictionary)  # REMINDER: update() acts on self.data.
@@ -58,7 +58,10 @@ class Ldict(Aux, Dict[str, VT]):
         if field in self.data:
             content = self.data[field]
             if callable(content):
-                self.data[field] = self.data[field](**self._getargs(field, content))
+                if field in self.previous:
+                    self.data[field] = self.previous.pop(field)
+                print(field, self.previous)
+                self.data[field] = content(**self._getargs(field, content))
                 return self.data[field]
             else:
                 return self.data[field]
@@ -84,8 +87,10 @@ class Ldict(Aux, Dict[str, VT]):
         return closure
 
     def __setitem__(self, field: str, value: VT) -> None:
-        if field in self.data:
-            raise OverwriteException("Only function application (operator '>>') can overwrite fields.")
+        # Work around field overwrite.
+        if field in self.data and callable(value):
+            self.previous[field] = self.data[field]
+
         # Create field hash and update ldict hash.
         h, blob = process(field, value)
         old_hash = self.hash
@@ -103,7 +108,7 @@ class Ldict(Aux, Dict[str, VT]):
             self.blobs[field] = blob
 
     def __rshift__(self, f):
-        """Used for multiple return values, or to avoid inplace update."""
+        """Used for multiple return values, or to avoid inplace update of the ldict."""
         if not callable(f):
             raise Exception("f should be callable.")
 
@@ -119,6 +124,11 @@ class Ldict(Aux, Dict[str, VT]):
         output_fields = re.findall(rx, returns[0])
         if not output_fields:
             raise Exception("Cannot detect output fields: Missing dict as return value.")
+
+        # Work around field overwrite.
+        for field in output_fields:
+            if field in self.data:
+                self.previous[field] = self.data[field]
 
         # Detect input fields.
         fargs = signature(f).parameters.keys()
