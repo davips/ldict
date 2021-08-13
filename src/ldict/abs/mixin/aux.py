@@ -34,7 +34,6 @@ class Aux:
         >>> from ldict import ldict
         >>> ldict(x=134124).id
         'MO72GzebQLg1Q6EfBqPlpor9I5P7XXDByDrXsj9kdSS'
-        >>> from ldict import ldict
         >>> ldict(x=134124).ids
         {'x': 'MO72GzebQLg1Q6EfBqPlpor9I5P7XXDByDrXsj9kdSS'}
         """
@@ -78,7 +77,7 @@ class Aux:
         return print(self.all if colored else ansi_escape.sub("", self.all))
 
     @property
-    def perm(self):
+    def cells(self):
         """
         For new untransformed data, it is always the identity permutation.
         Usage:
@@ -87,7 +86,7 @@ class Aux:
         >>> b = ldict(y=134124)
         >>> a.perm
         [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33]
-        >>> (a + b).perm
+        >>> (a + b).cells
         [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33]
         >>> b = a + ldict(y=134124)
         >>> b.perm
@@ -102,7 +101,7 @@ class Aux:
             "id*": "<3 hidden fields>"
         }
         """
-        return self.hash.perm
+        return self.hash.cells
 
     def __str__(self, all=False):
         dic = self.data.copy()
@@ -147,7 +146,8 @@ class Aux:
         """
         from ldict import ldict
         new = ldict(self)
-        return new.update(other)
+        new.update(other)
+        return new
 
     def copy(self):
         from ldict import ldict
@@ -257,3 +257,6 @@ class Aux:
                         if field in other.blobs:
                             self.blobs[field] = other.blobs[field]
         self.data["ids"].update(ids)
+
+    def __ne__(self, other):
+        return not self.hash == other.hash
