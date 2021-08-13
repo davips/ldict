@@ -1,41 +1,60 @@
 echo
-pytest src tests --cov=src --doctest-modules
+echo "----------------- updating poetry... -----------------------"
+poetry update
+poetry install
+echo "----------------- updated -----------------------"
+echo; echo
+
+echo
+echo "----------------- testing... -----------------------"
+read -p "press enter"
+poetry run pytest src tests --cov=src --doctest-modules
 echo "----------------- tested -----------------------"
-read -p "press any key"
+echo; echo
 
-echo
+echo "---------------- readme ----------------"
+read -p "press enter"
+source venv/bin/activate
 autoreadme -i README-edit.md -s examples/ -o README.md
+deactivate
 echo "---------------- readme done ----------------"
-read -p "press any key"
+echo; echo
 
-echo
+echo "--------------- version bump --------------"
+read -p "press enter"
 poetry version patch
 echo "--------------- version bumped --------------"
+echo; echo
 
-echo
+echo "------------------ current status -----------------------"
 git status
-echo "------------------ status -----------------------"
-read -p "press any key"
+echo "------------------ current status shown-----------------"
+echo; echo
 
-echo
+echo "------------------ commit --------------------"
+read -p "press enter"
 git commit -am "Release"
 echo "------------------ commited --------------------"
-read -p "press any key"
+echo; echo
 
-echo
+echo "------------------ new status... -----------------------"
+read -p "press enter"
 git status
-echo "------------------ new status -----------------------"
-read -p "press any key"
+echo "------------------ new status shown --------------------"
+echo; echo
 
-echo
+echo "------------------- tag ----------------------"
+read -p "press enter"
 git tag "v$(poetry version | cut -d' ' -f2)" -m "Release v$(poetry version | cut -d' ' -f2)"
 echo "------------------- tagged ----------------------"
-read -p "press any key"
+echo; echo
 
-echo
+echo "------------------- push ----------------------"
+read -p "press enter"
 git push
 echo "------------------- pushed ----------------------"
-read -p "press any key"
+echo; echo
 
-echo
+echo "------------------- publish ----------------------"
+read -p "press enter"
 poetry publish --build

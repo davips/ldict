@@ -1,4 +1,4 @@
-from ldict import ldict
+from ldict.core import Ldict
 
 
 class Empty:
@@ -14,7 +14,4 @@ class Empty:
         >>> d.show(colored=False)
 
         """
-        return ldict(other)
-
-
-ø = Empty()
+        return Ldict(other)
