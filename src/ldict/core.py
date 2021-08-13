@@ -182,14 +182,15 @@ class Ldict(Aux, Dict[str, VT]):
         # Extract output fields. https://stackoverflow.com/a/68753149/9681577
         out = StringIO()
         decompile(bytecode_version=None, co=f.__code__, out=out)
-        ret = out.getvalue()
+        ret = "".join([line for line in out.getvalue().split("\n") if not line.startswith("#")])
         if "return" not in ret:
-                raise Exception(f"Missing return statement:",ret)
-        dicts = re.findall(r"(?:[\"'])([a-zA-Z]+[a-zA-Z0-9_]*)(?:[\"'])", ret)
+            print(ret)
+            raise Exception(f"Missing return statement:")
+        dicts = re.findall('(?={)(.+?)(?<=})', ret)
         if len(dicts) != 1:
             raise Exception("Cannot detect output fields:"
-                            "Missing dict (with pairs 'identifier'->result) as a return value.", dicts)
-        output_fields = dicts[0]
+                            "Missing dict (with pairs 'identifier'->result) as a return value.", dicts, ret)
+        output_fields = re.findall(r"(?:[\"'])([a-zA-Z]+[a-zA-Z0-9_]*)(?:[\"'])", dicts[0])
 
         # Work around field overwrite.
         for field in output_fields:
@@ -213,19 +214,29 @@ class Ldict(Aux, Dict[str, VT]):
 
         # Add triggers for future evaluation.
         acc = self.identity
+        new_hashes = {}
+        new_data = {"id": clone.id, "ids": {}}
         for i, field in enumerate(output_fields):
             if len(output_fields) == 1:
                 field_hash = ufu
             else:
                 if i < len(output_fields) - 1:
                     field_hash = ufu * (self.rho0 + Hash.fromn(i, self.version))
-                    acc += field_hash
+                    acc *= field_hash
                 else:
                     field_hash = ~acc * ufu
-            clone.hashes[field] = field_hash
-            clone.data[field] = clone._trigger(field, f, fargs)
-            clone.data["ids"][field] = field_hash.id
+            new_hashes[field] = field_hash
+            # noinspection PyProtectedMember
+            new_data[field] = clone._trigger(field, f, fargs)
+            new_data["ids"][field] = field_hash.id
 
+        new_hashes.update(clone.hashes)
+        new_data["ids"].update(clone.data["ids"])
+        del clone.data["ids"]
+        new_data.update(clone.data)
+
+        clone.hashes = new_hashes
+        clone.data = new_data
         return clone
 
     def __delitem__(self, field: str) -> None:
