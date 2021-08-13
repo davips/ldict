@@ -24,9 +24,10 @@ def process(field, value, version):
 
     """
     if callable(value):
-        h = value.hash if hasattr(value, "hash") else fhash(value, "ordered", version)
+        h = value.hash if hasattr(value, "hash") else fhash(value, version)
         return h, None
     obj = {field: value}
+    # TODO: separar key do hash pra ser usada como no artigo, para localizar o blob no db
     bytes = dumps(obj, option=OPT_SORT_KEYS)
     return Hash(bytes, "hybrid", version=version), bytes
 

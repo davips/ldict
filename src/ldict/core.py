@@ -34,6 +34,9 @@ from ldict.data import process, fhash
 
 
 # Dict typing inheritance initially based on https://stackoverflow.com/a/64323140/9681577
+# TODO: aceitar qq class que sirva no lugar de Hash, em vez da string 'version'. Requer Hosh32 e Hosh64 herdando de H@sh
+#           serve pra viabilizar teste exaustivo de grupo pequeno pra ver se o artigo funciona
+# TODO: tirar doctest de magic methods
 class Ldict(Aux, Dict[str, VT]):
     def __init__(self, /, _dictionary=None, keepblob=False, version="UT64.4", **kwargs) -> None:
         """Uniquely identified lazy dict for serializable pairs str->value
@@ -102,7 +105,7 @@ class Ldict(Aux, Dict[str, VT]):
             if callable(content):
                 if field in self.previous:
                     self.data[field] = self.previous.pop(field)
-                print(field, self.previous)
+                # print(field, self.previous)
                 self.data[field] = content(**self._getargs(field, content))
                 return self.data[field]
             else:
@@ -145,16 +148,28 @@ class Ldict(Aux, Dict[str, VT]):
         self.data["id"] = self.hash.id
         self.data["ids"][field] = field_hash.id
 
-        # Keep blob if required.
+        # Keep blob if required. TODO: keep hash sem key
         if blob and self.keepblob:
             self.blobs[field] = blob
 
     def __rshift__(self, f: Union[Dict, Callable]):
         """Used for multiple return values, or to insert values during a multistep process.
         >>> from ldict import ø
-        >>> d = ø >> {"x": 1, "y": 2} >> (lambda x,y: {"z": x+y})  #>> (lambda x,y:{"z": x+y})
-        >>> d.show()
-
+        >>> d = ø >> {"x": 1} >> (lambda x: {"y": x**2}) >> (lambda x,y:{"z": x+y, "w": x/y})
+        >>> d.show(colored=False)
+        {
+            "id": "t9WIoEzfhOH9bIP4M8ajX7Jqp4ft2tNQZT-h.tK5eWuDdE1xJiTAF7ZsxCNuMKKd",
+            "ids": {
+                "z": "a-Z8E0UmIMptV8GLCZi3JpwJJbr3tB4cRnBFqaQBcL35ZgybMuhDS4zYRkr28I5W",
+                "w": "111111110GZ11111114bRi9Np1yhkc31s9Trh6HU.4cocBk71K00FEal5z-gv8Db",
+                "y": "h9YyLCFTAnsGhz7k89Q25c6NRaNSUQhxvv9XZuMq2-Vj2iZwPQd5qGjTytnVO5Xo",
+                "x": "0000000000000000000004nMDSf.TnQ5bqaZyLaOm1jkIt.q0Kxrj1aVGPmDOeqb"
+            },
+            "z": "<unevaluated lazy field>",
+            "w": "<unevaluated lazy field>",
+            "y": "<unevaluated lazy field>",
+            "x": 1
+        }
         """
         clone = self.copy()
         if isinstance(f, dict):
@@ -188,14 +203,12 @@ class Ldict(Aux, Dict[str, VT]):
         if not hasattr(f, "hash"):
             f.hash = fhash(f, version=self.version)
 
-        print(f.hash)
-
         # Update clone id.
         if f.hash.etype != "ordered":
             raise OverwriteException("Function probably will never be allowed to have etype!=ordered.")
         old_hash = clone.hash
         clone.hash *= f.hash
-        clone.data["id"] = clone.hash.id
+        clone.data["id"] = clone.id
         ufu = clone.hash * ~old_hash  # z = ufu-¹
 
         # Add triggers for future evaluation.

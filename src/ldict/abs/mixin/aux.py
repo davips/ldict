@@ -40,6 +40,11 @@ class Aux:
         return self.hash.id
 
     @property
+    def idc(self):
+        """Colored id"""
+        return self.hash.idc
+
+    @property
     def ids(self):
         return self.data["ids"]
 
@@ -177,6 +182,9 @@ class Aux:
             return self.n == other.n
         return NotImplemented
 
+    def __ne__(self, other):
+        return self.hash != other.hash
+
     def __contains__(self, field: str) -> bool:
         return field in self.data
 
@@ -257,6 +265,3 @@ class Aux:
                         if field in other.blobs:
                             self.blobs[field] = other.blobs[field]
         self.data["ids"].update(ids)
-
-    def __ne__(self, other):
-        return not self.hash == other.hash
