@@ -16,3 +16,4 @@ target
 out
 *.so
 .run
+packages
