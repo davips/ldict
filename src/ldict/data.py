@@ -22,7 +22,7 @@ def process(field, value, version):
     False
     >>> hash, blob = process("X", f, "UT64.4")
     >>> hash.id
-    'qtmZBDz7YWpwSs01i8kb.-QTlwCRkKHzxE93s5gGzfvi8s1osbFy.KeF0kP965pq'
+    'jq-fkk.Ejr0v.hOGHyBl4HaicbeEu-34uuJ8wQQNCZVqWy-YDE2Ser6JkaFjd-iH'
     >>> blob is None
     True
     >>> f.hash = hash
@@ -58,7 +58,7 @@ def fhash(f, version):
     Usage:
 
     >>> print(fhash(lambda x: {"z": x**2}, "UT64.4"))
-    3.WuJFj1LkjvzJcQXoCWvaRTfyMy71Hn0gjVZ8CMMJVv.YOSAL.a-i2dS6RIy3dO
+    pfwOevvOc0THi7b1R4kjIm.dfJ-YO6FPn6o5YhsOOoVNLHy4dMosf2aTkAQW5Us7
 
     Parameters
     ----------

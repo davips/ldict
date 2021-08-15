@@ -24,7 +24,7 @@ class Aux:
 
         >>> from ldict import ldict
         >>> ldict(x=134124).n
-        42705542750959941452191592945617646912015657253877602974646311981218661400576
+        78297399190853865925546422718430264658855010523272162045457933175107322571720
         """
         return self.hash.n
 
@@ -35,9 +35,9 @@ class Aux:
 
         >>> from ldict import ldict
         >>> ldict(x=134124).id
-        'MO72GzebQLg1Q6EfBqPlpor9I5P7XXDByDrXsj9kdSS'
+        '000000000000000000000aQqMuGtzigXKY9vs4vME6FPSHKoBxSJXSG4.IDSRKL8'
         >>> ldict(x=134124).ids
-        {'x': 'MO72GzebQLg1Q6EfBqPlpor9I5P7XXDByDrXsj9kdSS'}
+        {'x': '000000000000000000000aQqMuGtzigXKY9vs4vME6FPSHKoBxSJXSG4.IDSRKL8'}
         """
         return self.hash.id
 
@@ -75,11 +75,13 @@ class Aux:
         >>> from ldict import ldict
         >>> ldict(x=134124, y= 56).show(colored=False)
         {
-            "id": "LI2jBaxgZwh8khoYlfAYikEI8gnGnN5NX2h6kBwL6v2",
+            "id": "000000000000000000000cBXR5qArL1WVYOn7MW0MWyWhPWP31DmatnNd5soVRK0",
+            "ids": {
+                "x": "000000000000000000000aQqMuGtzigXKY9vs4vME6FPSHKoBxSJXSG4.IDSRKL8",
+                "y": "0000000000000000000001Nx4CM6UsN0b0ETHIqg8ER6r8cqtvNh1mJIdoQy3kRR"
+            },
             "x": 134124,
-            "id_x": "MO72GzebQLg1Q6EfBqPlpor9I5P7XXDByDrXsj9kdSS",
-            "y": 56,
-            "id_y": "xbfZfXwFFza8UwbSM6HM5ig8VqYmwXewLkX7LW7SAV6"
+            "y": 56
         }
         """
         ansi_escape = re.compile(r"\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])")
@@ -94,21 +96,21 @@ class Aux:
         >>> from ldict import ldict
         >>> a = ldict(x=134124)
         >>> b = ldict(y=134124)
-        >>> a.perm
-        [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33]
+        >>> a.cells
+        [0, 0, 12473495331365790899, 7728865973021107401, 8212075338224970119, 6157470389993991581]
         >>> (a + b).cells
-        [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33]
+        [0, 0, 16031506638198821588, 13834746703073065004, 4696393870013716036, 6637745325376246119]
         >>> b = a + ldict(y=134124)
-        >>> b.perm
-        [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33]
+        >>> b.cells
+        [0, 0, 16031506638198821588, 13834746703073065004, 4696393870013716036, 6637745325376246119]
         >>> f = lambda x: {'z': x ** 2}
         >>> print(b >> f)
         {
-            "id": "C17Mr4mTIkxhTyWav1AHAgcXYAVgFivx1aqnfvhHxng",
-            "x": 134124,
-            "y": 134124,
+            "id": "pfwOevvOc0THi7b1R4kjIeBw1RzBLiLT3uxe.T0Cob2a9xr56v1mMJIIvBjUkNKm",
+            "ids": "<2 hidden ids>",
             "z": "<unevaluated lazy field>",
-            "id*": "<3 hidden fields>"
+            "x": 134124,
+            "y": 134124
         }
         """
         return self.hash.cells
@@ -165,8 +167,8 @@ class Aux:
         {
             "id": "0000000000000000000003GncpPpaB5PojN-BhdJSHHHmK6fh4aZ3j7UQODURT5o",
             "ids": "<1 hidden ids>",
-            "y": 542542,
-            "x": 134124
+            "x": 134124,
+            "y": 542542
         }
         """
 
@@ -267,7 +269,7 @@ class Aux:
         >>> b.update(a)
         >>> print(b)
         {
-            "id": "000000000000000000000diSmn8xE2JcNxY1ykJFxUZmsXwUXsOi.r0KTtNf8wHI",
+            "id": "0000000000000000000002VfQqJGTlN7lwNJfR-6l1ErmWNRs3SzhY3vwuHDhpYF",
             "ids": "<1 hidden ids>",
             "y": "some text",
             "x": 123

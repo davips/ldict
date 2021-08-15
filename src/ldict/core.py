@@ -63,10 +63,10 @@ class Ldict(Aux, Dict[str, VT]):
     >>> e = d >> (lambda x: {"z": x**2}) >> (lambda x,y: {"w": x/y})
     >>> e.show(colored=False)
     {
-        "id": "vgW1BDwNOaRUw6flbMDjOHcXR..xlXpYYGfdjXjJgD.A1r5kanmtixMWvSuIuHZd",
+        "id": "yk81NHFkhUQg.3W8CiZjeayh8367tNNSrQu9rVtqkCDHcaaBiju6GMVtyxp.h1Ac",
         "ids": {
-            "w": "rg.yT-dM2SyoYp2wgo0pjN3HGN8hkWElVRHAFI.16BPrODkyzwnnW8xHzztRv90K",
-            "z": "3.WuJFj1LkjvzJcQXoCWv5oa2l57qiHWsUq5hrZEJzAVo1H49YKHkpt5o8JaLJGv",
+            "w": "94Dfzc9y5U0BIYL6NeE-oidtGaA28wYqyASJAV39umabOWr9Iz0PseJTunWMwA8G",
+            "z": "pfwOevvOc0THi7b1R4kjIhqtqUgM.-hm1DsEfbPnE4cYsXnffFhkXvSDXzt6mQVV",
             "x": "0000000000000000000001rvYECRwLyX0-V2zUk5HJ.QE5wqO8-0OdDQBV4vkwcE",
             "y": "0000000000000000000002QrIU4K9LkrjRjOxGJlTLXniuT1bLMpZ8glu3j9Te0f"
         },
@@ -180,11 +180,11 @@ class Ldict(Aux, Dict[str, VT]):
         >>> d = ø >> {"x": 1} >> (lambda x: {"y": x**2}) >> (lambda x,y:{"z": x+y, "w": x/y})
         >>> d.show(colored=False)
         {
-            "id": "t9WIoEzfhOH9bIP4M8ajX7Jqp4ft2tNQZT-h.tK5eWuDdE1xJiTAF7ZsxCNuMKKd",
+            "id": "QNRxg0I5naPZX-dls7VQ622Htt-Q1Yfx2IL1DiJH0EtihD-yzK8y1qb7KysmVigM",
             "ids": {
-                "z": "a-Z8E0UmIMptV8GLCZi3JpwJJbr3tB4cRnBFqaQBcL35ZgybMuhDS4zYRkr28I5W",
+                "z": "scVKB6ugOhLvjEhlIt4JPhWJl1qTZB1Y4SbQIOy55UbEm2bEumU8bfRktf0ZDWCc",
                 "w": "111111110GZ11111114bRi9Np1yhkc31s9Trh6HU.4cocBk71K00FEal5z-gv8Db",
-                "y": "h9YyLCFTAnsGhz7k89Q25c6NRaNSUQhxvv9XZuMq2-Vj2iZwPQd5qGjTytnVO5Xo",
+                "y": "nzWNFVcPAeftDkW-KFMU9VXfh1B1uyzVMcIhuAtpHkIsu4i3VaYOlUd8hgCK7TjI",
                 "x": "0000000000000000000004nMDSf.TnQ5bqaZyLaOm1jkIt.q0Kxrj1aVGPmDOeqb"
             },
             "z": "<unevaluated lazy field>",
