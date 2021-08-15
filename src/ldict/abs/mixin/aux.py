@@ -8,7 +8,7 @@ from garoupa import Hash
 if TYPE_CHECKING:
     from ldict import Ldict
 
-VT = TypeVar('VT')
+VT = TypeVar("VT")
 
 
 class Aux:
@@ -21,6 +21,7 @@ class Aux:
     def n(self):
         """
         Usage:
+
         >>> from ldict import ldict
         >>> ldict(x=134124).n
         42705542750959941452191592945617646912015657253877602974646311981218661400576
@@ -31,6 +32,7 @@ class Aux:
     def id(self):
         """
         Usage:
+
         >>> from ldict import ldict
         >>> ldict(x=134124).id
         'MO72GzebQLg1Q6EfBqPlpor9I5P7XXDByDrXsj9kdSS'
@@ -52,6 +54,7 @@ class Aux:
     def all(self):
         """
         Usage:
+
         >>> from ldict import ldict
         >>> out = ldict(x=134124, y= 56).all
         >>> print(ansi_escape.sub('', out))  # doctest: +SKIP
@@ -68,6 +71,7 @@ class Aux:
     def show(self, colored=True):
         """
         Usage:
+
         >>> from ldict import ldict
         >>> ldict(x=134124, y= 56).show(colored=False)
         {
@@ -78,7 +82,7 @@ class Aux:
             "id_y": "xbfZfXwFFza8UwbSM6HM5ig8VqYmwXewLkX7LW7SAV6"
         }
         """
-        ansi_escape = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])')
+        ansi_escape = re.compile(r"\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])")
         return print(self.all if colored else ansi_escape.sub("", self.all))
 
     @property
@@ -86,6 +90,7 @@ class Aux:
         """
         For new untransformed data, it is always the identity permutation.
         Usage:
+
         >>> from ldict import ldict
         >>> a = ldict(x=134124)
         >>> b = ldict(y=134124)
@@ -114,7 +119,7 @@ class Aux:
             if callable(v):
                 dic[k] = "<unevaluated lazy field>"
         if not all:
-            dic["ids"] = "1 hidden id" if len(dic["ids"]) == 1 else f"<{(len(self) - 1) // 2} hidden ids>"
+            dic["ids"] = "<1 hidden id>" if len(dic["ids"]) == 1 else f"<{(len(self) - 1) // 2} hidden ids>"
         return json.dumps(dic, indent=4)
 
     def __repr__(self, all=False):
@@ -123,7 +128,7 @@ class Aux:
             if callable(v):
                 dic[k] = "<unevaluated lazy field>"
         if not all:
-            dic["ids"] = "1 hidden id" if len(dic["ids"]) == 1 else f"<{(len(self) - 1) // 2} hidden ids>"
+            dic["ids"] = "<1 hidden id>" if len(dic["ids"]) == 1 else f"<{(len(self) - 1) // 2} hidden ids>"
         txt = json.dumps(dic, indent=4)
         for k, v in dic.items():
             if k == "id":
@@ -136,26 +141,44 @@ class Aux:
     def __add__(self, other):
         """
         Usage:
+
         >>> from ldict import ldict
         >>> a = ldict(x=134124)
         >>> b = ldict(y=542542)
         >>> a.id, b.id
-        ('MO72GzebQLg1Q6EfBqPlpor9I5P7XXDByDrXsj9kdSS', 'W7cGnj0REY7cd4sABgl63msGq30vtvVrxEoXrt64obY')
+        ('000000000000000000000aQqMuGtzigXKY9vs4vME6FPSHKoBxSJXSG4.IDSRKL8', '0000000000000000000008RYrX8XDiNbFnEv9cJZy-pTw2nSHxy64stPR602KmI1')
         >>> print(a + b)
         {
-            "id": "sVjJ4if2etne3B6pNXArtbjQ88Q3RSj3vSg5kcFpS40",
+            "id": "0000000000000000000003GncpPpaB5PojN-BhdJSHHHmK6fh4aZ3j7UQODURT5o",
+            "ids": "<1 hidden ids>",
             "x": 134124,
+            "y": 542542
+        }
+        >>> print(b + a)
+        {
+            "id": "0000000000000000000003GncpPpaB5PojN-BhdJSHHHmK6fh4aZ3j7UQODURT5o",
+            "ids": "<1 hidden ids>",
             "y": 542542,
-            "ids*": "<2 ids>"
+            "x": 134124
+        }
+        >>> print(b + a + b)
+        {
+            "id": "0000000000000000000003GncpPpaB5PojN-BhdJSHHHmK6fh4aZ3j7UQODURT5o",
+            "ids": "<1 hidden ids>",
+            "y": 542542,
+            "x": 134124
         }
         """
+
         from ldict import ldict
+
         new = ldict(self)
         new.update(other)
         return new
 
     def copy(self):
         from ldict import ldict
+
         obj = ldict()
         obj.data = self.data.copy()
         obj.hashes = self.hashes.copy()
@@ -178,6 +201,7 @@ class Aux:
 
     def __eq__(self, other):
         from ldict import Ldict
+
         if isinstance(other, Ldict):
             return self.n == other.n
         return NotImplemented
@@ -224,44 +248,39 @@ class Aux:
     def update(self, other=(), /, **kwds):
         """Update the dictionary with the key/value pairs from other, overwriting existing keys.
         Usage:
+
         >>> from ldict import ldict
         >>> a = ldict(x=123)
         >>> print(a)
         {
-            "id": "60jQU3QwRj32mVemRtQ5wydSMS8whbv5EGQOTZni8sy",
-            "x": 123,
-            "ids": "<1 hidden id>"
+            "id": "000000000000000000000eqEFMZGUZzQFTmxCZxEnDEJHiWcdZc1I4.oNUufZzv9",
+            "ids": "<1 hidden id>",
+            "x": 123
         }
         >>> b = ldict(y="some text")
         >>> print(b)
         {
-            "id": "MUDScy6oRARmYxSUOBTy6vWpxn9WoTEOksUhxsOVK6q",
-            "y": "some text",
-            "id_y": "<hidden field>"
+            "id": "0000000000000000000004uDaFL.-o9CHFrbEUsuhPnJHDTFe5Uoz746KCdo24Om",
+            "ids": "<1 hidden id>",
+            "y": "some text"
         }
         >>> b.update(a)
         >>> print(b)
         {
-            "id": "SUwt71XkstUpLT7Gq4u43uAIKFITW59Tz8v6RSCDSzo",
+            "id": "000000000000000000000diSmn8xE2JcNxY1ykJFxUZmsXwUXsOi.r0KTtNf8wHI",
+            "ids": "<1 hidden ids>",
             "y": "some text",
-            "x": 123,
-            "id_*": "<2 hidden fields>"
+            "x": 123
         }
         """
         from ldict import Ldict
+
+        if isinstance(other, Ldict):
+            if self.version != other.version:
+                raise Exception("Different versions:", self.version, other.version)
+            self.keepblob = self.keepblob or other.keepblob
+            self.blobs.update(other.blobs)
         kwds.update(other)
-        ids = {}
         for field, value in kwds.items():
             if field not in ["id", "ids"]:
-                if field in self.data:
-                    raise Exception(f"Conflict in field {field}")
                 self[field] = value
-                if "ids" in kwds and field in kwds["ids"]:
-                    ids[field] = kwds["ids"][field]
-                    if isinstance(other, Ldict):
-                        self.hashes[field] = other.hashes[field]
-                        self.data["ids"][field] = other.ids[field]
-                        self.keepblob = other.keepblob
-                        if field in other.blobs:
-                            self.blobs[field] = other.blobs[field]
-        self.data["ids"].update(ids)

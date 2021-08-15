@@ -11,14 +11,17 @@ packages = [
 [tool.poetry.dependencies]
 python = "^3.8"
 orjson = "^3.5.0"
-pylint = "^2.7.4"
-garoupa = "^2.210810.6"
 uncompyle6 = "^3.7.4"
+garoupa = "^2.210811.7"
 
 [tool.poetry.dev-dependencies]
 autoreadme = "^0.2102.20"
 pytest = "^6.2.2"
 pytest-cov = "^2.11.1"
+black = "^21.7b0"
+pypiserver = "^1.4.2"
+passlib = "^1.7.4"
+pylint = "^2.7.4"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
@@ -27,3 +30,4 @@ build-backend = "poetry.core.masonry.api"
 [[tool.poetry.source]]
 name = "dvpypi"
 url = "http://localhost:8080/simple"
+secondary = true

@@ -22,11 +22,11 @@
 #  Relevant employers or funding agencies will be notified accordingly.
 
 import re
-from inspect import signature, getsourcelines
+from inspect import signature
 from io import StringIO
 from typing import Dict, Union, Callable
 
-from garoupa.hash import identity32, identity64, Hash
+from garoupa import identity32, identity64, Hash
 from uncompyle6.main import decompile
 
 from ldict.abs.mixin.aux import Aux, VT
@@ -36,58 +36,61 @@ from ldict.data import process, fhash
 # Dict typing inheritance initially based on https://stackoverflow.com/a/64323140/9681577
 # TODO: aceitar qq class que sirva no lugar de Hash, em vez da string 'version'. Requer Hosh32 e Hosh64 herdando de H@sh
 #           serve pra viabilizar teste exaustivo de grupo pequeno pra ver se o artigo funciona
-# TODO: tirar doctest de magic methods
 class Ldict(Aux, Dict[str, VT]):
+    """Uniquely identified lazy dict for serializable pairs str->value
+    (serializable in the project 'orjson' sense).
+
+    Usage:
+
+    >>> from ldict import ldict
+    >>> print(ldict(x=123123, y=88))
+    {
+        "id": "0000000000000000000004fXFwHzGuTlkQcR5z1rzEXbWAnrZUJOq5Ua3YnFcvvx",
+        "ids": "<1 hidden ids>",
+        "x": 123123,
+        "y": 88
+    }
+    >>> print(ldict(y=88, x=123123))  # Original values are order-insensitive.
+    {
+        "id": "0000000000000000000004fXFwHzGuTlkQcR5z1rzEXbWAnrZUJOq5Ua3YnFcvvx",
+        "ids": "<1 hidden ids>",
+        "y": 88,
+        "x": 123123
+    }
+    >>> ldict(y=88, x=123123) != ldict(x=88, y=123123)  # Ids of original values embbed the keys.
+    True
+    >>> d = ldict(x=123123, y=88)
+    >>> e = d >> (lambda x: {"z": x**2}) >> (lambda x,y: {"w": x/y})
+    >>> e.show(colored=False)
+    {
+        "id": "vgW1BDwNOaRUw6flbMDjOHcXR..xlXpYYGfdjXjJgD.A1r5kanmtixMWvSuIuHZd",
+        "ids": {
+            "w": "rg.yT-dM2SyoYp2wgo0pjN3HGN8hkWElVRHAFI.16BPrODkyzwnnW8xHzztRv90K",
+            "z": "3.WuJFj1LkjvzJcQXoCWv5oa2l57qiHWsUq5hrZEJzAVo1H49YKHkpt5o8JaLJGv",
+            "x": "0000000000000000000001rvYECRwLyX0-V2zUk5HJ.QE5wqO8-0OdDQBV4vkwcE",
+            "y": "0000000000000000000002QrIU4K9LkrjRjOxGJlTLXniuT1bLMpZ8glu3j9Te0f"
+        },
+        "w": "<unevaluated lazy field>",
+        "z": "<unevaluated lazy field>",
+        "x": 123123,
+        "y": 88
+    }
+    >>> a = d >> (lambda x: {"z": x**2}) >> (lambda x,y: {"w": x/y})
+    >>> b = d >> (lambda x,y: {"w": x/y}) >> (lambda x: {"z": x**2})
+    >>> a != b  # Calculated values are order-sensitive.
+    True
+    """
+
     def __init__(self, /, _dictionary=None, keepblob=False, version="UT64.4", **kwargs) -> None:
-        """Uniquely identified lazy dict for serializable pairs str->value
-        (serializable in the project 'orjson' sense).
-        Usage:
-        >>> from ldict import ldict
-        >>> print(ldict(x=123123, y=88))
-        {
-            "id": "0000000000000000000004fXFwHzGuTlkQcR5z1rzEXbWAnrZUJOq5Ua3YnFcvvx",
-            "ids": "<1 hidden ids>",
-            "x": 123123,
-            "y": 88
-        }
-        >>> print(ldict(y=88, x=123123))  # Original values are order-insensitive.
-        {
-            "id": "0000000000000000000004fXFwHzGuTlkQcR5z1rzEXbWAnrZUJOq5Ua3YnFcvvx",
-            "ids": "<1 hidden ids>",
-            "y": 88,
-            "x": 123123
-        }
-        >>> ldict(y=88, x=123123) != ldict(x=88, y=123123)  # Ids of original values embbed the keys.
-        True
-        >>> d = ldict(x=123123, y=88)
-        >>> e = d >> (lambda x: {"z": x**2}) >> (lambda x,y: {"w": x/y})
-        >>> e.show(colored=False)
-        {
-            "id": "vgW1BDwNOaRUw6flbMDjOHcXR..xlXpYYGfdjXjJgD.A1r5kanmtixMWvSuIuHZd",
-            "ids": {
-                "x": "0000000000000000000001rvYECRwLyX0-V2zUk5HJ.QE5wqO8-0OdDQBV4vkwcE",
-                "y": "0000000000000000000002QrIU4K9LkrjRjOxGJlTLXniuT1bLMpZ8glu3j9Te0f",
-                "z": "qf-xSZcL2bFnXo1vfmYckQZ3aX7gVACDyZrBYDvh4MNQ1LMiJJLPgMmbdJcP0-PV",
-                "w": "111111110GZ11111114bRi9Np1yhkc31s9Trh6HU.4cocBk71K00FEal5z-gv8Db"
-            },
-            "x": 123123,
-            "y": 88,
-            "z": "<unevaluated lazy field>",
-            "w": "<unevaluated lazy field>"
-        }
-        >>> a = d >> (lambda x: {"z": x**2}) >> (lambda x,y: {"w": x/y})
-        >>> b = d >> (lambda x,y: {"w": x/y}) >> (lambda x: {"z": x**2})
-        >>> a != b  # Calculated values are order-sensitive.
-        True
-        """
         super().__init__()
         if version == "UT32.4":
             self.identity = identity32
             self.rho0 = Hash.fromid("------------------------------.0", version="UT32.4")
         elif version == "UT64.4":
             self.identity = identity64
-            self.rho0 = Hash.fromid("--------------------------------------------------------------.0",
-                                    version="UT64.4")
+            self.rho0 = Hash.fromid(
+                "--------------------------------------------------------------.0", version="UT64.4"
+            )
         else:
             raise Exception("Unknown version:", version)
 
@@ -132,15 +135,23 @@ class Ldict(Aux, Dict[str, VT]):
         return closure
 
     def __setitem__(self, field: str, value: VT) -> None:
+        if not isinstance(field, str):
+            raise Exception(f"Key must be string, not {type(field)}.", field)
+
         # Work around field overwrite.
-        if field in self.data and callable(value):
-            self.previous[field] = self.data[field]
+        if field in self.data:
+            if callable(value):
+                self.previous[field] = self.data[field]
+                # TODO: histórico aqui vai ser aumentado em: f
+            else:
+                del self[field]
+                # TODO: histórico aqui vai ser aumentado em: (---...----x)x'
 
         # Create field hash and update ldict hash.
         h, blob = process(field, value, version=self.version)
         old_hash = self.hash
         self.hash *= h
-        field_hash = self.hash / old_hash
+        field_hash = self.hash / old_hash if blob is None else h
         self.hashes[field] = field_hash
 
         # Update data.
@@ -151,6 +162,17 @@ class Ldict(Aux, Dict[str, VT]):
         # Keep blob if required. TODO: keep hash sem key
         if blob and self.keepblob:
             self.blobs[field] = blob
+
+    def __delitem__(self, field: str) -> None:
+        # REMINDER: esse del não cria placeholder, para ficar intuitivo manipular um dict. põe x, tira x etc.
+        #           é distinto da remoção by name/index.
+        del self.data[field]
+        del self.hashes[field]
+        del self.data["ids"][field]
+        self.hash = self.identity
+        for hash in self.hashes.values():
+            self.hash *= hash
+        # TODO: histórico aqui vai ser p/ del d[y] : [yzw]-¹zw
 
     def __rshift__(self, f: Union[Dict, Callable]):
         """Used for multiple return values, or to insert values during a multistep process.
@@ -171,6 +193,9 @@ class Ldict(Aux, Dict[str, VT]):
             "x": 1
         }
         """
+        # TODO: d >> {"x": None}   delete by name
+        #   histórico vai ser aumentado em : (---...----x)    e vai placeholder em d
+        # TODO: d >> {2: None}   delete by index
         clone = self.copy()
         if isinstance(f, dict):
             for k, v in f.items():
@@ -186,10 +211,13 @@ class Ldict(Aux, Dict[str, VT]):
         if "return" not in ret:
             print(ret)
             raise Exception(f"Missing return statement:")
-        dicts = re.findall('(?={)(.+?)(?<=})', ret)
+        dicts = re.findall("(?={)(.+?)(?<=})", ret)
         if len(dicts) != 1:
-            raise Exception("Cannot detect output fields:"
-                            "Missing dict (with pairs 'identifier'->result) as a return value.", dicts, ret)
+            raise Exception(
+                "Cannot detect output fields:" "Missing dict (with pairs 'identifier'->result) as a return value.",
+                dicts,
+                ret,
+            )
         output_fields = re.findall(r"(?:[\"'])([a-zA-Z]+[a-zA-Z0-9_]*)(?:[\"'])", dicts[0])
 
         # Work around field overwrite.
@@ -238,19 +266,6 @@ class Ldict(Aux, Dict[str, VT]):
         clone.hashes = new_hashes
         clone.data = new_data
         return clone
-
-    def __delitem__(self, field: str) -> None:
-        field_hash = self.hashes[field]
-        if field_hash.s == 0:
-            raise Exception("Cannot delete an unchanged field (commutative field)."
-                            "It would seem like it never existed."
-                            "TODO: allow unchanged to be deleted if it was never used"
-                            "in the generation of other fields.")
-
-        del self.data[field]
-        del self.hashes[field]
-        del self.data["ids"][field]
-        self.hash /= field_hash
 
 
 class OverwriteException(Exception):

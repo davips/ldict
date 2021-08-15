@@ -4,14 +4,17 @@ from ldict.core import Ldict
 class Empty:
     def __rshift__(self, other):
         """
-        Usage
+        Usage:
+
+        >>> from ldict import ø
         >>> d = ø >> {"x": 2}
         >>> d.show(colored=False)
-        >>> d >>= {"y": 2}
-        >>> d.show(colored=False)
-
-        >>> d >>= (lambda x: {"x": x**2})
-        >>> d.show(colored=False)
-
+        {
+            "id": "000000000000000000000c3aop1df5AZXCRMY3yInQeUYccGQRclWo8TvfKPB4YT",
+            "ids": {
+                "x": "000000000000000000000c3aop1df5AZXCRMY3yInQeUYccGQRclWo8TvfKPB4YT"
+            },
+            "x": 2
+        }
         """
         return Ldict(other)
