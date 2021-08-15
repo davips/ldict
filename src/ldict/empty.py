@@ -1,6 +1,3 @@
-from ldict.core import Ldict
-
-
 class Empty:
     def __rshift__(self, other):
         """
@@ -17,4 +14,5 @@ class Empty:
             "x": 2
         }
         """
+        from ldict import Ldict
         return Ldict(other)

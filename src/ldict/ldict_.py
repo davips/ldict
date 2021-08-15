@@ -36,7 +36,7 @@ from ldict.data import process, fhash
 # Dict typing inheritance initially based on https://stackoverflow.com/a/64323140/9681577
 # TODO: aceitar qq class que sirva no lugar de Hash, em vez da string 'version'. Requer Hosh32 e Hosh64 herdando de H@sh
 #           serve pra viabilizar teste exaustivo de grupo pequeno pra ver se o artigo funciona
-class Ldict(Aux, Dict[str, VT]):
+class Ldict_(Aux, Dict[str, VT]):
     """Uniquely identified lazy dict for serializable pairs str->value
     (serializable in the project 'orjson' sense).
 

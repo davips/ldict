@@ -21,8 +21,13 @@
 #  time spent here.
 #  Relevant employers or funding agencies will be notified accordingly.
 
-from ldict.core import Ldict
+from ldict.ldict_ import Ldict_
 from .empty import Empty
+
+
+class Ldict(Ldict_):
+    pass
+
 
 ldict = Ldict
 ø = empty = Empty()
