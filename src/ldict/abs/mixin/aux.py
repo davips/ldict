@@ -16,6 +16,7 @@ class Aux:
     hashes: dict
     data: dict
     keepblob: bool
+    version: str
 
     @property
     def n(self):
@@ -188,11 +189,8 @@ class Aux:
         obj.previous = self.previous.copy()
         obj.blobs = self.blobs.copy()
         obj.keepblob = self.keepblob
+        obj.version = self.version
         return obj
-
-    # def copy(self):
-    #     from ldict import ldict
-    #     return ldict(self)
 
     @property
     def hex(self):
