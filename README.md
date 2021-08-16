@@ -40,9 +40,9 @@ a = ldict(x=3)
 print(a)
 """
 {
-    "id": "uRA8YjINbaaHpS1fSCh9QOAjGHk1T8YfaQ8lKavy0sy",
-    "x": 3,
-    "id_x": "<hidden field>"
+    "id": "000000000000000000000dCguKC6bS.95Bqe35gNJir04CxRv6dY1dPRO7R3PTKa",
+    "ids": "<1 hidden id>",
+    "x": 3
 }
 """
 ```
@@ -53,9 +53,9 @@ b = ldict(y=5)
 print(b)
 """
 {
-    "id": "RooMUsgK3ZdP3bftcewZsoqbsch3bVVeeOYng8OumIa",
-    "y": 5,
-    "id_y": "<hidden field>"
+    "id": "000000000000000000000dlrfIktAZFYqwNrmOdFDZKV966TGLM7hu0fllFfC8Kt",
+    "ids": "<1 hidden id>",
+    "y": 5
 }
 """
 ```
@@ -65,10 +65,10 @@ print(b)
 print(a + b)
 """
 {
-    "id": "NYEcIfLXYlefiig0Ia7A6PiLTfGRNwHZRt00Wg01692",
+    "id": "000000000000000000000aXHKqWzMQIMw6bFpTur11RVdIEJ9SLzyXQ57tuiIAfV",
+    "ids": "<1 hidden ids>",
     "x": 3,
-    "y": 5,
-    "id_*": "<2 hidden fields>"
+    "y": 5
 }
 """
 ```
@@ -78,6 +78,28 @@ print(a + b)
 </details>
 
 ## Features (current or planned)
-
 * [x] 
 * [ ] 
+
+## How to use [outdated]
+Two main entities are identifiable: processing functions and bags of values.
+A processing function is any callable the follows the rules below.
+A bag of values is a ldict object. It is a mapping between string keys, called fields,
+and any serializable object.
+The bag id (identifier) and the field ids are also part of the mapping.  
+
+The user should provide a unique identifier for each function object.
+It should be put as a 43 digits long base-62 string under the key "_id", or, 
+alternatively, a Hosh object inside the returned dict, under the key "_id".
+The only exception is when using the assignment syntax, 
+because the return value is the proper result of the calculation.
+When using the assignment syntax, it is assumed the 'id' should be automatically 
+calculated by the bytecode obtained through source code parsing.
+For this reason, such functions should be simple, i.e., 
+with minimal external dependencies, to avoid the unfortunate situation where two
+functions with identical local code actually perform different calculations through
+calls to external code that implement different algorithms with the same name.
+
+One way to emulate such behavior for the function application syntax (a >> f) is to
+explicitly refuse to provide a hash/id.
+This can be done by setting `"_id": None` inside the returned dictionary.
