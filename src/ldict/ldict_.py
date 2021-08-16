@@ -107,8 +107,9 @@ class Ldict_(Aux, Dict[str, VT]):
             content = self.data[field]
             if callable(content):
                 if field in self.previous:
-                    self.data[field] = self.previous.pop(field)
-                # print(field, self.previous)
+                    self.data[field] = self.previous[field].pop()
+                    if len(self.previous[field]) == 0:
+                        del self.previous[field]
                 self.data[field] = content(**self._getargs(field, content))
                 return self.data[field]
             else:
@@ -141,7 +142,10 @@ class Ldict_(Aux, Dict[str, VT]):
         # Work around field overwrite.
         if field in self.data:
             if callable(value):
-                self.previous[field] = self.data[field]
+                if field in self.previous:
+                    self.previous[field].append(self.data[field])
+                else:
+                    self.previous[field] = [self.data[field]]
                 # TODO: histórico aqui vai ser aumentado em: f
             else:
                 del self[field]
@@ -159,7 +163,7 @@ class Ldict_(Aux, Dict[str, VT]):
         self.data["id"] = self.hash.id
         self.data["ids"][field] = field_hash.id
 
-        # Keep blob if required. TODO: keep hash sem key
+        # Keep blob if required. TODO: keep hash sem key embutida
         if blob and self.keepblob:
             self.blobs[field] = blob
 
@@ -234,7 +238,7 @@ class Ldict_(Aux, Dict[str, VT]):
 
         # Update clone id.
         if f.hash.etype != "ordered":
-            raise OverwriteException("Function probably will never be allowed to have etype!=ordered.")
+            raise OverwriteException("Function element probably will never be allowed to have etype!=ordered.")
         old_hash = clone.hash
         clone.hash *= f.hash
         clone.data["id"] = clone.id

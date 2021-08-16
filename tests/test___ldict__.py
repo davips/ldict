@@ -4,7 +4,7 @@ from ldict import ldict
 
 
 class TestLdict(TestCase):
-    def test_setitem(self):
+    def test_setitem_vakue(self):
         d = ldict()
         d["x"] = 3
         d["y"] = 4
@@ -20,6 +20,7 @@ class TestLdict(TestCase):
             str(d),
         )
 
+    def test_setitem_function(self):
         d = ldict()
         d["x"] = 3
         d["y"] = 5
@@ -34,8 +35,36 @@ class TestLdict(TestCase):
 }""",
             str(d),
         )
-
         self.assertEqual(d.z, 15)
+
+    def test_setitem_overwrite_value(self):
+        d = ldict()
+        d["x"] = 3
+        d["y"] = 5
+        d["z"] = lambda x, y: x * y
+        # Overwrite same value.
+        d["y"] = 5
+        self.assertEqual("qhB7bRuqe3Xx4WUXoM8MLfd352oHwqL5a.d4QP9fiI94Kw5k8zJOp6Qst8n3lQrz", d.id)
+        # Repeate same overwrite.
+        d["y"] = 5
+        self.assertEqual("qhB7bRuqe3Xx4WUXoM8MLfd352oHwqL5a.d4QP9fiI94Kw5k8zJOp6Qst8n3lQrz", d.id)
+        # Overwrite other value.
+        d["y"] = 6
+        self.assertEqual("qhB7bRuqe3Xx4WUXoM8MLcUxAMVp9-HCAK1o.meENYOjT.pGD4XI7dcRwd8E7f75", d.id)
+
+    def test_setitem_overwrite_function(self):
+        d = ldict()
+        d["x"] = 1
+        d["y"] = 2
+        d["z"] = 3
+        d["z"] = lambda x, y, z: x + y * z
+        d.show()
+        # Reapply same function.
+        d["z"] = lambda x, y, z: x + y * z
+        # Reapply same function.
+        d["z"] = lambda x, y, z: x + y * z
+        d.show()
+        # self.assertEqual("qhB7bRuqe3Xx4WUXoM8MLcUxAMVp9-HCAK1o.meENYOjT.pGD4XI7dcRwd8E7f75", d.id)
 
     def test_rshift(self):
         d = ldict()
