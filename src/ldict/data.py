@@ -1,35 +1,35 @@
 import dis
 
-from garoupa import Hash
+from garoupa import Hosh
 from orjson import dumps, OPT_SORT_KEYS
 
 
 def process(field, value, version):
     """
-    Create hash with etype=
+    Create hosh with etype=
         "hybrid" if 'value' is not callable
-        "ordered" if 'value' is a callable without an attribute 'hash'
+        "ordered" if 'value' is a callable without an attribute 'hosh'
 
     Usage:
 
-    >>> hash, blob = process("X", 123, "UT64.4")
-    >>> hash.id
+    >>> hosh, blob = process("X", 123, "UT64.4")
+    >>> hosh.id
     '0000000000000000000006jfeYEWNkSX84ldc-BIj0ST9rhlkTESf81XaQdiwRPm'
     >>> blob
     b'{"X":123}'
     >>> f = lambda: 123
-    >>> hasattr(f, "hash")
+    >>> hasattr(f, "hosh")
     False
-    >>> hash, blob = process("X", f, "UT64.4")
-    >>> hash.id
+    >>> hosh, blob = process("X", f, "UT64.4")
+    >>> hosh.id
     'jq-fkk.Ejr0v.hOGHyBl4HaicbeEu-34uuJ8wQQNCZVqWy-YDE2Ser6JkaFjd-iH'
     >>> blob is None
     True
-    >>> f.hash = hash
-    >>> hasattr(f, "hash")
+    >>> f.hosh = hosh
+    >>> hasattr(f, "hosh")
     True
-    >>> hash2, blob = process("X", f, "UT64.4")
-    >>> hash is hash2
+    >>> hosh2, blob = process("X", f, "UT64.4")
+    >>> hosh is hosh2
     True
 
     Parameters
@@ -43,21 +43,21 @@ def process(field, value, version):
 
     """
     if callable(value):
-        h = value.hash if hasattr(value, "hash") else fhash(value, version)
+        h = value.hosh if hasattr(value, "hosh") else fhosh(value, version)
         return h, None
     obj = {field: value}
-    # TODO: separar key do hash pra ser usada como no artigo, para localizar o blob no db
+    # TODO: separar key do hosh pra ser usada como no artigo, para localizar o blob no db
     bytes = dumps(obj, option=OPT_SORT_KEYS)
-    return Hash(bytes, "hybrid", version=version), bytes
+    return Hosh(bytes, "hybrid", version=version), bytes
 
 
-def fhash(f, version):
+def fhosh(f, version):
     """
-    Create hash with etype="ordered" using bytecodeof "f" as binary content.
+    Create hosh with etype="ordered" using bytecodeof "f" as binary content.
 
     Usage:
 
-    >>> print(fhash(lambda x: {"z": x**2}, "UT64.4"))
+    >>> print(fhosh(lambda x: {"z": x**2}, "UT64.4"))
     pfwOevvOc0THi7b1R4kjIm.dfJ-YO6FPn6o5YhsOOoVNLHy4dMosf2aTkAQW5Us7
 
     Parameters
@@ -76,4 +76,4 @@ def fhash(f, version):
         lines = [segment for segment in group.split(" ") if segment][1:]
         clean.append(lines)
 
-    return Hash(dumps(clean), "ordered", version=version)
+    return Hosh(dumps(clean), "ordered", version=version)

@@ -26,15 +26,15 @@ from inspect import signature
 from io import StringIO
 from typing import Dict, Union, Callable
 
-from garoupa import identity32, identity64, Hash
+from garoupa import identity32, identity64, Hosh
 from uncompyle6.main import decompile
 
 from ldict.abs.mixin.aux import Aux, VT
-from ldict.data import process, fhash
+from ldict.data import process, fhosh
 
 
 # Dict typing inheritance initially based on https://stackoverflow.com/a/64323140/9681577
-# TODO: aceitar qq class que sirva no lugar de Hash, em vez da string 'version'. Requer Hosh32 e Hosh64 herdando de H@sh
+# TODO: aceitar qq class que sirva no lugar de Hosh, em vez da string 'version'. Requer Hosh32 e Hosh64 herdando de Hosh
 #           serve pra viabilizar teste exaustivo de grupo pequeno pra ver se o artigo funciona
 class Ldict_(Aux, Dict[str, VT]):
     """Uniquely identified lazy dict for serializable pairs str->value
@@ -85,18 +85,18 @@ class Ldict_(Aux, Dict[str, VT]):
         super().__init__()
         if version == "UT32.4":
             self.identity = identity32
-            self.rho0 = Hash.fromid("------------------------------.0", version="UT32.4")
+            self.rho0 = Hosh.fromid("------------------------------.0", version="UT32.4")
         elif version == "UT64.4":
             self.identity = identity64
-            self.rho0 = Hash.fromid(
+            self.rho0 = Hosh.fromid(
                 "--------------------------------------------------------------.0", version="UT64.4"
             )
         else:
             raise Exception("Unknown version:", version)
 
-        self.keepblob, self.hash, self.version = keepblob, self.identity, version
-        self.hashes, self.blobs, self.previous = {}, {}, {}
-        self.data: Dict[str, VT] = {"id": self.hash.id, "ids": {}}  # 'id' will always be the first field
+        self.keepblob, self.hosh, self.version = keepblob, self.identity, version
+        self.hoshes, self.blobs, self.previous = {}, {}, {}
+        self.data: Dict[str, VT] = {"id": self.hosh.id, "ids": {}}  # 'id' will always be the first field
         if _dictionary is not None:
             self.update(_dictionary)  # REMINDER: update() acts on self.data.
         if kwargs:
@@ -151,19 +151,19 @@ class Ldict_(Aux, Dict[str, VT]):
                 del self[field]
                 # TODO: histórico aqui vai ser aumentado em: (---...----x)x'
 
-        # Create field hash and update ldict hash.
+        # Create field's hosh and update ldict's hosh.
         h, blob = process(field, value, version=self.version)
-        old_hash = self.hash
-        self.hash *= h
-        field_hash = self.hash / old_hash if blob is None else h
-        self.hashes[field] = field_hash
+        old_hash = self.hosh
+        self.hosh *= h
+        field_hash = self.hosh / old_hash if blob is None else h
+        self.hoshes[field] = field_hash
 
         # Update data.
         self.data[field] = value
-        self.data["id"] = self.hash.id
+        self.data["id"] = self.hosh.id
         self.data["ids"][field] = field_hash.id
 
-        # Keep blob if required. TODO: keep hash sem key embutida
+        # Keep blob if required. TODO: keep hosh sem key embutida
         if blob and self.keepblob:
             self.blobs[field] = blob
 
@@ -171,11 +171,11 @@ class Ldict_(Aux, Dict[str, VT]):
         # REMINDER: esse del não cria placeholder, para ficar intuitivo manipular um dict. põe x, tira x etc.
         #           é distinto da remoção by name/index.
         del self.data[field]
-        del self.hashes[field]
+        del self.hoshes[field]
         del self.data["ids"][field]
-        self.hash = self.identity
-        for hash in self.hashes.values():
-            self.hash *= hash
+        self.hosh = self.identity
+        for hosh in self.hoshes.values():
+            self.hosh *= hosh
         # TODO: histórico aqui vai ser p/ del d[y] : [yzw]-¹zw
 
     def __rshift__(self, f: Union[Dict, Callable]):
@@ -232,17 +232,17 @@ class Ldict_(Aux, Dict[str, VT]):
         # Detect input fields.
         fargs = signature(f).parameters.keys()
 
-        # Attach hash to f if needed.
-        if not hasattr(f, "hash"):
-            f.hash = fhash(f, version=self.version)
+        # Attach hosh to f if needed.
+        if not hasattr(f, "hosh"):
+            f.hosh = fhosh(f, version=self.version)
 
         # Update clone id.
-        if f.hash.etype != "ordered":
+        if f.hosh.etype != "ordered":
             raise OverwriteException("Function element probably will never be allowed to have etype!=ordered.")
-        old_hash = clone.hash
-        clone.hash *= f.hash
+        old_hash = clone.hosh
+        clone.hosh *= f.hosh
         clone.data["id"] = clone.id
-        ufu = clone.hash * ~old_hash  # z = ufu-¹
+        ufu = clone.hosh * ~old_hash  # z = ufu-¹
 
         # Add triggers for future evaluation.
         acc = self.identity
@@ -253,7 +253,7 @@ class Ldict_(Aux, Dict[str, VT]):
                 field_hash = ufu
             else:
                 if i < len(output_fields) - 1:
-                    field_hash = ufu * (self.rho0 + Hash.fromn(i, self.version))
+                    field_hash = ufu * (self.rho0 + Hosh.fromn(i, self.version))
                     acc *= field_hash
                 else:
                     field_hash = ~acc * ufu
@@ -262,12 +262,12 @@ class Ldict_(Aux, Dict[str, VT]):
             new_data[field] = clone._trigger(field, f, fargs)
             new_data["ids"][field] = field_hash.id
 
-        new_hashes.update(clone.hashes)
+        new_hashes.update(clone.hoshes)
         new_data["ids"].update(clone.data["ids"])
         del clone.data["ids"]
         new_data.update(clone.data)
 
-        clone.hashes = new_hashes
+        clone.hoshes = new_hashes
         clone.data = new_data
         return clone
 

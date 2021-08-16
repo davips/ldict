@@ -35,7 +35,7 @@ poetry install
 * [x] 
 * [ ] 
 
-## How to use
+## How to use [outdated]
 Two main entities are identifiable: processing functions and bags of values.
 A processing function is any callable the follows the rules below.
 A bag of values is a ldict object. It is a mapping between string keys, called fields,
@@ -44,7 +44,7 @@ The bag id (identifier) and the field ids are also part of the mapping.
 
 The user should provide a unique identifier for each function object.
 It should be put as a 43 digits long base-62 string under the key "_id", or, 
-alternatively, a Hash object inside the returned dict, under the key "_id".
+alternatively, a Hosh object inside the returned dict, under the key "_id".
 The only exception is when using the assignment syntax, 
 because the return value is the proper result of the calculation.
 When using the assignment syntax, it is assumed the 'id' should be automatically 

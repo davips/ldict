@@ -3,7 +3,7 @@ import re
 from typing import Iterator, Iterable, TypeVar, Union
 from typing import TYPE_CHECKING
 
-from garoupa import Hash
+from garoupa import Hosh
 
 if TYPE_CHECKING:
     from ldict import Ldict
@@ -12,8 +12,8 @@ VT = TypeVar("VT")
 
 
 class Aux:
-    hash: Hash
-    hashes: dict
+    hosh: Hosh
+    hoshes: dict
     data: dict
     keepblob: bool
     version: str
@@ -27,7 +27,7 @@ class Aux:
         >>> ldict(x=134124).n
         78297399190853865925546422718430264658855010523272162045457933175107322571720
         """
-        return self.hash.n
+        return self.hosh.n
 
     @property
     def id(self):
@@ -40,12 +40,12 @@ class Aux:
         >>> ldict(x=134124).ids
         {'x': '000000000000000000000aQqMuGtzigXKY9vs4vME6FPSHKoBxSJXSG4.IDSRKL8'}
         """
-        return self.hash.id
+        return self.hosh.id
 
     @property
     def idc(self):
         """Colored id"""
-        return self.hash.idc
+        return self.hosh.idc
 
     @property
     def ids(self):
@@ -114,7 +114,7 @@ class Aux:
             "y": 134124
         }
         """
-        return self.hash.cells
+        return self.hosh.cells
 
     def __str__(self, all=False):
         dic = self.data.copy()
@@ -135,9 +135,9 @@ class Aux:
         txt = json.dumps(dic, indent=4)
         for k, v in dic.items():
             if k == "id":
-                txt = txt.replace(dic[k], self.hash.idc)
+                txt = txt.replace(dic[k], self.hosh.idc)
         if all:
-            for k, v in self.hashes.items():
+            for k, v in self.hoshes.items():
                 txt = txt.replace(v.id, v.idc)  # REMINDER: workaround to avoid json messing with colors
         return txt
 
@@ -187,8 +187,8 @@ class Aux:
         # TODO: solution: freeze ldict when inserting, so that it cannot mutate anymore (deletion/insertion/update)
         #   It can be a wrapper class around _set_ and _del_
         obj.data = self.data.copy()
-        obj.hashes = self.hashes.copy()
-        obj.hash = self.hash
+        obj.hoshes = self.hoshes.copy()
+        obj.hosh = self.hosh
         obj.previous = self.previous.copy()
         obj.blobs = self.blobs.copy()
         obj.keepblob = self.keepblob
@@ -210,7 +210,7 @@ class Aux:
         return NotImplemented
 
     def __ne__(self, other):
-        return self.hash != other.hash
+        return self.hosh != other.hosh
 
     def __contains__(self, field: str) -> bool:
         return field in self.data
