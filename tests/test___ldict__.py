@@ -31,7 +31,7 @@ class TestLdict(TestCase):
         d["z"] = lambda x, y: x * y
         self.assertEqual(
             """{
-    "id": "qhB7bRuqe3Xx4WUXoM8MLlP2gE97svU1eMgT8-4CjpO-XbTS3maOpbQUqdxA8IbK",
+    "id": "lP5q-u4W-2MVBg19Rgx42NxlhDsgLM30dqLJLMA28VKWt9I.jql945hVjwqxfcrQ",
     "ids": "<2 hidden ids>",
     "x": 3,
     "y": 5,
@@ -48,13 +48,13 @@ class TestLdict(TestCase):
         d["z"] = lambda x, y: x * y
         # Overwrite same value.
         d["y"] = 5
-        self.assertEqual("qhB7bRuqe3Xx4WUXoM8MLfd352oHwqL5a.d4QP9fiI94Kw5k8zJOp6Qst8n3lQrz", d.id)
+        self.assertEqual("lP5q-u4W-2MVBg19Rgx42OdRxcuXRNhux63n-bRszVIB3GacFTH4K5dvBCNx2gfm", d.id)
         # Repeate same overwrite.
         d["y"] = 5
-        self.assertEqual("qhB7bRuqe3Xx4WUXoM8MLfd352oHwqL5a.d4QP9fiI94Kw5k8zJOp6Qst8n3lQrz", d.id)
+        self.assertEqual("lP5q-u4W-2MVBg19Rgx42OdRxcuXRNhux63n-bRszVIB3GacFTH4K5dvBCNx2gfm", d.id)
         # Overwrite other value.
         d["y"] = 6
-        self.assertEqual("qhB7bRuqe3Xx4WUXoM8MLcUxAMVp9-HCAK1o.meENYOjT.pGD4XI7dcRwd8E7f75", d.id)
+        self.assertEqual("lP5q-u4W-2MVBg19Rgx42LVk0W.Fvld.WQTI8KWS3aqpHT6ZMjsUhsF2KsyV3qyx", d.id)
 
     def test_setitem_overwrite_function(self):
         d = ldict()
@@ -62,12 +62,10 @@ class TestLdict(TestCase):
         d["y"] = 2
         d["z"] = 3
         d["z"] = lambda x, y, z: x + y * z
-        d.show()
         # Reapply same function.
         d["z"] = lambda x, y, z: x + y * z
         # Reapply same function.
         d["z"] = lambda x, y, z: x + y * z
-        d.show()
         # self.assertEqual("qhB7bRuqe3Xx4WUXoM8MLcUxAMVp9-HCAK1o.meENYOjT.pGD4XI7dcRwd8E7f75", d.id)
 
     def test_rshift(self):
@@ -77,7 +75,7 @@ class TestLdict(TestCase):
         d >>= lambda x, y: {"z": x * y}
         self.assertEqual(
             """{
-    "id": "2mgMtxYKDMigDpFqn.NVXmhemFJIWSpBb4Tj4H6w3eLpVC6xMxdI3Z1NLADgSrRX",
+    "id": "1VP6w4Zv2WQfNmVGjoVzIiCDBS8mAsRBeFkDJysDvEYB.SHnnXTfP7JQXB6ccL0g",
     "ids": "<2 hidden ids>",
     "z": "<unevaluated lazy field>",
     "x": 3,

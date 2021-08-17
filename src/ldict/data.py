@@ -92,7 +92,7 @@ def fhosh(f, version):
 
     """
     # Add signature.
-    fargs = signature(f).parameters.keys()
+    fargs = list(signature(f).parameters.keys())
     if not fargs:
         raise Exception(f"Missing function input parameters.")
     clean = [fargs]
