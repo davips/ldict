@@ -34,7 +34,7 @@ from ldict.data import process, fhosh
 
 
 # Dict typing inheritance initially based on https://stackoverflow.com/a/64323140/9681577
-# TODO: aceitar qq class que sirva no lugar de Hosh, em vez da string 'version'. Requer Hosh32 e Hosh64 herdando de Hosh
+# TODO: aceitar qq class que tenha id e seja operavel, como valor opcional de 'version'
 #           serve pra viabilizar teste exaustivo de grupo pequeno pra ver se o artigo funciona
 class Ldict_(Aux, Dict[str, VT]):
     """Uniquely identified lazy dict for serializable pairs str->value
@@ -138,6 +138,9 @@ class Ldict_(Aux, Dict[str, VT]):
     def __setitem__(self, field: str, value: VT) -> None:
         if not isinstance(field, str):
             raise Exception(f"Key must be string, not {type(field)}.", field)
+        # TODO
+        #   ...xvwf = ...x'vw
+        #   x' = xvf[vw]-¹
 
         # Work around field overwrite.
         if field in self.data:
@@ -163,16 +166,13 @@ class Ldict_(Aux, Dict[str, VT]):
         self.data["id"] = self.hosh.id
         self.data["ids"][field] = field_hash.id
 
-        # Keep blob if required. TODO: keep hosh sem key embutida
+        # Keep blob if required. TODO: keep hoshes sem key embutida
         if blob and self.keepblob:
             self.blobs[field] = blob
 
     def __delitem__(self, field: str) -> None:
         # REMINDER: esse del não cria placeholder, para ficar intuitivo manipular um dict. põe x, tira x etc.
         #           é distinto da remoção by name/index.
-        # TODO
-        #   ...xvwf = ...x'vw
-        #   x' = xvf[vw]-¹
         del self.data[field]
         del self.hoshes[field]
         del self.data["ids"][field]
@@ -234,6 +234,12 @@ class Ldict_(Aux, Dict[str, VT]):
 
         # Detect input fields.
         fargs = signature(f).parameters.keys()
+        if not fargs:
+            raise NoInputException(f"Missing function input parameters.")
+        for field in fargs:
+            if field not in self.data:
+                # TODO: stacktrace para apontar toda a cadeia de dependências, caso seja profunda
+                raise DependenceException(f"Function depends on inexistent field [{field}].")
 
         # Attach hosh to f if needed.
         if not hasattr(f, "hosh"):
@@ -241,7 +247,7 @@ class Ldict_(Aux, Dict[str, VT]):
 
         # Update clone id.
         if f.hosh.etype != "ordered":
-            raise OverwriteException("Function element probably will never be allowed to have etype!=ordered.")
+            raise FunctionTypeException(f"Functions are not allowed to have etype {f.hosh.etype}.")
         old_hash = clone.hosh
         clone.hosh *= f.hosh
         clone.data["id"] = clone.id
@@ -276,4 +282,16 @@ class Ldict_(Aux, Dict[str, VT]):
 
 
 class OverwriteException(Exception):
+    pass
+
+
+class DependenceException(Exception):
+    pass
+
+
+class NoInputException(Exception):
+    pass
+
+
+class FunctionTypeException(Exception):
     pass

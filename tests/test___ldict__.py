@@ -1,6 +1,10 @@
 from unittest import TestCase
 
-from ldict import ldict
+import pytest
+
+from ldict import ldict, ø
+from ldict.empty import FromØException
+from ldict.ldict_ import DependenceException, NoInputException
 
 
 class TestLdict(TestCase):
@@ -94,6 +98,14 @@ class TestLdict(TestCase):
         # self.assertNotEqual(a, a >> {"x": 3})
         # def f():
         #     a["x"] = 5
+
+    def test_illdefined_function(self):
+        with pytest.raises(FromØException):
+            ø >> (lambda y: {"x": 5})
+        with pytest.raises(DependenceException):
+            ø >> {"x": 5} >> (lambda y: {"x": 5})
+        with pytest.raises(NoInputException):
+            ø >> {"x": 5} >> (lambda: {"x": 5})
 
 
 """

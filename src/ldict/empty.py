@@ -31,4 +31,10 @@ class Empty:
         }
         """
         from ldict import Ldict
+        if not isinstance(other, dict):
+            raise FromØException(f"Empty ldict (ø) can only be passed to a dict-like object, not {type(other)}.")
         return Ldict(other, version=self.version)
+
+
+class FromØException(Exception):
+    pass

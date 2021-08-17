@@ -184,7 +184,7 @@ class Aux:
 
         obj = ldict()
         # mutability WARNING: any attempt to inplace update nested structures will be disastrous, e.g.: d.d["x"] = 5
-        # TODO: solution: freeze ldict when inserting, so that it cannot mutate anymore (deletion/insertion/update)
+        # TODO: solution: freeze ldict if being inserted as a value in other ldict, so that it cannot mutate anymore (deletion/insertion/update)
         #   It can be a wrapper class around _set_ and _del_
         obj.data = self.data.copy()
         obj.hoshes = self.hoshes.copy()
