@@ -107,7 +107,7 @@ class Aux:
         >>> f = lambda x: {'z': x ** 2}
         >>> print(b >> f)
         {
-            "id": "pfwOevvOc0THi7b1R4kjIeBw1RzBLiLT3uxe.T0Cob2a9xr56v1mMJIIvBjUkNKm",
+            "id": "6gpauRwNufnkQd0bQURQ6StW37uWRxHR5Rktu83X6vMvb7WTgQRLA8FVDRFGdcwH",
             "ids": "<2 hidden ids>",
             "z": "<unevaluated lazy field>",
             "x": 134124,

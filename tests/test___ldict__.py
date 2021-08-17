@@ -3,8 +3,8 @@ from unittest import TestCase
 import pytest
 
 from ldict import ldict, ø
-from ldict.empty import FromØException
-from ldict.ldict_ import DependenceException, NoInputException
+from ldict_modules.empty import FromØException
+from ldict import DependenceException, NoInputException
 
 
 class TestLdict(TestCase):

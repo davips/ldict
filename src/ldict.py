@@ -20,6 +20,25 @@
 #  part of this work is a crime and is unethical regarding the effort and
 #  time spent here.
 #  Relevant employers or funding agencies will be notified accordingly.
+#
+#  ldict is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  ldict is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with ldict.  If not, see <http://www.gnu.org/licenses/>.
+#
+#  (*) Removing authorship by any means, e.g. by distribution of derived
+#  works or verbatim, obfuscated, compiled or rewritten versions of any
+#  part of this work is a crime and is unethical regarding the effort and
+#  time spent here.
+#  Relevant employers or funding agencies will be notified accordingly.
 
 import re
 from inspect import signature
@@ -29,20 +48,22 @@ from typing import Dict, Union, Callable
 from garoupa import identity32, identity64, Hosh
 from uncompyle6.main import decompile
 
-from ldict.abs.mixin.aux import Aux, VT
-from ldict.data import process, fhosh
+from ldict_modules.abs.mixin.aux import Aux, VT
+from ldict_modules.data import process, fhosh
+from ldict_modules.empty import Empty
 
 
 # Dict typing inheritance initially based on https://stackoverflow.com/a/64323140/9681577
 # TODO: aceitar qq class que tenha id e seja operavel, como valor opcional de 'version'
 #           serve pra viabilizar teste exaustivo de grupo pequeno pra ver se o artigo funciona
-class Ldict_(Aux, Dict[str, VT]):
+class Ldict(Aux, Dict[str, VT]):
     """Uniquely identified lazy dict for serializable pairs str->value
     (serializable in the project 'orjson' sense).
 
     Usage:
 
-    >>> from ldict import ldict
+
+import ldict
     >>> print(ldict(x=123123, y=88))
     {
         "id": "0000000000000000000004fXFwHzGuTlkQcR5z1rzEXbWAnrZUJOq5Ua3YnFcvvx",
@@ -63,10 +84,10 @@ class Ldict_(Aux, Dict[str, VT]):
     >>> e = d >> (lambda x: {"z": x**2}) >> (lambda x,y: {"w": x/y})
     >>> e.show(colored=False)
     {
-        "id": "yk81NHFkhUQg.3W8CiZjeayh8367tNNSrQu9rVtqkCDHcaaBiju6GMVtyxp.h1Ac",
+        "id": "cv8O-8-2XgHEPpZK13.ZxNsaG-HXjpWN8wSjKhuNvBqmAGLRfqklPd7FVthlOtnC",
         "ids": {
-            "w": "94Dfzc9y5U0BIYL6NeE-oidtGaA28wYqyASJAV39umabOWr9Iz0PseJTunWMwA8G",
-            "z": "pfwOevvOc0THi7b1R4kjIhqtqUgM.-hm1DsEfbPnE4cYsXnffFhkXvSDXzt6mQVV",
+            "w": "6eLEvjtht1oj.cZycba8hg0Jl4Fbj8wKKxRfO2I123MmwjaGLpWFfPqLv2K9DxnQ",
+            "z": "6gpauRwNufnkQd0bQURQ6OcBm0ZsHgI.BurQPv4NQ-Ci3ZcuPS6yqA9nqFmFhVa5",
             "x": "0000000000000000000001rvYECRwLyX0-V2zUk5HJ.QE5wqO8-0OdDQBV4vkwcE",
             "y": "0000000000000000000002QrIU4K9LkrjRjOxGJlTLXniuT1bLMpZ8glu3j9Te0f"
         },
@@ -187,12 +208,12 @@ class Ldict_(Aux, Dict[str, VT]):
         >>> d = ø >> {"x": 1} >> (lambda x: {"y": x**2}) >> (lambda x,y:{"z": x+y, "w": x/y})
         >>> d.show(colored=False)
         {
-            "id": "QNRxg0I5naPZX-dls7VQ622Htt-Q1Yfx2IL1DiJH0EtihD-yzK8y1qb7KysmVigM",
+            "id": "fCbv8nJkRvfb.lKm0hw5oZbEOJFXDCC2",
             "ids": {
-                "z": "scVKB6ugOhLvjEhlIt4JPhWJl1qTZB1Y4SbQIOy55UbEm2bEumU8bfRktf0ZDWCc",
-                "w": "111111110GZ11111114bRi9Np1yhkc31s9Trh6HU.4cocBk71K00FEal5z-gv8Db",
-                "y": "nzWNFVcPAeftDkW-KFMU9VXfh1B1uyzVMcIhuAtpHkIsu4i3VaYOlUd8hgCK7TjI",
-                "x": "0000000000000000000004nMDSf.TnQ5bqaZyLaOm1jkIt.q0Kxrj1aVGPmDOeqb"
+                "z": "UgSvBI5wW0.obGdYK6YRmaKe6ilW5JO9",
+                "w": ".....OiihEQ0003YiinWhU3UPrT6Ic8lQYgRmr7MliA734uYKm-9Rca8-.xVcjpF",
+                "y": "ecbTxZW6Uzjl2XbK2NvfZVjnF5k82oun",
+                "x": "00000000002SznfcfC6QP5WfCU8QuITi"
             },
             "z": "<unevaluated lazy field>",
             "w": "<unevaluated lazy field>",
@@ -295,3 +316,8 @@ class NoInputException(Exception):
 
 class FunctionTypeException(Exception):
     pass
+
+
+ldict = Ldict
+ø = empty32 = Empty(version="UT32.4")
+Ø = empty64 = Empty(version="UT64.4")
