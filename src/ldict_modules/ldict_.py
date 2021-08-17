@@ -19,7 +19,6 @@
 #  works or verbatim, obfuscated, compiled or rewritten versions of any
 #  part of this work is a crime and is unethical regarding the effort and
 #  time spent here.
-#  Relevant employers or funding agencies will be notified accordingly.
 #
 #  ldict is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -38,7 +37,7 @@
 #  works or verbatim, obfuscated, compiled or rewritten versions of any
 #  part of this work is a crime and is unethical regarding the effort and
 #  time spent here.
-#  Relevant employers or funding agencies will be notified accordingly.
+#
 
 import re
 from inspect import signature
@@ -50,12 +49,12 @@ from uncompyle6.main import decompile
 
 from ldict_modules.abs.mixin.aux import Aux, VT
 from ldict_modules.data import process, fhosh
-
-
 # Dict typing inheritance initially based on https://stackoverflow.com/a/64323140/9681577
 # TODO: aceitar qq class que tenha id e seja operavel, como valor opcional de 'version'
 #           serve pra viabilizar teste exaustivo de grupo pequeno pra ver se o artigo funciona
-from ldict_modules.exception import FromØException, NoInputException, DependenceException, FunctionTypeException
+from ldict_modules.exception import NoInputException, DependenceException, FunctionTypeException, MissingField
+
+db = {}
 
 
 class Ldict(Aux, Dict[str, VT]):
@@ -64,8 +63,7 @@ class Ldict(Aux, Dict[str, VT]):
 
     Usage:
 
-
-import ldict
+    >>> from ldict import ldict
     >>> print(ldict(x=123123, y=88))
     {
         "id": "0000000000000000000004fXFwHzGuTlkQcR5z1rzEXbWAnrZUJOq5Ua3YnFcvvx",
@@ -133,30 +131,23 @@ import ldict
                     self.data[field] = self.previous[field].pop()
                     if len(self.previous[field]) == 0:
                         del self.previous[field]
-                self.data[field] = content(**self._getargs(field, content))
+                try:
+                    self.data[field] = content(**self._getkwargs(signature(content).parameters.keys()))
+                except MissingField as mf:
+                    print(self)
+                    raise MissingField(f"Missing field {mf} to calculate field {field}.")
                 return self.data[field]
             else:
                 return self.data[field]
         raise KeyError(field)
 
-    def _getargs(self, field, f, fargs=None):
-        fargs = fargs or signature(f).parameters.keys()
+    def _getkwargs(self, fargs):
         dic = {}
         for k in fargs:
             if k not in self:
-                print(self)
-                raise Exception(f"Missing field {k} needed by {f} to calculate field {field}.")
+                raise MissingField(k)
             dic[k] = self[k]
         return dic
-
-    def _trigger(self, field, f, fargs):
-        def closure():
-            dic = f(**self._getargs(field, f, fargs))
-            for arg, value in dic.items():
-                self.data[arg] = value
-            return self[field]
-
-        return closure
 
     def __setitem__(self, field: str, value: VT) -> None:
         if not isinstance(field, str):
@@ -227,7 +218,9 @@ import ldict
         #   histórico vai ser aumentado em : (---...----x)    e vai placeholder em d
         # TODO: d >> {2: None}   delete by index
         clone = self.copy()
-        if isinstance(f, (dict, ldict)):
+
+        # Insertion of dict.
+        if isinstance(f, Dict):
             for k, v in f.items():
                 clone[k] = v
             return clone
@@ -235,34 +228,40 @@ import ldict
             raise Exception(f"f should be callable or dict, not {type(f)}")
 
         # Extract output fields. https://stackoverflow.com/a/68753149/9681577
-        out = StringIO()
-        decompile(bytecode_version=None, co=f.__code__, out=out)
-        ret = "".join([line for line in out.getvalue().split("\n") if not line.startswith("#")])
-        if "return" not in ret:
-            print(ret)
-            raise Exception(f"Missing return statement:")
-        dicts = re.findall("(?={)(.+?)(?<=})", ret)
-        if len(dicts) != 1:
-            raise Exception(
-                "Cannot detect output fields:" "Missing dict (with pairs 'identifier'->result) as a return value.",
-                dicts,
-                ret,
-            )
-        output_fields = re.findall(r"(?:[\"'])([a-zA-Z]+[a-zA-Z0-9_]*)(?:[\"'])", dicts[0])
+        if hasattr(f, "output_fields"):
+            output_fields = f.output_fields
+        else:
+            out = StringIO()
+            decompile(bytecode_version=None, co=f.__code__, out=out)
+            ret = "".join([line for line in out.getvalue().split("\n") if not line.startswith("#")])
+            if "return" not in ret:
+                print(ret)
+                raise Exception(f"Missing return statement:")
+            dicts = re.findall("(?={)(.+?)(?<=})", ret)
+            if len(dicts) != 1:
+                raise Exception(
+                    "Cannot detect output fields:" "Missing dict (with pairs 'identifier'->result) as a return value.",
+                    dicts,
+                    ret,
+                )
+            output_fields = re.findall(r"(?:[\"'])([a-zA-Z]+[a-zA-Z0-9_]*)(?:[\"'])", dicts[0])
 
         # Work around field overwrite.
         for field in output_fields:
             if field in clone.data:
-                clone.previous[field] = clone.data[field]
+                clone.previous[field] = [clone.data[field]]
 
         # Detect input fields.
-        fargs = signature(f).parameters.keys()
-        if not fargs:
-            raise NoInputException(f"Missing function input parameters.")
-        for field in fargs:
-            if field not in self.data:
-                # TODO: stacktrace para apontar toda a cadeia de dependências, caso seja profunda
-                raise DependenceException(f"Function depends on inexistent field [{field}].")
+        if hasattr(f, "input_fields"):
+            fargs = f.input_fields
+        else:
+            fargs = signature(f).parameters.keys()
+            if not fargs:
+                raise NoInputException(f"Missing function input parameters.")
+            for field in fargs:
+                if field not in self.data:
+                    # TODO: stacktrace para apontar toda a cadeia de dependências, caso seja profunda
+                    raise DependenceException(f"Function depends on inexistent field [{field}].")
 
         # Attach hosh to f if needed.
         if not hasattr(f, "hosh"):
@@ -303,43 +302,47 @@ import ldict
         clone.data = new_data
         return clone
 
+    def _trigger(self, output_field, f, fargs):
 
-ldict = Ldict
+        def closure():
+            # Process.
+            try:
+                input_dic = self._getkwargs(fargs)  # evaluate input
+                output_dic = f(**input_dic)  # evaluate output
+            except MissingField as mf:
+                print(self)
+                raise MissingField(f"Missing field {mf} needed by {f} to calculate field {output_field}.")
 
+            # Reflect changes.
+            for arg, value in output_dic.items():
+                self.data[arg] = value
 
-class Empty(ldict):
-    def __init__(self, version):
-        super().__init__(version=version)
+            return self[output_field]
 
-    def __rshift__(self, other):
-        """
-        Usage:
+        return closure
 
-        >>> from ldict import ø
-        >>> d = ø >> {"x": 2}
-        >>> d.show(colored=False)
-        {
-            "id": "00000000000dc-DMDXCtigJFu0bLt-KK",
-            "ids": {
-                "x": "00000000000dc-DMDXCtigJFu0bLt-KK"
-            },
-            "x": 2
-        }
-        >>> from ldict import Ø
-        >>> d = Ø >> {"x": 2}
-        >>> d.show(colored=False)
-        {
-            "id": "000000000000000000000c3aop1df5AZXCRMY3yInQeUYccGQRclWo8TvfKPB4YT",
-            "ids": {
-                "x": "000000000000000000000c3aop1df5AZXCRMY3yInQeUYccGQRclWo8TvfKPB4YT"
-            },
-            "x": 2
-        }
-        """
-        if not isinstance(other, (dict, ldict)):
-            raise FromØException(f"Empty ldict (ø) can only be passed to a dict-like object, not {type(other)}.")
-        return ldict(other, version=self.version)
+    def __xor__(self, f: Union[Dict, Callable]):
+        def trigger(output_field):
+            def closure():
+                # Try loading.
+                if output_field in db:
+                    return db[output_field]
 
+                # Return requested value without caching, if it has no cost.
+                value = self.data[output_field]
+                if not callable(value):
+                    return value
 
-ø = empty32 = Empty(version="UT32.4")
-Ø = empty64 = Empty(version="UT64.4")
+                # Process and save (all fields, to avoid a parcial ldict being stored).
+                for field in self.ids:
+                    db[field] = self[field]
+
+                # Return requested value.
+                return self[output_field]
+
+            return closure
+
+        clone = self.copy()
+        for field, v in list(self.data.items())[2:]:
+            clone.data[field] = trigger(field)
+        return clone >> f

@@ -19,7 +19,7 @@
 #  works or verbatim, obfuscated, compiled or rewritten versions of any
 #  part of this work is a crime and is unethical regarding the effort and
 #  time spent here.
-#  Relevant employers or funding agencies will be notified accordingly.
+#
 
 from unittest import TestCase
 
@@ -28,6 +28,38 @@ from ldict import ø
 
 class Test(TestCase):
     def test_cache(self):
-        a = ø >> {"x": 1, "y": 2} >> ø
-        b = a >> ø
-        self.assertEqual(a, b)
+        c = [0]
+
+        def f(x):
+            c[0] += 1
+            return x + 2
+
+        a = ø >> {"x": 1, "y": 2, 'z': f} ^ ø
+        self.assertEqual(0, c[0])
+        self.assertEqual(1, a.x)
+        self.assertEqual(0, c[0])
+        self.assertEqual(2, a.y)
+        self.assertEqual(0, c[0])
+        self.assertEqual(3, a.z)
+        self.assertEqual(1, c[0])
+        self.assertEqual(3, a.z)
+        self.assertEqual(1, c[0])
+
+        c = [0]
+        a = ø >> {"x": 1, "y": 2, 'z': f} ^ ø
+        a.show()
+        a >>= lambda z: {"z": z ** 2}
+        a.show()
+
+        # self.assertEqual(0, c[0])
+        # self.assertEqual(1, a.x)
+        # self.assertEqual(0, c[0])
+        # self.assertEqual(2, a.y)
+        # self.assertEqual(0, c[0])
+        # self.assertEqual(3, a.z)
+        # print(a.z)
+        # self.assertEqual(1, c[0])
+        # self.assertEqual(3, a.z)
+        # self.assertEqual(1, c[0])
+
+        print("ID DO z VINDO DO f ESTÁ IGUAL AO VINDO DA INSERÇÃO!!!!!")
