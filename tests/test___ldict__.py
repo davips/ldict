@@ -3,12 +3,24 @@ from unittest import TestCase
 import pytest
 
 from ldict import ldict, ø
-from ldict_modules.empty import FromØException
-from ldict import DependenceException, NoInputException
+from ldict_modules.exception import FromØException, DependenceException, NoInputException
 
 
 class TestLdict(TestCase):
-    def test_setitem_vakue(self):
+    def test_identity(self):
+        a = ø >> {"x": 1, "y": 2}
+        b = a >> ø
+        self.assertEqual(a, b)
+
+    def test_illdefined_function(self):
+        with pytest.raises(FromØException):
+            ø >> (lambda y: {"x": 5})
+        with pytest.raises(DependenceException):
+            ø >> {"x": 5} >> (lambda y: {"x": 5})
+        with pytest.raises(NoInputException):
+            ø >> {"x": 5} >> (lambda: {"x": 5})
+
+    def test_setitem_value(self):
         d = ldict()
         d["x"] = 3
         d["y"] = 4
@@ -56,18 +68,6 @@ class TestLdict(TestCase):
         d["y"] = 6
         self.assertEqual("lP5q-u4W-2MVBg19Rgx42LVk0W.Fvld.WQTI8KWS3aqpHT6ZMjsUhsF2KsyV3qyx", d.id)
 
-    def test_setitem_overwrite_function(self):
-        d = ldict()
-        d["x"] = 1
-        d["y"] = 2
-        d["z"] = 3
-        d["z"] = lambda x, y, z: x + y * z
-        # Reapply same function.
-        d["z"] = lambda x, y, z: x + y * z
-        # Reapply same function.
-        d["z"] = lambda x, y, z: x + y * z
-        # self.assertEqual("qhB7bRuqe3Xx4WUXoM8MLcUxAMVp9-HCAK1o.meENYOjT.pGD4XI7dcRwd8E7f75", d.id)
-
     def test_rshift(self):
         d = ldict()
         d["x"] = 3
@@ -97,13 +97,17 @@ class TestLdict(TestCase):
         # def f():
         #     a["x"] = 5
 
-    def test_illdefined_function(self):
-        with pytest.raises(FromØException):
-            ø >> (lambda y: {"x": 5})
-        with pytest.raises(DependenceException):
-            ø >> {"x": 5} >> (lambda y: {"x": 5})
-        with pytest.raises(NoInputException):
-            ø >> {"x": 5} >> (lambda: {"x": 5})
+    def test_setitem_overwrite_function(self):
+        d = ldict()
+        d["x"] = 1
+        d["y"] = 2
+        d["z"] = 3
+        d["z"] = lambda x, y, z: x + y * z
+        # Reapply same function.
+        d["z"] = lambda x, y, z: x + y * z
+        # Reapply same function.
+        d["z"] = lambda x, y, z: x + y * z
+        # self.assertEqual("qhB7bRuqe3Xx4WUXoM8MLcUxAMVp9-HCAK1o.meENYOjT.pGD4XI7dcRwd8E7f75", d.id)
 
 
 """

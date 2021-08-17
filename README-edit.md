@@ -35,6 +35,9 @@ poetry install
 * [x] 
 * [ ] 
 
+## Persistence
+`poetry install -E full`
+
 ## How to use [outdated]
 Two main entities are identifiable: processing functions and bags of values.
 A processing function is any callable the follows the rules below.

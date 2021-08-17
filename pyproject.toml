@@ -10,6 +10,10 @@ packages = [
     { include = "ldict_modules", from = "src" },
 ]
 
+# For more dependencies and data persistence: poetry install -E full
+[tool.poetry.extras]
+full = ["sqlalchemy"]
+
 [tool.poetry.dependencies]
 python = "^3.8"
 orjson = "^3.5.0"

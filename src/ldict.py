@@ -50,12 +50,14 @@ from uncompyle6.main import decompile
 
 from ldict_modules.abs.mixin.aux import Aux, VT
 from ldict_modules.data import process, fhosh
-from ldict_modules.empty import Empty
 
 
 # Dict typing inheritance initially based on https://stackoverflow.com/a/64323140/9681577
 # TODO: aceitar qq class que tenha id e seja operavel, como valor opcional de 'version'
 #           serve pra viabilizar teste exaustivo de grupo pequeno pra ver se o artigo funciona
+from ldict_modules.exception import FromØException, NoInputException, DependenceException, FunctionTypeException
+
+
 class Ldict(Aux, Dict[str, VT]):
     """Uniquely identified lazy dict for serializable pairs str->value
     (serializable in the project 'orjson' sense).
@@ -225,12 +227,12 @@ import ldict
         #   histórico vai ser aumentado em : (---...----x)    e vai placeholder em d
         # TODO: d >> {2: None}   delete by index
         clone = self.copy()
-        if isinstance(f, dict):
+        if isinstance(f, (dict, ldict)):
             for k, v in f.items():
                 clone[k] = v
             return clone
         elif not callable(f):
-            raise Exception("f should be callable or dict.")
+            raise Exception(f"f should be callable or dict, not {type(f)}")
 
         # Extract output fields. https://stackoverflow.com/a/68753149/9681577
         out = StringIO()
@@ -302,22 +304,42 @@ import ldict
         return clone
 
 
-class OverwriteException(Exception):
-    pass
-
-
-class DependenceException(Exception):
-    pass
-
-
-class NoInputException(Exception):
-    pass
-
-
-class FunctionTypeException(Exception):
-    pass
-
-
 ldict = Ldict
+
+
+class Empty(ldict):
+    def __init__(self, version):
+        super().__init__(version=version)
+
+    def __rshift__(self, other):
+        """
+        Usage:
+
+        >>> from ldict import ø
+        >>> d = ø >> {"x": 2}
+        >>> d.show(colored=False)
+        {
+            "id": "00000000000dc-DMDXCtigJFu0bLt-KK",
+            "ids": {
+                "x": "00000000000dc-DMDXCtigJFu0bLt-KK"
+            },
+            "x": 2
+        }
+        >>> from ldict import Ø
+        >>> d = Ø >> {"x": 2}
+        >>> d.show(colored=False)
+        {
+            "id": "000000000000000000000c3aop1df5AZXCRMY3yInQeUYccGQRclWo8TvfKPB4YT",
+            "ids": {
+                "x": "000000000000000000000c3aop1df5AZXCRMY3yInQeUYccGQRclWo8TvfKPB4YT"
+            },
+            "x": 2
+        }
+        """
+        if not isinstance(other, (dict, ldict)):
+            raise FromØException(f"Empty ldict (ø) can only be passed to a dict-like object, not {type(other)}.")
+        return ldict(other, version=self.version)
+
+
 ø = empty32 = Empty(version="UT32.4")
 Ø = empty64 = Empty(version="UT64.4")
