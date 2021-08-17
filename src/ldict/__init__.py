@@ -30,4 +30,5 @@ class Ldict(Ldict_):
 
 
 ldict = Ldict
-ø = empty = Empty()
+ø = empty32 = Empty(version="UT32.4")
+Ø = empty64 = Empty(version="UT64.4")

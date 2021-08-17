@@ -170,6 +170,9 @@ class Ldict_(Aux, Dict[str, VT]):
     def __delitem__(self, field: str) -> None:
         # REMINDER: esse del não cria placeholder, para ficar intuitivo manipular um dict. põe x, tira x etc.
         #           é distinto da remoção by name/index.
+        # TODO
+        #   ...xvwf = ...x'vw
+        #   x' = xvf[vw]-¹
         del self.data[field]
         del self.hoshes[field]
         del self.data["ids"][field]
