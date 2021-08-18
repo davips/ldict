@@ -107,7 +107,19 @@ class TestLdict(TestCase):
         d["z"] = lambda x, y, z: x + y * z
         # Reapply same function.
         d["z"] = lambda x, y, z: x + y * z
+
         # self.assertEqual("qhB7bRuqe3Xx4WUXoM8MLcUxAMVp9-HCAK1o.meENYOjT.pGD4XI7dcRwd8E7f75", d.id)
+
+        def f(x):
+            return x + 2
+
+        a = ø >> {"x": 1, "y": 2, 'z': f}
+        b = a >> (lambda z: {"z": z ** 2})
+        self.assertNotEqual(a, b)
+
+        a = ø >> {"x": 1, "y": 2, 'z': f}
+        b = a >> (lambda z: {"z": z ** 2})
+        self.assertNotEqual(a.ids["z"], b.ids["z"])
 
 
 """

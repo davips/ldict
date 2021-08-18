@@ -102,7 +102,7 @@ class Ldict(Aux, Dict[str, VT]):
     True
     """
 
-    def __init__(self, /, _dictionary=None, keepblob=False, version="UT64.4", **kwargs) -> None:
+    def __init__(self, /, _dictionary=None, keepblob=False, version="UT32.4", **kwargs) -> None:
         super().__init__()
         if version == "UT32.4":
             self.identity = identity32
@@ -222,7 +222,8 @@ class Ldict(Aux, Dict[str, VT]):
         # Insertion of dict.
         if isinstance(f, Dict):
             for k, v in f.items():
-                clone[k] = v
+                if k not in ["id", "ids"]:
+                    clone[k] = v
             return clone
         elif not callable(f):
             raise Exception(f"f should be callable or dict, not {type(f)}")

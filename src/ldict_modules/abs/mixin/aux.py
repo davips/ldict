@@ -182,17 +182,16 @@ class Aux:
     def copy(self):
         from ldict import ldict
 
-        obj = ldict()
+        obj = ldict(keepblob=self.keepblob, version=self.version)
         # mutability WARNING: any attempt to inplace update nested structures will be disastrous, e.g.: d.d["x"] = 5
         # TODO: solution: freeze ldict if being inserted as a value in other ldict, so that it cannot mutate anymore (deletion/insertion/update)
         #   It can be a wrapper class around _set_ and _del_
         obj.data = self.data.copy()
         obj.hoshes = self.hoshes.copy()
+        # obj.hashes = self.hashes.copy()  #TODO
         obj.hosh = self.hosh
         obj.previous = self.previous.copy()
         obj.blobs = self.blobs.copy()
-        obj.keepblob = self.keepblob
-        obj.version = self.version
         return obj
 
     @property

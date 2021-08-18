@@ -46,7 +46,7 @@ class Test(TestCase):
         self.assertEqual(1, c[0])
 
         c = [0]
-        a = ø >> {"x": 1, "y": 2, 'z': f} ^ ø
+        a = ø >> {"x": 1, "y": 2, 'z': f} #^ ø
         a.show()
         a >>= lambda z: {"z": z ** 2}
         a.show()
