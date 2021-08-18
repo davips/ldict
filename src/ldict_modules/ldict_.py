@@ -66,14 +66,14 @@ class Ldict(Aux, Dict[str, VT]):
     >>> from ldict import ldict
     >>> print(ldict(x=123123, y=88))
     {
-        "id": "0000000000000000000004fXFwHzGuTlkQcR5z1rzEXbWAnrZUJOq5Ua3YnFcvvx",
+        "id": "00000000001R43.FjBZ0mYLLlJ.N9IIz",
         "ids": "<1 hidden ids>",
         "x": 123123,
         "y": 88
     }
     >>> print(ldict(y=88, x=123123))  # Original values are order-insensitive.
     {
-        "id": "0000000000000000000004fXFwHzGuTlkQcR5z1rzEXbWAnrZUJOq5Ua3YnFcvvx",
+        "id": "00000000001R43.FjBZ0mYLLlJ.N9IIz",
         "ids": "<1 hidden ids>",
         "y": 88,
         "x": 123123
@@ -84,12 +84,12 @@ class Ldict(Aux, Dict[str, VT]):
     >>> e = d >> (lambda x: {"z": x**2}) >> (lambda x,y: {"w": x/y})
     >>> e.show(colored=False)
     {
-        "id": "cv8O-8-2XgHEPpZK13.ZxNsaG-HXjpWN8wSjKhuNvBqmAGLRfqklPd7FVthlOtnC",
+        "id": "cv8OZU-2XiiYE8wINjteRg7b1kmqDLEQ",
         "ids": {
-            "w": "6eLEvjtht1oj.cZycba8hg0Jl4Fbj8wKKxRfO2I123MmwjaGLpWFfPqLv2K9DxnQ",
-            "z": "6gpauRwNufnkQd0bQURQ6OcBm0ZsHgI.BurQPv4NQ-Ci3ZcuPS6yqA9nqFmFhVa5",
-            "x": "0000000000000000000001rvYECRwLyX0-V2zUk5HJ.QE5wqO8-0OdDQBV4vkwcE",
-            "y": "0000000000000000000002QrIU4K9LkrjRjOxGJlTLXniuT1bLMpZ8glu3j9Te0f"
+            "w": "6eLEvjtht1ozfCz6iZGbnGlTN6lxc3P4",
+            "z": "6gpauRwNufnwBd-v8N2asyxtJkj7mDmg",
+            "x": "00000000003owEf6BiKVZQPmQxLq-IR9",
+            "y": "00000000002szrMfKje6X7YowN4ma..D"
         },
         "w": "<unevaluated lazy field>",
         "z": "<unevaluated lazy field>",
@@ -203,8 +203,8 @@ class Ldict(Aux, Dict[str, VT]):
         {
             "id": "fCbv8nJkRvfb.lKm0hw5oZbEOJFXDCC2",
             "ids": {
-                "z": "UgSvBI5wW0.obGdYK6YRmaKe6ilW5JO9",
-                "w": ".....OiihEQ0003YiinWhU3UPrT6Ic8lQYgRmr7MliA734uYKm-9Rca8-.xVcjpF",
+                "z": "0o-CIUOcXzxEJqyvxULMntNOme8sg1Xo",
+                "w": "1110VN111mYpaXqcmrQu0IuXZ9ztseeR",
                 "y": "ecbTxZW6Uzjl2XbK2NvfZVjnF5k82oun",
                 "x": "00000000002SznfcfC6QP5WfCU8QuITi"
             },

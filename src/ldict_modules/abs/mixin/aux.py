@@ -25,7 +25,7 @@ class Aux:
 
         >>> from ldict import ldict
         >>> ldict(x=134124).n
-        78297399190853865925546422718430264658855010523272162045457933175107322571720
+        242961611356438631232947123073942258732
         """
         return self.hosh.n
 
@@ -36,9 +36,9 @@ class Aux:
 
         >>> from ldict import ldict
         >>> ldict(x=134124).id
-        '000000000000000000000aQqMuGtzigXKY9vs4vME6FPSHKoBxSJXSG4.IDSRKL8'
+        '00000000002SObhaIF6dmbIhF.sNVUgI'
         >>> ldict(x=134124).ids
-        {'x': '000000000000000000000aQqMuGtzigXKY9vs4vME6FPSHKoBxSJXSG4.IDSRKL8'}
+        {'x': '00000000002SObhaIF6dmbIhF.sNVUgI'}
         """
         return self.hosh.id
 
@@ -76,10 +76,10 @@ class Aux:
         >>> from ldict import ldict
         >>> ldict(x=134124, y= 56).show(colored=False)
         {
-            "id": "000000000000000000000cBXR5qArL1WVYOn7MW0MWyWhPWP31DmatnNd5soVRK0",
+            "id": "00000000000.jlz3OeWf68UZ-Wfrjhn3",
             "ids": {
-                "x": "000000000000000000000aQqMuGtzigXKY9vs4vME6FPSHKoBxSJXSG4.IDSRKL8",
-                "y": "0000000000000000000001Nx4CM6UsN0b0ETHIqg8ER6r8cqtvNh1mJIdoQy3kRR"
+                "x": "00000000002SObhaIF6dmbIhF.sNVUgI",
+                "y": "000000000028xahB5BQ2ltcIkrCFppg3"
             },
             "x": 134124,
             "y": 56
@@ -98,16 +98,16 @@ class Aux:
         >>> a = ldict(x=134124)
         >>> b = ldict(y=134124)
         >>> a.cells
-        [0, 0, 12473495331365790899, 7728865973021107401, 8212075338224970119, 6157470389993991581]
+        [0, 0, 3066606677, 1750343202, 1099825332, 2306253791]
         >>> (a + b).cells
-        [0, 0, 16031506638198821588, 13834746703073065004, 4696393870013716036, 6637745325376246119]
+        [0, 0, 23189221, 15893371, 2300255245, 881945888]
         >>> b = a + ldict(y=134124)
         >>> b.cells
-        [0, 0, 16031506638198821588, 13834746703073065004, 4696393870013716036, 6637745325376246119]
+        [0, 0, 23189221, 15893371, 2300255245, 881945888]
         >>> f = lambda x: {'z': x ** 2}
         >>> print(b >> f)
         {
-            "id": "6gpauRwNufnkQd0bQURQ6StW37uWRxHR5Rktu83X6vMvb7WTgQRLA8FVDRFGdcwH",
+            "id": "6gpauRwNufp-ZK.NT4goJV9C4AWWqETT",
             "ids": "<2 hidden ids>",
             "z": "<unevaluated lazy field>",
             "x": 134124,
@@ -149,24 +149,24 @@ class Aux:
         >>> a = ldict(x=134124)
         >>> b = ldict(y=542542)
         >>> a.id, b.id
-        ('000000000000000000000aQqMuGtzigXKY9vs4vME6FPSHKoBxSJXSG4.IDSRKL8', '0000000000000000000008RYrX8XDiNbFnEv9cJZy-pTw2nSHxy64stPR602KmI1')
+        ('00000000002SObhaIF6dmbIhF.sNVUgI', '00000000003mpDOELy5K.VwDZ9Vyn2AW')
         >>> print(a + b)
         {
-            "id": "0000000000000000000003GncpPpaB5PojN-BhdJSHHHmK6fh4aZ3j7UQODURT5o",
+            "id": "00000000002dbP47sbbXMlcVDFakgWHx",
             "ids": "<1 hidden ids>",
             "x": 134124,
             "y": 542542
         }
         >>> print(b + a)
         {
-            "id": "0000000000000000000003GncpPpaB5PojN-BhdJSHHHmK6fh4aZ3j7UQODURT5o",
+            "id": "00000000002dbP47sbbXMlcVDFakgWHx",
             "ids": "<1 hidden ids>",
             "y": 542542,
             "x": 134124
         }
         >>> print(b + a + b)
         {
-            "id": "0000000000000000000003GncpPpaB5PojN-BhdJSHHHmK6fh4aZ3j7UQODURT5o",
+            "id": "00000000002dbP47sbbXMlcVDFakgWHx",
             "ids": "<1 hidden ids>",
             "x": 134124,
             "y": 542542
@@ -255,21 +255,21 @@ class Aux:
         >>> a = ldict(x=123)
         >>> print(a)
         {
-            "id": "000000000000000000000eqEFMZGUZzQFTmxCZxEnDEJHiWcdZc1I4.oNUufZzv9",
+            "id": "00000000002stN2crXIrINutqB4rNGWr",
             "ids": "<1 hidden id>",
             "x": 123
         }
         >>> b = ldict(y="some text")
         >>> print(b)
         {
-            "id": "0000000000000000000004uDaFL.-o9CHFrbEUsuhPnJHDTFe5Uoz746KCdo24Om",
+            "id": "000000000021j-B-Pd-.ZBcWw9a6sVoI",
             "ids": "<1 hidden id>",
             "y": "some text"
         }
         >>> b.update(a)
         >>> print(b)
         {
-            "id": "0000000000000000000002VfQqJGTlN7lwNJfR-6l1ErmWNRs3SzhY3vwuHDhpYF",
+            "id": "00000000000tNLEvf9Hr4SHnXdqyeA9r",
             "ids": "<1 hidden ids>",
             "y": "some text",
             "x": 123
@@ -282,7 +282,55 @@ class Aux:
                 raise Exception("Different versions:", self.version, other.version)
             self.keepblob = self.keepblob or other.keepblob
             self.blobs.update(other.blobs)
+            other.evaluate()
         kwds.update(other)
         for field, value in kwds.items():
             if field not in ["id", "ids"]:
                 self[field] = value
+
+    def evaluate(self):
+        """
+        Usage:
+
+        >>> from ldict import ldict
+        >>> a = ldict(x=3) >> (lambda x: {"y": x+2})
+        >>> a.show(colored=False)
+        {
+            "id": "32GJlU0bICVvZ0.L1cS8HJ5Bin47kG6u",
+            "ids": {
+                "y": "32GJlU0bICW9eJIGonjBPBnvwjsRY6yo",
+                "x": "00000000003mKjiNERyzq0vnvE.VYU4H"
+            },
+            "y": "<unevaluated lazy field>",
+            "x": 3
+        }
+        >>> a.evaluate()
+        >>> a.show(colored=False)
+        {
+            "id": "32GJlU0bICVvZ0.L1cS8HJ5Bin47kG6u",
+            "ids": {
+                "y": "32GJlU0bICW9eJIGonjBPBnvwjsRY6yo",
+                "x": "00000000003mKjiNERyzq0vnvE.VYU4H"
+            },
+            "y": 5,
+            "x": 3
+        }
+        >>> a = ldict(x=3) >> (lambda x: {"x": x+2})
+        >>> a.show(colored=False)
+        {
+            "id": "j5BZ5LZL6Ty4--z8vyNKNzAW.iJa-Hc6",
+            "ids": {
+                "x": "00000000003mKjiNERyzq0vnvE.VYU4H"
+            },
+            "x": 3
+        }
+        >>> a.x
+        5
+
+        Returns
+        -------
+
+        """
+        for field in self:
+            self[field]
+
