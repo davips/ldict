@@ -152,9 +152,9 @@ class Ldict(Aux, Dict[str, VT]):
     def __setitem__(self, field: str, value: VT) -> None:
         if not isinstance(field, str):
             raise Exception(f"Key must be string, not {type(field)}.", field)
-        # TODO
-        #   ...xvwf = ...x'vw
-        #   x' = xvf[vw]-¹
+        if callable(value):
+            raise Exception(f"A value for the field [{field}] cannot have type {type(value)}. "
+                            f"For inplace function application, use operator >>= instead")
 
         # Work around field overwrite.
         if field in self.data:
@@ -195,7 +195,10 @@ class Ldict(Aux, Dict[str, VT]):
             self.hosh *= hosh
         # TODO: histórico aqui vai ser p/ del d[y] : [yzw]-¹zw
 
-    def __rshift__(self, f: Union[Dict, Callable]):
+    def __irshift__(self, f: Union[Dict, Callable]):
+        self.__rshift__(f, inplace=True)  # TODO: nunca testado!
+
+    def __rshift__(self, f: Union[Dict, Callable], inplace=False):
         """Used for multiple return values, or to insert values during a multistep process.
         >>> from ldict import ø
         >>> d = ø >> {"x": 1} >> (lambda x: {"y": x**2}) >> (lambda x,y:{"z": x+y, "w": x/y})
@@ -217,7 +220,10 @@ class Ldict(Aux, Dict[str, VT]):
         # TODO: d >> {"x": None}   delete by name
         #   histórico vai ser aumentado em : (---...----x)    e vai placeholder em d
         # TODO: d >> {2: None}   delete by index
-        clone = self.copy()
+        clone = self if inplace else self.copy()
+        # TODO
+        #   ...xvwf = ...x'vw
+        #   x' = xvf[vw]-¹
 
         # Insertion of dict.
         if isinstance(f, Dict):
