@@ -27,8 +27,8 @@ class TestLdict(TestCase):
         d["z"] = 5
         self.assertEqual(
             """{
-    "id": "00000000002XaxzpuffzTwyjyVXQJUDq",
-    "ids": "<2 hidden ids>",
+    "id": "00000000001w6Ep1HQgaMx-d-i-4i1OB",
+    "ids": "000000000012DbMaJFRs3dca34FbGven... +2 ...00000000002MOCZRpfJZZbdpTtxagqTj",
     "x": 3,
     "y": 4,
     "z": 5
@@ -44,9 +44,9 @@ class TestLdict(TestCase):
 
         self.assertEqual(
             """{
-    "id": "1VP6w4Zv2WO9fWfAttaclfMfPrcbxpTU",
-    "ids": "<2 hidden ids>",
-    "z": "<unevaluated lazy field>",
+    "id": "jnBdalsrWotpNVXb1tp172EErX.uzBcj",
+    "ids": "jnBdalsrWorPQrdwxvEp7mDAvY3V1YRZ... +2 ...00000000000zmiZwOjXbVbfdGeoJrdzK",
+    "z": "→(x y)",
     "x": 3,
     "y": 5
 }""",
@@ -62,13 +62,15 @@ class TestLdict(TestCase):
 
         # Overwrite same value.
         d["y"] = 5
-        self.assertEqual("1VP6w4Zv2WO9fWfAttaclfMfPrcbxpTU", d.id)
+        self.assertEqual("jnBdalsrWotpNVXb1tp172EErX.uzBcj", d.id)
+
         # Repeate same overwrite.
         d["y"] = 5
-        self.assertEqual("1VP6w4Zv2WO9fWfAttaclfMfPrcbxpTU", d.id)
+        self.assertEqual("jnBdalsrWotpNVXb1tp172EErX.uzBcj", d.id)
+
         # Overwrite other value.
         d["y"] = 6
-        self.assertEqual("1VP6w4Zv2WQEYBjQB3Dlslafp6YJepOT", d.id)
+        self.assertEqual("jnBdalsrWor2AgxVe.vYvASzgdhOqgtP", d.id)
 
     def test_rshift(self):
         d = ldict()
@@ -77,16 +79,16 @@ class TestLdict(TestCase):
         d >>= lambda x, y: {"z": x * y}
         self.assertEqual(
             """{
-    "id": "1VP6w4Zv2WO9fWfAttaclfMfPrcbxpTU",
-    "ids": "<2 hidden ids>",
-    "z": "<unevaluated lazy field>",
+    "id": "jnBdalsrWotpNVXb1tp172EErX.uzBcj",
+    "ids": "jnBdalsrWorPQrdwxvEp7mDAvY3V1YRZ... +2 ...00000000000zmiZwOjXbVbfdGeoJrdzK",
+    "z": "→(x y)",
     "x": 3,
     "y": 5
 }""",
             str(d),
         )
 
-        self.assertEqual(d.z, 15)
+        self.assertEqual(15, d.z)
 
     def test_overwrite(self):
         a = ldict(x=3)
@@ -104,24 +106,33 @@ class TestLdict(TestCase):
         d["x"] = 1
         d["y"] = 2
         d["z"] = 3
-        d >>= lambda x, y, z: {"z": x + y * z}
-        # Reapply same function.
-        d >>= lambda x, y, z: {"z": x + y * z}
-        # Reapply same function.
-        d >>= lambda x, y, z: {"z": x + y * z}
 
-        # self.assertEqual("qhB7bRuqe3Xx4WUXoM8MLcUxAMVp9-HCAK1o.meENYOjT.pGD4XI7dcRwd8E7f75", d.id)
+        # Apply some function.
+        old = d
+        d >>= lambda x, y, z: {"z": x + y * z}  # 7
+        self.assertNotEqual(old, d)
+
+        # Reapply same function.
+        old = d
+        d >>= lambda x, y, z: {"z": x + y * z}  # 15
+        self.assertNotEqual(old, d)
+
+        # Reapply same function.
+        old = d
+        d >>= lambda x, y, z: {"z": x + y * z}  # 31
+        self.assertNotEqual(old, d)
+
+        self.assertEqual(31, d.z)
 
         def f(x):
             return {"z": x + 2}
 
         a = ø >> {"x": 1, "y": 2} >> f
-        b = a >> (lambda z: {"z": z ** 2})
+        b = a >> (lambda x: {"z": x ** 2})
         self.assertNotEqual(a, b)
-
-        a = ø >> {"x": 1, "y": 2} >> f
-        b = a >> (lambda z: {"z": z ** 2})
-        # self.assertNotEqual(a.ids["z"], b.ids["z"])
+        self.assertNotEqual(a.ids["z"], b.ids["z"])
+        self.assertEqual(a.ids["x"], b.ids["x"])
+        self.assertEqual(a.ids["y"], b.ids["y"])
 
 
 """

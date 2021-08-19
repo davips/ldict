@@ -19,25 +19,6 @@
 #  works or verbatim, obfuscated, compiled or rewritten versions of any
 #  part of this work is a crime and is unethical regarding the effort and
 #  time spent here.
-#
-#  ldict is free software: you can redistribute it and/or modify
-#  it under the terms of the GNU General Public License as published by
-#  the Free Software Foundation, either version 3 of the License, or
-#  (at your option) any later version.
-#
-#  ldict is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with ldict.  If not, see <http://www.gnu.org/licenses/>.
-#
-#  (*) Removing authorship by any means, e.g. by distribution of derived
-#  works or verbatim, obfuscated, compiled or rewritten versions of any
-#  part of this work is a crime and is unethical regarding the effort and
-#  time spent here.
-#
 
 import re
 from inspect import signature
@@ -53,6 +34,7 @@ from ldict_modules.data import process, fhosh
 # TODO: aceitar qq class que tenha id e seja operavel, como valor opcional de 'version'
 #           serve pra viabilizar teste exaustivo de grupo pequeno pra ver se o artigo funciona
 from ldict_modules.exception import NoInputException, DependenceException, FunctionTypeException, MissingField
+from ldict_modules.lazy import Lazy
 
 db = {}
 
@@ -102,16 +84,14 @@ class Ldict(Aux, Dict[str, VT]):
     True
     """
 
-    def __init__(self, /, _dictionary=None, keepblob=False, version="UT32.4", **kwargs) -> None:
+    def __init__(self, /, _dictionary=None, keepblob=None, version="UT32.4", **kwargs) -> None:
         super().__init__()
         if version == "UT32.4":
             self.identity = identity32
-            self.rho0 = Hosh.fromid("------------------------------.0", version="UT32.4")
+            self.rho0 = Hosh.fromid("------------------------------.0")
         elif version == "UT64.4":
             self.identity = identity64
-            self.rho0 = Hosh.fromid(
-                "--------------------------------------------------------------.0", version="UT64.4"
-            )
+            self.rho0 = Hosh.fromid("--------------------------------------------------------------.0")
         else:
             raise Exception("Unknown version:", version)
 
@@ -126,28 +106,13 @@ class Ldict(Aux, Dict[str, VT]):
     def __getitem__(self, field: str) -> VT:
         if field in self.data:
             content = self.data[field]
-            if callable(content):
-                if field in self.previous:
-                    self.data[field] = self.previous[field].pop()
-                    if len(self.previous[field]) == 0:
-                        del self.previous[field]
-                try:
-                    self.data[field] = content(**self._getkwargs(signature(content).parameters.keys()))
-                except MissingField as mf:
-                    print(self)
-                    raise MissingField(f"Missing field {mf} to calculate field {field}.")
-                return self.data[field]
-            else:
-                return self.data[field]
+            if isinstance(content, Lazy):
+                self.data[field] = content()
+                # except MissingField as mf:
+                #     print(self)
+                #     raise MissingField(f"Missing field {mf} to calculate field {field}.") #TODO should never happen, test at expr instead
+            return self.data[field]
         raise KeyError(field)
-
-    def _getkwargs(self, fargs):
-        dic = {}
-        for k in fargs:
-            if k not in self:
-                raise MissingField(k)
-            dic[k] = self[k]
-        return dic
 
     def __setitem__(self, field: str, value: VT) -> None:
         if not isinstance(field, str):
@@ -155,23 +120,14 @@ class Ldict(Aux, Dict[str, VT]):
         if callable(value):
             raise Exception(f"A value for the field [{field}] cannot have type {type(value)}. "
                             f"For inplace function application, use operator >>= instead")
-
-        # Work around field overwrite.
-        if field in self.data:
-            if callable(value):
-                if field in self.previous:
-                    self.previous[field].append(self.data[field])
-                else:
-                    self.previous[field] = [self.data[field]]
-                # TODO: histórico aqui vai ser aumentado em: f
-            else:
-                del self[field]
-                # TODO: histórico aqui vai ser aumentado em: (---...----x)x'
+        # TODO add complex history here
+        # TODO add history here
 
         # Create field's hosh and update ldict's hosh.
         h, blob = process(field, value, version=self.version)
         old_hash = self.hosh
-        self.hosh *= h
+        if h != self.hoshes.get(field, self.rho0):
+            self.hosh *= h
         field_hash = self.hosh / old_hash if blob is None else h
         self.hoshes[field] = field_hash
 
@@ -181,8 +137,7 @@ class Ldict(Aux, Dict[str, VT]):
         self.data["ids"][field] = field_hash.id
 
         # Keep blob if required. TODO: keep hoshes sem key embutida
-        if blob and self.keepblob:
-            self.blobs[field] = blob
+        self.blobs[field] = self.keepblob and blob
 
     def __delitem__(self, field: str) -> None:
         # REMINDER: esse del não cria placeholder, para ficar intuitivo manipular um dict. põe x, tira x etc.
@@ -193,10 +148,10 @@ class Ldict(Aux, Dict[str, VT]):
         self.hosh = self.identity
         for hosh in self.hoshes.values():
             self.hosh *= hosh
-        # TODO: histórico aqui vai ser p/ del d[y] : [yzw]-¹zw
+        # TODO: histórico aqui vai ser p/ del d[y] : [yzw]-¹zw   [ou só reescreve historico mesmo]
 
-    def __irshift__(self, f: Union[Dict, Callable]):
-        self.__rshift__(f, inplace=True)  # TODO: nunca testado!
+    # def __irshift__(self, f: Union[Dict, Callable]):
+    #     self.__rshift__(f, inplace=True)  # TODO: não funciona
 
     def __rshift__(self, f: Union[Dict, Callable], inplace=False):
         """Used for multiple return values, or to insert values during a multistep process.
@@ -232,7 +187,7 @@ class Ldict(Aux, Dict[str, VT]):
                     clone[k] = v
             return clone
         elif not callable(f):
-            raise Exception(f"f should be callable or dict, not {type(f)}")
+            raise Exception(f"Function should be callable or dict, not {type(f)}")
 
         # Extract output fields. https://stackoverflow.com/a/68753149/9681577
         if hasattr(f, "output_fields"):
@@ -253,22 +208,17 @@ class Ldict(Aux, Dict[str, VT]):
                 )
             output_fields = re.findall(r"(?:[\"'])([a-zA-Z]+[a-zA-Z0-9_]*)(?:[\"'])", dicts[0])
 
-        # Work around field overwrite.
-        for field in output_fields:
-            if field in clone.data:
-                clone.previous[field] = [clone.data[field]]
-
         # Detect input fields.
         if hasattr(f, "input_fields"):
-            fargs = f.input_fields
+            input_fields = f.input_fields
         else:
-            fargs = signature(f).parameters.keys()
-            if not fargs:
+            input_fields = signature(f).parameters.keys()
+            if not input_fields:
                 raise NoInputException(f"Missing function input parameters.")
-            for field in fargs:
+            for field in input_fields:
                 if field not in self.data:
                     # TODO: stacktrace para apontar toda a cadeia de dependências, caso seja profunda
-                    raise DependenceException(f"Function depends on inexistent field [{field}].")
+                    raise DependenceException(f"Function depends on inexistent field [{field}].", self.data.keys())
 
         # Attach hosh to f if needed.
         if not hasattr(f, "hosh"):
@@ -337,7 +287,7 @@ class Ldict(Aux, Dict[str, VT]):
 
                 # Return requested value without caching, if it has no cost.
                 value = self.data[output_field]
-                if not callable(value):
+                if not isinstance(v, Lazy):
                     return value
 
                 # Process and save (all fields, to avoid a parcial ldict being stored).
@@ -353,3 +303,11 @@ class Ldict(Aux, Dict[str, VT]):
         for field, v in list(self.data.items())[2:]:
             clone.data[field] = trigger(field)
         return clone >> f
+
+    def _getkwargs(self, fargs):
+        dic = {}
+        for k in fargs:
+            if k not in self:
+                raise MissingField(k)
+            dic[k] = self[k]
+        return dic

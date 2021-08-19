@@ -37,9 +37,9 @@ class Empty(Ldict):
         >>> d = ø >> {"x": 2}
         >>> d.show(colored=False)
         {
-            "id": "00000000000dc-DMDXCtigJFu0bLt-KK",
+            "id": "00000000002Kr0xQsTE-wiXD9nPUwOyq",
             "ids": {
-                "x": "00000000000dc-DMDXCtigJFu0bLt-KK"
+                "x": "00000000002Kr0xQsTE-wiXD9nPUwOyq"
             },
             "x": 2
         }
@@ -47,9 +47,9 @@ class Empty(Ldict):
         >>> d = Ø >> {"x": 2}
         >>> d.show(colored=False)
         {
-            "id": "000000000000000000000c3aop1df5AZXCRMY3yInQeUYccGQRclWo8TvfKPB4YT",
+            "id": "000000000000000000000fv3XO3UgrQinkevt-6pxrFODJMK5gW6cyorY.-Tadtz",
             "ids": {
-                "x": "000000000000000000000c3aop1df5AZXCRMY3yInQeUYccGQRclWo8TvfKPB4YT"
+                "x": "000000000000000000000fv3XO3UgrQinkevt-6pxrFODJMK5gW6cyorY.-Tadtz"
             },
             "x": 2
         }

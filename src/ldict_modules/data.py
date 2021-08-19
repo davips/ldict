@@ -37,7 +37,7 @@ def process(field, value, version):
 
     >>> hosh, blob = process("X", 123, "UT64.4")
     >>> hosh.id
-    '0000000000000000000006jfeYEWNkSX84ldc-BIj0ST9rhlkTESf81XaQdiwRPm'
+    '000000000000000000000dHdUWpyde2pYKmMPrlf3jsgYRCHG5r0pjr5.ppXaVVi'
     >>> blob
     b'{"X":123}'
     >>> f = lambda X: 123
@@ -45,7 +45,7 @@ def process(field, value, version):
     False
     >>> hosh, blob = process("X", f, "UT64.4")
     >>> hosh.id
-    '0Hnk2JmONmtdVhrbKynYmUw7VticOUQ9B1Cz1pBl3ScZcYQpDH5LqmV8B19RSKm-'
+    'fCnqZp8kieVFrP4uCsQPLmcflhA5ENCk2oRbzdjBxUxr.2mWiVrBjut5cJmaR3m2'
     >>> blob is None
     True
     >>> f.hosh = hosh
@@ -89,7 +89,7 @@ def process(field, value, version):
             x   ->  v1
             y   ->  v2
     }
-    *: talvez seja melhor apenas sob demanda e ficar como atributo, não field.  Está colidindo com Hash(s).
+    *: talvez seja melhor apenas sob demanda e ficar como atributo, não field.
     """
     bytes = dumps(obj, option=OPT_SORT_KEYS)
     return Hosh(bytes, "hybrid", version=version), bytes
@@ -102,7 +102,7 @@ def fhosh(f, version):
     Usage:
 
     >>> print(fhosh(lambda x: {"z": x**2}, "UT64.4"))
-    6gpauRwNufnkQd0bQURQ6PCoLwITFuiI41RNGUIzuc37AK9AyeQuM2xhry9fjbPb
+    iPPcPO9Kkix07KQ8Ve8iNY3UEMIHYpQgb6iBJUI-6bCrt0RjyZ1gRfnUIlxXiwop
 
     Parameters
     ----------

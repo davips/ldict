@@ -5,6 +5,8 @@ from typing import TYPE_CHECKING
 
 from garoupa import Hosh
 
+from ldict_modules.lazy import Lazy
+
 if TYPE_CHECKING:
     from ldict import Ldict
 
@@ -98,18 +100,18 @@ class Aux:
         >>> a = ldict(x=134124)
         >>> b = ldict(y=134124)
         >>> a.cells
-        [0, 0, 3066606677, 1750343202, 1099825332, 2306253791]
+        [0, 0, 1046869178, 2442989982, 1777475881, 2847007990]
         >>> (a + b).cells
-        [0, 0, 23189221, 15893371, 2300255245, 881945888]
+        [0, 0, 2621165707, 3945024901, 14724739, 3837620993]
         >>> b = a + ldict(y=134124)
         >>> b.cells
-        [0, 0, 23189221, 15893371, 2300255245, 881945888]
+        [0, 0, 2621165707, 3945024901, 14724739, 3837620993]
         >>> f = lambda x: {'z': x ** 2}
         >>> print(b >> f)
         {
-            "id": "6gpauRwNufp-ZK.NT4goJV9C4AWWqETT",
-            "ids": "<2 hidden ids>",
-            "z": "<unevaluated lazy field>",
+            "id": "b6iBJUI-6bBh0amXQXuMrvuu.unh4vab",
+            "ids": "b6iBJUI-6bCQNdkB41irvRsir15H..4d... +2 ...00000000001tRtLbSvZqM9ldD68RaQ.A",
+            "z": "→(x)",
             "x": 134124,
             "y": 134124
         }
@@ -119,20 +121,24 @@ class Aux:
     def __str__(self, all=False):
         dic = self.data.copy()
         for k, v in self.data.items():
-            if callable(v):
-                dic[k] = "<unevaluated lazy field>"
+            if isinstance(v, Lazy):
+                dic[k] = str(v)
         if not all:
-            dic["ids"] = "<1 hidden id>" if len(dic["ids"]) == 1 else f"<{(len(self) - 1) // 2} hidden ids>"
-        return json.dumps(dic, indent=4)
+            if len(self.ids) < 3:
+                dic["ids"] = " ".join(self.ids.values())
+            else:
+                ids = list(self.ids.values())
+                dic["ids"] = f"{ids[0]}... +{(len(self) - 1) // 2} ...{ids[-1]}"
+        return json.dumps(dic, indent=4, ensure_ascii=False)
 
     def __repr__(self, all=False):
         dic = self.data.copy()
         for k, v in self.data.items():
-            if callable(v):
-                dic[k] = "<unevaluated lazy field>"
+            if isinstance(v, Lazy):
+                dic[k] = str(v)
         if not all:
             dic["ids"] = "<1 hidden id>" if len(dic["ids"]) == 1 else f"<{(len(self) - 1) // 2} hidden ids>"
-        txt = json.dumps(dic, indent=4)
+        txt = json.dumps(dic, indent=4, ensure_ascii=False)
         for k, v in dic.items():
             if k == "id":
                 txt = txt.replace(dic[k], self.hosh.idc)
@@ -149,27 +155,27 @@ class Aux:
         >>> a = ldict(x=134124)
         >>> b = ldict(y=542542)
         >>> a.id, b.id
-        ('00000000002SObhaIF6dmbIhF.sNVUgI', '00000000003mpDOELy5K.VwDZ9Vyn2AW')
+        ('00000000000-pviSWqeWNg6K8SBoxnz5', '00000000002mKYOzJxMGOXt0d00OFKXG')
         >>> print(a + b)
         {
-            "id": "00000000002dbP47sbbXMlcVDFakgWHx",
-            "ids": "<1 hidden ids>",
+            "id": "00000000003l8s5pDX.BDHzKlOybb6wj",
+            "ids": "00000000000-pviSWqeWNg6K8SBoxnz5 00000000002mKYOzJxMGOXt0d00OFKXG",
             "x": 134124,
             "y": 542542
         }
         >>> print(b + a)
         {
-            "id": "00000000002dbP47sbbXMlcVDFakgWHx",
-            "ids": "<1 hidden ids>",
+            "id": "00000000003l8s5pDX.BDHzKlOybb6wj",
+            "ids": "00000000002mKYOzJxMGOXt0d00OFKXG 00000000000-pviSWqeWNg6K8SBoxnz5",
             "y": 542542,
             "x": 134124
         }
         >>> print(b + a + b)
         {
-            "id": "00000000002dbP47sbbXMlcVDFakgWHx",
-            "ids": "<1 hidden ids>",
-            "x": 134124,
-            "y": 542542
+            "id": "00000000003l8s5pDX.BDHzKlOybb6wj",
+            "ids": "00000000002mKYOzJxMGOXt0d00OFKXG 00000000000-pviSWqeWNg6K8SBoxnz5",
+            "y": 542542,
+            "x": 134124
         }
         """
 
@@ -255,22 +261,22 @@ class Aux:
         >>> a = ldict(x=123)
         >>> print(a)
         {
-            "id": "00000000002stN2crXIrINutqB4rNGWr",
-            "ids": "<1 hidden id>",
+            "id": "00000000001J3NH7RxPk1KaXpcKTZKyn",
+            "ids": "00000000001J3NH7RxPk1KaXpcKTZKyn",
             "x": 123
         }
         >>> b = ldict(y="some text")
         >>> print(b)
         {
-            "id": "000000000021j-B-Pd-.ZBcWw9a6sVoI",
-            "ids": "<1 hidden id>",
+            "id": "00000000001MBkeRJxvTONG7hkCFgzDd",
+            "ids": "00000000001MBkeRJxvTONG7hkCFgzDd",
             "y": "some text"
         }
         >>> b.update(a)
         >>> print(b)
         {
-            "id": "00000000000tNLEvf9Hr4SHnXdqyeA9r",
-            "ids": "<1 hidden ids>",
+            "id": "00000000003tF5VZz3jbQvR2Gxhxei9F",
+            "ids": "00000000001MBkeRJxvTONG7hkCFgzDd 00000000001J3NH7RxPk1KaXpcKTZKyn",
             "y": "some text",
             "x": 123
         }
@@ -296,21 +302,21 @@ class Aux:
         >>> a = ldict(x=3) >> (lambda x: {"y": x+2})
         >>> a.show(colored=False)
         {
-            "id": "32GJlU0bICVvZ0.L1cS8HJ5Bin47kG6u",
+            "id": "oA4Wx.uyOR.dKno71my3KuC2mvbni-u4",
             "ids": {
-                "y": "32GJlU0bICW9eJIGonjBPBnvwjsRY6yo",
-                "x": "00000000003mKjiNERyzq0vnvE.VYU4H"
+                "y": "oA4Wx.uyOS2b7bDEjIIEgYr5d8E6FQis",
+                "x": "000000000012DbMaJFRs3dca34FbGven"
             },
-            "y": "<unevaluated lazy field>",
+            "y": "→(x)",
             "x": 3
         }
         >>> a.evaluate()
         >>> a.show(colored=False)
         {
-            "id": "32GJlU0bICVvZ0.L1cS8HJ5Bin47kG6u",
+            "id": "oA4Wx.uyOR.dKno71my3KuC2mvbni-u4",
             "ids": {
-                "y": "32GJlU0bICW9eJIGonjBPBnvwjsRY6yo",
-                "x": "00000000003mKjiNERyzq0vnvE.VYU4H"
+                "y": "oA4Wx.uyOS2b7bDEjIIEgYr5d8E6FQis",
+                "x": "000000000012DbMaJFRs3dca34FbGven"
             },
             "y": 5,
             "x": 3
@@ -318,11 +324,11 @@ class Aux:
         >>> a = ldict(x=3) >> (lambda x: {"x": x+2})
         >>> a.show(colored=False)
         {
-            "id": "j5BZ5LZL6Ty4--z8vyNKNzAW.iJa-Hc6",
+            "id": "kRDDYQ1V4KvywzYQIuFcWItzGl.BTxHc",
             "ids": {
-                "x": "00000000003mKjiNERyzq0vnvE.VYU4H"
+                "x": "000000000012DbMaJFRs3dca34FbGven"
             },
-            "x": 3
+            "x": "→(x)"
         }
         >>> a.x
         5
@@ -333,4 +339,3 @@ class Aux:
         """
         for field in self:
             self[field]
-
