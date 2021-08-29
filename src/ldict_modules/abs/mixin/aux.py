@@ -205,7 +205,7 @@ class Aux:
         return hex(self.n)[2:]
 
     def __hash__(self):
-        return self.n
+        return hash(self.hosh)
 
     def __eq__(self, other):
         from ldict import Ldict
