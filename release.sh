@@ -12,6 +12,16 @@ poetry run pytest src tests --cov=src --doctest-modules
 echo "----------------- tested -----------------------"
 echo; echo
 
+echo
+echo "----------------- docs... -----------------------"
+read -p "press enter"
+poetry run pdoc --html --force ldict -o docs
+mv docs/ldict/* docs/
+rm docs/ldict -rf
+git add docs
+echo "----------------- docs done -----------------------"
+echo; echo
+
 echo "---------------- readme ----------------"
 read -p "press enter"
 source venv/bin/activate

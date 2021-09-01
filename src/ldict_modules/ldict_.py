@@ -73,8 +73,8 @@ class Ldict(Aux, Dict[str, VT]):
             "x": "00000000003owEf6BiKVZQPmQxLq-IR9",
             "y": "00000000002szrMfKje6X7YowN4ma..D"
         },
-        "w": "<unevaluated lazy field>",
-        "z": "<unevaluated lazy field>",
+        "w": "<unevaluated; depends on x,y>",
+        "z": "<unevaluated; depends on x>",
         "x": 123123,
         "y": 88
     }
@@ -148,7 +148,10 @@ class Ldict(Aux, Dict[str, VT]):
         self.hosh = self.identity
         for hosh in self.hoshes.values():
             self.hosh *= hosh
-        # TODO: histórico aqui vai ser p/ del d[y] : [yzw]-¹zw   [ou só reescreve historico mesmo]
+        # TODO: histórico aqui não vai ser [yzw]-¹zw  nem  adulterar  pois fica ruim pra quem está manipulando como um dict ver um histórico tumultuado
+        #       'del' vai fritar o histórico fazendo ele ser apenas uma sequência de inserções.
+        #       O mesmo vale p/ 'set' quando é overwrite, posso dizer q é pela filosofia de imutabilidade, iria adulterar os dados, então se tornam originais
+        #       quando 'set' vem internamente via d<<{}, em vez de adulterar histórico, deve causar exceção de overwrite.
 
     # def __irshift__(self, f: Union[Dict, Callable]):
     #     self.__rshift__(f, inplace=True)  # TODO: não funciona
@@ -166,9 +169,9 @@ class Ldict(Aux, Dict[str, VT]):
                 "y": "ecbTxZW6Uzjl2XbK2NvfZVjnF5k82oun",
                 "x": "00000000002SznfcfC6QP5WfCU8QuITi"
             },
-            "z": "<unevaluated lazy field>",
-            "w": "<unevaluated lazy field>",
-            "y": "<unevaluated lazy field>",
+            "z": "<unevaluated; depends on x,y>",
+            "w": "<unevaluated; depends on x,y>",
+            "y": "<unevaluated; depends on x>",
             "x": 1
         }
         """
@@ -247,7 +250,9 @@ class Ldict(Aux, Dict[str, VT]):
                     field_hash = ~acc * ufu
             new_hashes[field] = field_hash
             # noinspection PyProtectedMember
-            new_data[field] = clone._trigger(field, f, fargs)
+            new_data[field] = Lazy(field, f, deps={k: self.data[k] for k in input_fields})
+            if field in clone.data:
+                del clone.data[field]
             new_data["ids"][field] = field_hash.id
 
         new_hashes.update(clone.hoshes)
