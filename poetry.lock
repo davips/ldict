@@ -165,7 +165,7 @@ reference = "dvpypi"
 
 [[package]]
 name = "garoupa"
-version = "2.210907.5"
+version = "2.210907.6"
 description = "Predictable operable hash-based identifiers and abstract algebra groups"
 category = "main"
 optional = false
@@ -773,8 +773,8 @@ coverage = [
     {file = "coverage-5.5.tar.gz", hash = "sha256:ebe78fe9a0e874362175b02371bdfbee64d8edc42a044253ddf4ee7d3c15212c"},
 ]
 garoupa = [
-    {file = "garoupa-2.210907.5-py3-none-any.whl", hash = "md5:31022a8afa598fb9386a1b73f4db587f"},
-    {file = "garoupa-2.210907.5.tar.gz", hash = "md5:74447f92c87043bade06b0515de81266"},
+    {file = "garoupa-2.210907.6-py3-none-any.whl", hash = "md5:0dedb81c732fa7d5592c26c87eb0059a"},
+    {file = "garoupa-2.210907.6.tar.gz", hash = "md5:4123f1624103da9ea084eaabaab50ad6"},
 ]
 iniconfig = [
     {file = "iniconfig-1.1.1-py2.py3-none-any.whl", hash = "sha256:011e24c64b7f47f6ebd835bb12a743f2fbe9a26d4cecaa7f53bc4f35ee9da8b3"},

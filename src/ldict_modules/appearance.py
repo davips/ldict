@@ -19,44 +19,11 @@
 #  works or verbatim, obfuscated, compiled or rewritten versions of any
 #  part of this work is illegal and unethical regarding the effort and
 #  time spent here.
-#
-#  garoupa is free software: you can redistribute it and/or modify
-#  it under the terms of the GNU General Public License as published by
-#  the Free Software Foundation, either version 3 of the License, or
-#  (at your option) any later version.
-#
-#  garoupa is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with garoupa.  If not, see <http://www.gnu.org/licenses/>.
-#
-#  (*) Removing authorship by any means, e.g. by distribution of derived
-#  works or verbatim, obfuscated, compiled or rewritten versions of any
-#  part of this work is illegal and unethical regarding the effort and
-#  time spent here.
-#
-#  garoupa is free software: you can redistribute it and/or modify
-#  it under the terms of the GNU General Public License as published by
-#  the Free Software Foundation, either version 3 of the License, or
-#  (at your option) any later version.
-#
-#  garoupa is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with garoupa.  If not, see <http://www.gnu.org/licenses/>.
-#
-#  (*) Removing authorship by any means, e.g. by distribution of derived
-#  works or verbatim, obfuscated, compiled or rewritten versions of any
-#  part of this work is illegal and unethical regarding the effort and
-#  time spent here.
+
 import json
 import re
+
+from ldict_modules.customjson import CustomJSONEncoder
 
 
 def decolorize(txt):
@@ -83,7 +50,7 @@ def ldict2txt(d, all):
     >>> from ldict import ldict
     >>> d = ldict(x=1,y=2)
     >>> decolorize(ldict2txt(d, False))
-    '{\\n    "id": "Tb_334cc16924a8bdc38205599e516203f9054c4",\\n    "ids": "<1 hidden ids>",\\n    "x": 1,\\n    "y": 2\\n}'
+    '{\\n    "id": "Tb_334cc16924a8bdc38205599e516203f9054c4",\\n    "ids": "<2 hidden ids>",\\n    "x": 1,\\n    "y": 2\\n}'
     >>> decolorize(ldict2txt(d, True))
     '{\\n    "id": "Tb_334cc16924a8bdc38205599e516203f9054c4",\\n    "ids": {\\n        "x": "lv_56eec09cd869410b23dcb462b64fe26acc2a2",\\n        "y": "yI_a331070d4bcdde465f28ba37ba1310e928122"\\n    },\\n    "x": 1,\\n    "y": 2\\n}'
 
@@ -96,14 +63,8 @@ def ldict2txt(d, all):
     -------
 
     """
-    from ldict_modules.lazy import Lazy
-    dic = d.data.copy()
-    for k, v in d.data.items():
-        if isinstance(v, Lazy):
-            dic[k] = str(v)
-        if not all:
-            dic["ids"] = "<1 hidden id>" if len(dic["ids"]) == 1 else f"<{(len(d) - 1) // 2} hidden ids>"
-    txt = json.dumps(dic, indent=4, ensure_ascii=False)
+    dic = ldict2dic(d,all)
+    txt = json.dumps(dic, indent=4, ensure_ascii=False, cls=CustomJSONEncoder)
     for k, v in dic.items():
         if k == "id":
             txt = txt.replace(dic[k], d.hosh.idc)
@@ -111,3 +72,17 @@ def ldict2txt(d, all):
         for k, v in d.hoshes.items():
             txt = txt.replace(v.id, v.idc)  # REMINDER: workaround to avoid json messing with colors
     return txt
+
+
+def ldict2dic(d, all):
+    from ldict_modules.lazy import Lazy
+    from ldict_modules.ldict_ import ldict
+    dic = d.data.copy()
+    for k, v in d.data.items():
+        if isinstance(v, Lazy):
+            dic[k] = str(v)
+        elif isinstance(v, ldict):
+            dic[k] = ldict2dic(v, all)
+        if not all:
+            dic["ids"] = "<1 hidden id>" if len(dic["ids"]) == 1 else f"<{len(d) -  2} hidden ids>"
+    return dic

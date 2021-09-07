@@ -27,10 +27,11 @@ from typing import Dict, TypeVar, Union, Callable
 from orjson import dumps, OPT_SORT_KEYS
 
 from garoupa import ø40
-from ldict_modules.appearance import ldict2txt, decolorize
+from ldict_modules.appearance import ldict2txt, decolorize, ldict2dic
 from ldict_modules.apply import delete, application
+from ldict_modules.customjson import CustomJSONEncoder
 from ldict_modules.data import key2id
-from ldict_modules.exception import MissingField
+from ldict_modules.exception import MissingField, ReadOnlyLdict, WrongKeyType, WrongValueType, OverwriteException
 from ldict_modules.history import extend_history, rewrite_history
 from ldict_modules.lazy import Lazy
 
@@ -66,7 +67,7 @@ class Ldict(UserDict, Dict[str, VT]):
     }
     >>> d["y"]
     3
-    >>> d.history == {'c._c0be2238b22114262680df425b85cac028be6': {'Tz_d158c49297834fad67e6de7cdba3ea368aae4', 'lr_a377cc952bed4a78be99b0c57fd1ef9a9d002'}}
+    >>> decolorize(str(d.history)) == '{c._c0be2238b22114262680df425b85cac028be6: {Tz_d158c49297834fad67e6de7cdba3ea368aae4, lr_a377cc952bed4a78be99b0c57fd1ef9a9d002}}'
     True
     >>> del d["x"]
     >>> d.show(colored=False)
@@ -77,7 +78,7 @@ class Ldict(UserDict, Dict[str, VT]):
         },
         "y": 3
     }
-    >>> d.history == {"lr_a377cc952bed4a78be99b0c57fd1ef9a9d002": None}
+    >>> decolorize(str(d.history)) == '{lr_a377cc952bed4a78be99b0c57fd1ef9a9d002: None}'
     True
     >>> from ldict import ldict
     >>> ldict(x=123123, y=88).show(colored=False)
@@ -147,20 +148,29 @@ class Ldict(UserDict, Dict[str, VT]):
 
     def __setitem__(self, key: str, value):
         if self.readonly:
-            raise Exception(f"Cannot change a readonly ldict ({self.id}).", key)
+            raise ReadOnlyLdict(f"Cannot change a readonly ldict ({self.id}).", key)
         if not isinstance(key, str):
-            raise Exception(f"Key must be string, not {type(key)}.", key)
+            raise WrongKeyType(f"Key must be string, not {type(key)}.", key)
         if callable(value):
-            raise Exception(f"A value for the field [{key}] cannot have type {type(value)}. "
+            raise WrongValueType(f"A value for the field [{key}] cannot have type {type(value)}. "
                             f"For (pseudo)inplace function application, use operator >>= instead")
         if isinstance(value, Ldict):
             value = value.clone(readonly=True)
 
         if key in self.data:
             del self[key]
-        self.blobs[key] = dumps(value, option=OPT_SORT_KEYS)
-        self.hashes[key] = self.identity.h * self.blobs[key]
-        self.hoshes[key] = self.hashes[key] ** key2id(key, self.digits)
+
+        if hasattr(value, "hosh"):
+            if isinstance(value, Ldict):
+                self.hashes[key] = value.hosh
+                self.hoshes[key] = self.hashes[key] ** key2id(key, self.digits)
+            else:
+                self.hoshes[key] = value.hosh
+        else:
+            self.blobs[key] = dumps(value, option=OPT_SORT_KEYS)
+            self.hashes[key] = self.identity.h * self.blobs[key]
+            self.hoshes[key] = self.hashes[key] ** key2id(key, self.digits)
+
         self.hosh *= self.hoshes[key]
         self.data[key] = value
         self.data["id"] = self.hosh.id
@@ -169,22 +179,22 @@ class Ldict(UserDict, Dict[str, VT]):
 
     def __getitem__(self, item):
         if not isinstance(item, str):
-            raise Exception(f"Key must be string, not {type(item)}.", item)
+            raise WrongKeyType(f"Key must be string, not {type(item)}.", item)
         if item not in self.data:
             raise KeyError(item)
         content = self.data[item]
-        print(type(content))
         if isinstance(content, Lazy):
             self.data[item] = content()
         return self.data[item]
 
     def __delitem__(self, key):
         if self.readonly:
-            raise Exception(f"Cannot change a readonly ldict ({self.id}).", key)
+            raise ReadOnlyLdict(f"Cannot change a readonly ldict ({self.id}).", key)
         if not isinstance(key, str):
-            raise Exception(f"Key must be string, not {type(key)}.", key)
-        del self.blobs[key]
-        del self.hashes[key]
+            raise WrongKeyType(f"Key must be string, not {type(key)}.", key)
+        if key in self.blobs:
+            del self.blobs[key]
+            del self.hashes[key]
         deleted = self.hoshes.pop(key)
         self.hosh = self.identity
         for hosh in self.hoshes.values():
@@ -206,7 +216,9 @@ class Ldict(UserDict, Dict[str, VT]):
         return hash(self.hosh)
 
     def __ne__(self, other):
-        return self.hosh != other.hosh
+        if isinstance(other, Ldict):
+            return self.hosh != other.hosh
+        return NotImplemented
 
     def __getattr__(self, item):
         if item in self:
@@ -259,14 +271,14 @@ class Ldict(UserDict, Dict[str, VT]):
                 if v is None:
                     delete(self, clone, k)
                 elif callable(v):
-                    raise Exception(f"Value (for field {k}) cannot have type {type(v)}")
+                    raise WrongValueType(f"Value (for field {k}) cannot have type {type(v)}")
                 elif k not in ["id", "ids"]:
                     if k in self.data:
-                        raise Exception(f"Cannot overwrite field ({k}) via value insertion through >>")
+                        raise OverwriteException(f"Cannot overwrite field ({k}) via value insertion through >>")
                     clone[k] = v
             return clone
         elif not callable(other):
-            raise Exception(f"Function should be callable or dict-like, not {type(other)}")
+            raise WrongValueType(f"Value passed to >> should be callable or dict-like, not {type(other)}")
 
         return application(self, clone, other)
 
@@ -293,6 +305,7 @@ class Ldict(UserDict, Dict[str, VT]):
         obj.hoshes = self.hoshes.copy()
         obj.hosh = self.hosh
         obj.data = self.data.copy()
+        obj.data["ids"] = self.data["ids"].copy()
         obj.history = deepcopy(self.history)
         obj.last = self.last
         return obj
@@ -354,29 +367,35 @@ class Ldict(UserDict, Dict[str, VT]):
         return closure
 
     def __xor__(self, f: Union[Dict, Callable]):
-        def trigger(output_field):
-            def closure():
+        def closure(self, output_field):
+            if output_field in self.hashes:
+                id = self.hashes[output_field].id
+            else:
+                id = self.hoshes[output_field].id
+
+            def func():
                 # Try loading.
-                if output_field in db:
-                    return db[output_field]
+                if id in db:
+                    return {output_field: db[id]}
 
                 # Return requested value without caching, if it has no cost.
                 value = self.data[output_field]
-                if not isinstance(v, Lazy):
-                    return value
+                if value.__class__.__name__ != "Lazy":
+                    # Python bug: <class 'ldict_modules.lazy.Lazy'> is not recognized as Lazy...
+                    return {output_field: value}
 
                 # Process and save (all fields, to avoid a parcial ldict being stored).
-                for field in self.ids:
-                    db[field] = self[field]
+                for k, v in self.ids.items():
+                    db[v] = self[k]
 
                 # Return requested value.
-                return self[output_field]
+                return {output_field: self[output_field]}
 
-            return closure
+            return func
 
         clone = self.clone()
         for field, v in list(self.data.items())[2:]:
-            clone.data[field] = trigger(field)
+            clone.data[field] = Lazy(field, closure(self, field), {})
         return clone >> f
 
     def _getkwargs(self, fargs):
@@ -407,7 +426,11 @@ class Ldict(UserDict, Dict[str, VT]):
             else:
                 ids = list(self.ids.values())
                 dic["ids"] = f"{ids[0]}... +{(len(self) - 1) // 2} ...{ids[-1]}"
-        return json.dumps(dic, indent=4, ensure_ascii=False)
+        return json.dumps(dic, indent=4, ensure_ascii=False, cls=CustomJSONEncoder)
+
+    @property
+    def asdict(self):
+        return ldict2dic(self, all=True)
 
 
 ldict = Ldict

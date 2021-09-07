@@ -40,8 +40,8 @@ a = ldict(x=3)
 print(a)
 """
 {
-    "id": "000000000000000000000dCguKC6bS.95Bqe35gNJir04CxRv6dY1dPRO7R3PTKa",
-    "ids": "<1 hidden id>",
+    "id": "kr_4aee5c3bcac2c478be9901d57fd1ef8a9d002",
+    "ids": "kr_4aee5c3bcac2c478be9901d57fd1ef8a9d002",
     "x": 3
 }
 """
@@ -53,8 +53,8 @@ b = ldict(y=5)
 print(b)
 """
 {
-    "id": "000000000000000000000dlrfIktAZFYqwNrmOdFDZKV966TGLM7hu0fllFfC8Kt",
-    "ids": "<1 hidden id>",
+    "id": "Uz_0af6d78f77734fad67e6de7cdba3ea368aae4",
+    "ids": "Uz_0af6d78f77734fad67e6de7cdba3ea368aae4",
     "y": 5
 }
 """
@@ -62,11 +62,11 @@ print(b)
 
 ```python3
 
-print(a + b)
+print(a >> b)
 """
 {
-    "id": "000000000000000000000aXHKqWzMQIMw6bFpTur11RVdIEJ9SLzyXQ57tuiIAfV",
-    "ids": "<1 hidden ids>",
+    "id": "c._2b0434ca422114262680df425b85cac028be6",
+    "ids": "kr_4aee5c3bcac2c478be9901d57fd1ef8a9d002 Uz_0af6d78f77734fad67e6de7cdba3ea368aae4",
     "x": 3,
     "y": 5
 }

@@ -19,13 +19,15 @@
 #  works or verbatim, obfuscated, compiled or rewritten versions of any
 #  part of this work is illegal and unethical regarding the effort and
 #  time spent here.
-
+from collections import namedtuple
 from unittest import TestCase
 
 import pytest
+from sys import maxsize
 
 from ldict import ldict, ø
-from ldict_modules.exception import FromØException, DependenceException, NoInputException
+from ldict_modules.exception import DependenceException, NoInputException, WrongKeyType, WrongValueType, ReadOnlyLdict, \
+    OverwriteException
 
 
 class TestLdict(TestCase):
@@ -33,6 +35,14 @@ class TestLdict(TestCase):
         a = ø >> {"x": 1, "y": 2}
         b = a >> ø
         self.assertEqual(a, b)
+        self.assertFalse(a == 123)
+        self.assertNotEqual(a, 123)
+        self.assertEqual(a.hosh.n % maxsize, hash(a))
+        d = {'id': 'Tb_334cc16924a8bdc38205599e516203f9054c4',
+             'ids': {'x': 'lv_56eec09cd869410b23dcb462b64fe26acc2a2', 'y': 'yI_a331070d4bcdde465f28ba37ba1310e928122'},
+             'x': 1,
+             'y': 2}
+        self.assertEqual(a.asdict, d)
 
     def test_illdefined_function(self):
         with pytest.raises(DependenceException):
@@ -107,8 +117,13 @@ class TestLdict(TestCase):
 }""",
             str(d),
         )
-
         self.assertEqual(15, d.z)
+        with pytest.raises(WrongValueType):
+            d >>= {"z": lambda: None}
+        with pytest.raises(OverwriteException):
+            d >>= {"z": 5}
+        with pytest.raises(WrongValueType):
+            d >>= None
 
     def test_overwrite(self):
         a = ldict(x=3)
@@ -116,14 +131,11 @@ class TestLdict(TestCase):
         # (a >> {"x": 3}).show()
         # self.assertEqual(a.idc, (a >> {"x": 3}).idc)  # overwrite
         b = ldict(y=4, x=3)
-        a.show()
         a >>= {"y": 4}
-        a.show()
         self.assertEqual(b.idc, a.idc)  # new value
+        with pytest.raises(OverwriteException):
+            self.assertNotEqual(a, a >> {"x": 3})
 
-        # self.assertNotEqual(a, a >> {"x": 3})
-        # def f():
-        #     a["x"] = 5
 
     def test_setitem_overwrite_function(self):
         d = ldict()
@@ -158,37 +170,36 @@ class TestLdict(TestCase):
         self.assertEqual(a.ids["x"], b.ids["x"])
         self.assertEqual(a.ids["y"], b.ids["y"])
 
+    def test_getitem(self):
+        d = ø >> {"x": 0}
+        with pytest.raises(WrongKeyType):
+            _ = d[1]
+        with pytest.raises(KeyError):
+            _ = d["1"]
 
-"""
-        >>> d >>= {"y": 2}
-        >>> d.show(colored=False)
-        {
-            "id": "0000000000000000000005ZAUVMzxwjwXbh7mLzet1L.rDnoCfw4gnGNFOvMzRW-",
-            "ids": {
-                "x": "000000000000000000000c3aop1df5AZXCRMY3yInQeUYccGQRclWo8TvfKPB4YT",
-                "y": "0000000000000000000009WqwwLmiqGS.ArmqI0ypCV6vraJNpxBjfxWayMZI.iZ"
-            },
-            "x": 2,
-            "y": 2
-        }
-        >>> d >>= (lambda x: {"x": x**2})
-        >>> d.show(colored=False)
-        {
-            "id": "aMxJyzaP3pwUZmywZdR2Aal7WMRcOcoR6oAgBnvJcJ0j9sHBGGtBMV8XQNcx8vTQ",
-            "ids": {
-                "x": "000000000000000000000c3aop1df5AZXCRMY3yInQeUYccGQRclWo8TvfKPB4YT",
-                "y": "0000000000000000000009WqwwLmiqGS.ArmqI0ypCV6vraJNpxBjfxWayMZI.iZ"
-            },
-            "x": 2,
-            "y": 2
-        }
-"""
+    def test_delitem(self):
+        d = ø >> {"x": 0}
+        with pytest.raises(WrongKeyType):
+            del d[1]
+        with pytest.raises(KeyError):
+            del d["1"]
+        with pytest.raises(ReadOnlyLdict):
+            d["d"] = d
+            del d.d["x"]
 
-#         d = ldict(x=123123, y=88)
-# d.show()
-# e = d >> (lambda x, y: {"z": x ** 22, "w": x / y})
+    def test_setitem(self):
+        d = ø >> {"x": 0}
+        with pytest.raises(WrongKeyType):
+            d[1] = 1
+        with pytest.raises(WrongValueType):
+            d["x"] = lambda x: x
 
+        d = ø >> {"d": d}
+        with pytest.raises(ReadOnlyLdict):
+            d["d"]["x"] = 5
 
-# TODO:
-#   exception if function is not in G\H
-#   all requirements from paper
+        T = namedtuple("T", "hosh")
+        h = d.hosh
+        t = T(d.hosh)
+        d["t"] = t
+        self.assertEqual(d.hosh, h * h)

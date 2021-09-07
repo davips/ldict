@@ -27,7 +27,8 @@ from typing import Callable
 from uncompyle6.main import decompile
 
 from ldict_modules.data import fhosh, removal_id
-from ldict_modules.exception import NoInputException, DependenceException, FunctionTypeException
+from ldict_modules.exception import NoInputException, DependenceException, FunctionTypeException, NoReturnException, \
+    BadOutput
 from ldict_modules.history import extend_history
 from ldict_modules.lazy import Lazy
 
@@ -57,7 +58,8 @@ def delete(d, clone, k):
         "x": null,
         "y": 7
     }
-    >>> d.history == {'I0_39c94b4dfbc7a8579ca1304eba25917204a5e': {'Tz_d158c49297834fad67e6de7cdba3ea368aae4', 'Rs_92162dea64a7462725cac7dcee71b67669f69'}, '--------------------...................x': None}
+    >>> from ldict import decolorize
+    >>> decolorize(str(d.history)) == '{I0_39c94b4dfbc7a8579ca1304eba25917204a5e: {Tz_d158c49297834fad67e6de7cdba3ea368aae4, Rs_92162dea64a7462725cac7dcee71b67669f69}, --------------------...................x: None}'
     True
 
     Parameters
@@ -133,11 +135,10 @@ def output_fields(f):
     decompile(bytecode_version=None, co=f.__code__, out=out)
     ret = "".join([line for line in out.getvalue().split("\n") if not line.startswith("#")])
     if "return" not in ret:
-        print(ret)
-        raise Exception(f"Missing return statement:")
+        raise NoReturnException(f"Missing return statement:")
     dicts = re.findall("(?={)(.+?)(?<=})", ret)
     if len(dicts) != 1:
-        raise Exception(
+        raise BadOutput(
             "Cannot detect output fields:" "Missing dict (with pairs 'identifier'->result) as a return value.",
             dicts,
             ret,

@@ -43,3 +43,23 @@ class FromØException(Exception):
 
 class MissingField(Exception):
     pass
+
+
+class NoReturnException(Exception):
+    pass
+
+
+class BadOutput(Exception):
+    pass
+
+
+class ReadOnlyLdict(Exception):
+    pass
+
+
+class WrongKeyType(Exception):
+    pass
+
+
+class WrongValueType(Exception):
+    pass

@@ -9,5 +9,5 @@ b = ldict(y=5)
 print(b)
 # ...
 
-print(a + b)
+print(a >> b)
 # ...

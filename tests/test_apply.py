@@ -17,42 +17,49 @@
 #
 #  (*) Removing authorship by any means, e.g. by distribution of derived
 #  works or verbatim, obfuscated, compiled or rewritten versions of any
-#  part of this work is a crime and is unethical regarding the effort and
+#  part of this work is illegal and unethical regarding the effort and
 #  time spent here.
-#
 
 from unittest import TestCase
 
+import pytest
+
+from garoupa import ø40
 from ldict import ø
-from ldict_modules.ldict_ import db
+from ldict_modules.apply import input_fields, output_fields, application
+from ldict_modules.exception import NoInputException, NoReturnException, BadOutput, FunctionTypeException
 
 
 class Test(TestCase):
-    def test_cache(self):
-        c = [0]
+    def test_input_fields(self):
+        with pytest.raises(NoInputException):
+            input_fields(lambda: 3, {})
+
+    def test_output_fields(self):
+        def f(x):
+            pass
+
+        with pytest.raises(NoReturnException):
+            output_fields(f)
 
         def f(x):
-            c[0] += 1
-            return {"z": x + 2}
+            return {"x": 1}, {"y": 2}
 
-        a = ø >> {"x": 1, "y": 2} >> f ^ ø
-        self.assertEqual(0, c[0])
-        self.assertEqual(1, a.x)
-        self.assertEqual(0, c[0])
-        self.assertEqual(2, a.y)
-        self.assertEqual(0, c[0])
-        self.assertEqual(3, a.z)
-        self.assertEqual(1, c[0])
-        self.assertEqual(3, a.z)
-        self.assertEqual(1, c[0])
+        with pytest.raises(BadOutput):
+            output_fields(f)
 
-        c = [0]
-        a = ø >> {"x": 1, "y": 2} >> f ^ ø
-        self.assertEqual(0, c[0])
-        self.assertEqual(3, a.z)
-        self.assertEqual(0, c[0])
+        def f(x):
+            return 0
 
-        a = ø >> {"x": 1, "y": 2} >> f ^ ø
-        a >>= lambda z: {"z": z ** 2}
-        self.assertEqual(9, a.z)
+        with pytest.raises(BadOutput):
+            output_fields(f)
 
+    def test_application(self):
+        def f(x):
+            return {"x": 1}
+
+        f.hosh = ø40.h * 238476
+        d = ø
+
+        with pytest.raises(FunctionTypeException):
+            application(d, d, f)
