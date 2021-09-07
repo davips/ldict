@@ -22,14 +22,62 @@
 import re
 from inspect import signature
 from io import StringIO
+from typing import Callable
 
 from uncompyle6.main import decompile
 
-from ldict_modules.exception import NoInputException, DependenceException
+from ldict_modules.data import fhosh, removal_id
+from ldict_modules.exception import NoInputException, DependenceException, FunctionTypeException
+from ldict_modules.history import extend_history
+from ldict_modules.lazy import Lazy
 
 
-def delete(clone, k):
-    pass
+def delete(d, clone, k):
+    """
+    >>> from ldict import ø
+    >>> d = ø >> {"x": 5, "y": 7}
+    >>> d.show(colored=False)
+    {
+        "id": "I0_39c94b4dfbc7a8579ca1304eba25917204a5e",
+        "ids": {
+            "x": "Tz_d158c49297834fad67e6de7cdba3ea368aae4",
+            "y": "Rs_92162dea64a7462725cac7dcee71b67669f69"
+        },
+        "x": 5,
+        "y": 7
+    }
+    >>> d >>= {"x": None}  # Delete content by key
+    >>> d.show(colored=False)
+    {
+        "id": "orh.lboHQhzNnrjrircOoPYzfk0000000000000y",
+        "ids": {
+            "x": "7jItH06N6TKPQ2ikAXqnlk38S69000000000000y",
+            "y": "Rs_92162dea64a7462725cac7dcee71b67669f69"
+        },
+        "x": null,
+        "y": 7
+    }
+    >>> d.history
+    {'I0_39c94b4dfbc7a8579ca1304eba25917204a5e': {'Tz_d158c49297834fad67e6de7cdba3ea368aae4', 'Rs_92162dea64a7462725cac7dcee71b67669f69'}, '--------------------...................x': None}
+
+    Parameters
+    ----------
+    d
+    clone
+    k
+
+    Returns
+    -------
+
+    """
+
+    def f(**kwargs):
+        return {k: None}
+
+    f.hosh = d.identity * removal_id(d, k)
+    f.input_fields = f.output_fields = [k]
+    application(d, clone, f)
+    _ = clone[k]
 
 
 def input_fields(d, f):
@@ -162,3 +210,55 @@ def substitute(hoshes, fields, uf):
         if k not in fields:
             others *= v
     return uf * ~others
+
+
+def application(self, clone, other: Callable):
+    # Attach hosh to f if needed.
+    if not hasattr(other, "hosh"):
+        other.hosh = fhosh(other, version=self.version)
+    if other.hosh.etype != "ordered":
+        raise FunctionTypeException(f"Functions are not allowed to have etype {other.hosh.etype}.")
+
+    # TODO criar PartialDict qnd deps não existem ainda
+    input = input_fields(self, other)
+    output = output_fields(other)
+    u = clone.hosh
+    uf = clone.hosh * other.hosh
+    ufu_ = uf * ~u
+
+    # Add triggers for future evaluation.
+    clone.data = {"id": uf.id, "ids": {}}
+    clone.hoshes = {}
+    # clone.hashes = {}    atualiza hashes e blobs?
+    clone.hosh = uf
+
+    # TODO deduplicate code
+    if len(output) == 1:
+        field = output[0]
+        clone.hoshes[field] = substitute(self.hoshes, [field], uf) if field in self.data else ufu_
+        clone.data[field] = Lazy(field, other, deps={k: self.data[k] for k in input})
+        clone.data["ids"][field] = clone.hoshes[field].id
+    else:
+        acc = self.identity
+        c = 0
+        ufu__ = substitute(self.hoshes, output, uf)
+        for i, field in enumerate(output):
+            if i < len(output) - 1:
+                field_hosh = ufu__ * (self.digits // 2 * "-" + str(c).rjust(self.digits // 2, "."))
+                c += 1
+                acc *= field_hosh
+            else:
+                field_hosh = ~acc * ufu__
+            clone.hoshes[field] = field_hosh
+            clone.data[field] = Lazy(field, other, deps={k: self.data[k] for k in input})
+            clone.data["ids"][field] = field_hosh.id
+
+    for k, v in self.data.items():
+        if k not in clone.data:
+            clone.data[k] = v
+            clone.data["ids"][k] = self.data["ids"][k]
+    for k, v in self.hoshes.items():
+        if k not in clone.hoshes:
+            clone.hoshes[k] = v
+
+    extend_history(clone, other.hosh)

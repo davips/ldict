@@ -23,8 +23,9 @@
 import dis
 from inspect import signature
 
+from orjson import dumps
+
 from garoupa import Hosh, UT40_4
-from orjson import dumps, OPT_SORT_KEYS
 
 
 # def process(field, value, version):
@@ -126,3 +127,45 @@ def fhosh(f, version):
         clean.append(lines)
 
     return Hosh(dumps(clean), "ordered", version=version)
+
+
+def key2id(key, digits):
+    """
+    >>> key2id("y", 40)
+    'y-_0000000000000000000000000000000000000'
+
+    >>> key2id("long bad field name", 40)
+    'lo_6e6720626164206669656c64206e616d65000'
+
+    >>> key2id("long bad field name that will be truncated", 40)
+    'lo_6e6720626164206669656c64206e616d65207'
+
+    Parameters
+    ----------
+    key
+
+    Returns
+    -------
+
+    """
+    prefix = key[:2].ljust(2, "-") + "_"
+    rest = key[2:].encode().hex().ljust(digits - 3, "0")
+    return prefix + rest[:digits - 3]
+
+
+def removal_id(d, field):
+    """
+    >>> from ldict import ø
+    >>> removal_id(ø, "myfield")
+    '--------------------.............myfield'
+
+    Parameters
+    ----------
+    d
+    field
+
+    Returns
+    -------
+
+    """
+    return d.delete[:-len(field)] + field

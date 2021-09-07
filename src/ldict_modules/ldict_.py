@@ -27,8 +27,8 @@ from orjson import dumps, OPT_SORT_KEYS
 
 from garoupa import ø40
 from ldict_modules.appearance import ldict2txt, decolorize
-from ldict_modules.apply import delete, output_fields, input_fields, substitute
-from ldict_modules.data import fhosh
+from ldict_modules.apply import delete, output_fields, input_fields, substitute, application
+from ldict_modules.data import fhosh, key2id
 from ldict_modules.exception import FunctionTypeException
 from ldict_modules.history import extend_history, rewrite_history
 from ldict_modules.lazy import Lazy
@@ -43,84 +43,89 @@ class Ldict(UserDict, Dict[str, VT]):
 
     Usage:
 
-    >>> ø40*"BJ_b41cd0efbf48138cf72cc0cd5f888e779cd84" *"zG_fe3f7ea767dcf8dc65d39bfa9f2c07ef023d0"
-    >>> ø40*"DT_192526ef97b9b51aced6f4ca2e9cdfeacd07a"*"ww_9a2639a78f6b564f9e1967fdc028b57cd00fa"
     >>> ldict(y=88, x=123123) != ldict(x=88, y=123123)  # Ids of original values embbed the keys.
-
-    # >>> ldict().show(colored=False)
-    # {
-    #     "id": "0000000000000000000000000000000000000000",
-    #     "ids": {}
-    # }
-    # >>> d = ldict(x=5, y=3)
-    # >>> d.show(colored=False)
-    # {
-    #     "id": "WZ_0fa02ba42fc8ac070fab8cc9f4ec1f19f145d",
-    #     "ids": {
-    #         "x": "g8_70f95e0d9b4e6e2647d114311069bdf618013",
-    #         "y": "GR_aff52c9783a5c3e0c7d92888e4836132e934a"
-    #     },
-    #     "x": 5,
-    #     "y": 3
-    # }
-    # >>> d["y"]
-    # 3
-    # >>> d.history == {'WZ_0fa02ba42fc8ac070fab8cc9f4ec1f19f145d': {"g8_70f95e0d9b4e6e2647d114311069bdf618013", "GR_aff52c9783a5c3e0c7d92888e4836132e934a"}}
-    # True
-    # >>> del d["x"]
-    # >>> d.show(colored=False)
-    # {
-    #     "id": "GR_aff52c9783a5c3e0c7d92888e4836132e934a",
-    #     "ids": {
-    #         "y": "GR_aff52c9783a5c3e0c7d92888e4836132e934a"
-    #     },
-    #     "y": 3
-    # }
-    # >>> d.history == {"GR_aff52c9783a5c3e0c7d92888e4836132e934a": None}
-    # True
-    # >>> from ldict import ldict
-    # >>> ldict(x=123123, y=88).show(colored=False)
-    # {
-    #     "id": "8o_7777595727a6a9db6dff36bdeeb4951dbe065",
-    #     "ids": {
-    #         "x": "zG_fe3f7ea767dcf8dc65d39bfa9f2c07ef023d0",
-    #         "y": "BJ_b41cd0efbf48138cf72cc0cd5f888e779cd84"
-    #     },
-    #     "x": 123123,
-    #     "y": 88
-    # }
-    # >>> print(ldict(y=88, x=123123))  # Original values are order-insensitive.
-    # {
-    #     "id": "8o_7777595727a6a9db6dff36bdeeb4951dbe065",
-    #     "ids": {
-    #         "y": "BJ_b41cd0efbf48138cf72cc0cd5f888e779cd84",
-    #         "x": "zG_fe3f7ea767dcf8dc65d39bfa9f2c07ef023d0"
-    #     },
-    #     "y": 88
-    #     "x": 123123,
-    # }
-    # >>> ldict(y=88, x=123123) != ldict(x=88, y=123123)  # Ids of original values embbed the keys.
-    # True
-    # >>> d = ldict(x=123123, y=88)
-    # >>> e = d >> (lambda x: {"z": x**2}) >> (lambda x,y: {"w": x/y})
-    # >>> e.show(colored=False)
-    # {
-    #     "id": "bD9K2iSL5i7-JztWcQ6TbDYzcKTZsuLzkF84sOwe",
-    #     "ids": {
-    #         "w": "L7FqOGqmIvSqrH8sHGdry3Hp4HQfTbFo4RK7M5M5",
-    #         "z": "cyxpRtlCkZvHkalIHQ4PFyrXVsQJBi6bgQpYHIM8",
-    #         "x": "zG_fe3f7ea767dcf8dc65d39bfa9f2c07ef023d0",
-    #         "y": "BJ_b41cd0efbf48138cf72cc0cd5f888e779cd84"
-    #     },
-    #     "w": "→(x y)",
-    #     "z": "→(x)",
-    #     "x": 123123,
-    #     "y": 88
-    # }
-    # >>> a = d >> (lambda x: {"z": x**2}) >> (lambda x,y: {"w": x/y})
-    # >>> b = d >> (lambda x,y: {"w": x/y}) >> (lambda x: {"z": x**2})
-    # >>> a != b  # Calculated values are order-sensitive.
-    # True
+    True
+    >>> ldict().show(colored=False)
+    {
+        "id": "0000000000000000000000000000000000000000",
+        "ids": {}
+    }
+    >>> d = ldict(x=5, y=3)
+    >>> d.show(colored=False)
+    {
+        "id": "c._c0be2238b22114262680df425b85cac028be6",
+        "ids": {
+            "x": "Tz_d158c49297834fad67e6de7cdba3ea368aae4",
+            "y": "lr_a377cc952bed4a78be99b0c57fd1ef9a9d002"
+        },
+        "x": 5,
+        "y": 3
+    }
+    >>> d["y"]
+    3
+    >>> d.history == {'c._c0be2238b22114262680df425b85cac028be6': {'Tz_d158c49297834fad67e6de7cdba3ea368aae4', 'lr_a377cc952bed4a78be99b0c57fd1ef9a9d002'}}
+    True
+    >>> del d["x"]
+    >>> d.show(colored=False)
+    {
+        "id": "lr_a377cc952bed4a78be99b0c57fd1ef9a9d002",
+        "ids": {
+            "y": "lr_a377cc952bed4a78be99b0c57fd1ef9a9d002"
+        },
+        "y": 3
+    }
+    >>> d.history == {"lr_a377cc952bed4a78be99b0c57fd1ef9a9d002": None}
+    True
+    >>> from ldict import ldict
+    >>> ldict(x=123123, y=88).show(colored=False)
+    {
+        "id": "pp_009c55d4892401fa84d49936456d31c4e48fe",
+        "ids": {
+            "x": "a6_b90a521176a857d695e8404b5b7634d494da2",
+            "y": "fj_7f5403c313a0a914feeb59fae9e60def40b4c"
+        },
+        "x": 123123,
+        "y": 88
+    }
+    >>> ldict(y=88, x=123123).show(colored=False)  # Original values are order-insensitive.
+    {
+        "id": "pp_009c55d4892401fa84d49936456d31c4e48fe",
+        "ids": {
+            "y": "fj_7f5403c313a0a914feeb59fae9e60def40b4c",
+            "x": "a6_b90a521176a857d695e8404b5b7634d494da2"
+        },
+        "y": 88,
+        "x": 123123
+    }
+    >>> ldict(y=88, x=123123) != ldict(x=88, y=123123)  # Ids of original values embbed the keys.
+    True
+    >>> d = ldict(x=123123, y=88)
+    >>> e = d >> (lambda x: {"z": x**2}) >> (lambda x,y: {"w": x/y})
+    >>> e.show(colored=False)
+    {
+        "id": "hE756VJEI2rO7fD3c-hEX4hMB7TZsuLzkF84sOwe",
+        "ids": {
+            "w": "uKTTrcegTC-FUyhEj56XURPzkH.fTbFo4RK7M5M5",
+            "z": "bLDj2EvLAT341.EPtWKlI-MnFxUJBi6bgQpYHIM8",
+            "x": "a6_b90a521176a857d695e8404b5b7634d494da2",
+            "y": "fj_7f5403c313a0a914feeb59fae9e60def40b4c"
+        },
+        "w": "→(x y)",
+        "z": "→(x)",
+        "x": 123123,
+        "y": 88
+    }
+    >>> a = d >> (lambda x: {"z": x**2}) >> (lambda x, y: {"w": x/y})
+    >>> b = d >> (lambda x, y: {"w": x/y}) >> (lambda x: {"z": x**2})
+    >>> a != b  # Calculated values are order-sensitive.
+    True
+    >>> value = "some content"
+    >>> from ldict import ø
+    >>> d = ø >> {"x": value}
+    >>> d.ids["x"]  # id (hosh) of the pair x→blob
+    'UM_b2511f438c2c34d658372d3666b6c4411cc2d'
+    >>> print(d.hoshes["x"] // "x-_0000000000000000000000000000000000000")  # id (hosh) of the value
+    nO_6d3d2d399495b6545837334176b6c49bfbc2d
     """
 
     def __init__(self, /, _dictionary=None, identity=ø40, readonly=False, **kwargs):
@@ -130,6 +135,7 @@ class Ldict(UserDict, Dict[str, VT]):
         self.hoshes = {}
         self.hosh = identity
         self.rho = identity.rho
+        self.delete = identity.delete
         self.history = {}
         self.last = None
         super().__init__()
@@ -151,8 +157,7 @@ class Ldict(UserDict, Dict[str, VT]):
             del self[key]
         self.blobs[key] = dumps(value, option=OPT_SORT_KEYS)
         self.hashes[key] = self.identity.h * self.blobs[key]
-        self.hoshes[key] = self.hashes[key] & key.encode()
-        print(11111111111, key, self.blobs[key], self.hashes[key], self.hoshes[key])
+        self.hoshes[key] = self.hashes[key] ** key2id(key, self.digits)
         self.hosh *= self.hoshes[key]
         self.data[key] = value
         self.data["id"] = self.hosh.id
@@ -209,10 +214,10 @@ class Ldict(UserDict, Dict[str, VT]):
         >>> from ldict import ldict
         >>> ldict(x=134124, y= 56).show(colored=False)
         {
-            "id": "99_942778f763a6e52f8c64e8fc1a7fb7d098bc0",
+            "id": "qa_4be7715daafe4d3ea3492c7570286388be26a",
             "ids": {
-                "x": "cv_5254bd1e878c7902da0bc4f66653c307b4a67",
-                "y": "YF_6495611adb58599ab1697a11c32cf314c3169"
+                "x": "PW_da3502210fa15a89fa109f3232ade04627449",
+                "y": "Df_2ea4756cabb67532b829a24e4e7a729c77e11"
             },
             "x": 134124,
             "y": 56
@@ -237,7 +242,7 @@ class Ldict(UserDict, Dict[str, VT]):
         >>> from ldict import decolorize
         >>> out = ldict(x=134124, y= 56).all
         >>> decolorize(out)
-        '{\\n    "id": "99_942778f763a6e52f8c64e8fc1a7fb7d098bc0",\\n    "ids": {\\n        "x": "cv_5254bd1e878c7902da0bc4f66653c307b4a67",\\n        "y": "YF_6495611adb58599ab1697a11c32cf314c3169"\\n    },\\n    "x": 134124,\\n    "y": 56\\n}'
+        '{\\n    "id": "qa_4be7715daafe4d3ea3492c7570286388be26a",\\n    "ids": {\\n        "x": "PW_da3502210fa15a89fa109f3232ade04627449",\\n        "y": "Df_2ea4756cabb67532b829a24e4e7a729c77e11"\\n    },\\n    "x": 134124,\\n    "y": 56\\n}'
         """
         return self.__repr__(all=True)
 
@@ -248,7 +253,7 @@ class Ldict(UserDict, Dict[str, VT]):
         if isinstance(other, Dict):
             for k, v in other.items():
                 if v is None:
-                    delete(clone, k)
+                    delete(self, clone, k)
                 elif callable(v):
                     raise Exception(f"Value (for field {k}) cannot have type {type(v)}")
                 elif k not in ["id", "ids"]:
@@ -259,59 +264,7 @@ class Ldict(UserDict, Dict[str, VT]):
         elif not callable(other):
             raise Exception(f"Function should be callable or dict-like, not {type(other)}")
 
-        # Attach hosh to f if needed.
-        if not hasattr(other, "hosh"):
-            other.hosh = fhosh(other, version=self.version)
-        if other.hosh.etype != "ordered":
-            raise FunctionTypeException(f"Functions are not allowed to have etype {other.hosh.etype}.")
-
-        # TODO PartialDict qnd deps nã existem ainda
-        input = input_fields(self, other)
-        output = output_fields(other)
-        u = clone.hosh
-        uf = clone.hosh * other.hosh
-        ufu_ = uf * ~u
-
-        # Add triggers for future evaluation.
-        clone.data = {"id": uf.id, "ids": {}}
-        clone.hoshes = {}
-        # clone.hashes = {}    atualiza hashes e blobs?
-        clone.hosh = uf
-
-        # TODO deduplicate code
-        if len(output) == 1:
-            field = output[0]
-            clone.hoshes[field] = substitute(self.hoshes, [field], uf) if field in self.data else ufu_
-            clone.data[field] = Lazy(field, other, deps={k: self.data[k] for k in input})
-            clone.data["ids"][field] = clone.hoshes[field].id
-        else:
-            acc = self.identity
-            c = 0
-            ufu__ = substitute(self.hoshes, output, uf)
-            for i, field in enumerate(output):
-                if i < len(output) - 1:
-                    field_hosh = ufu__ * (self.digits // 2 * "-" + str(c).rjust(self.digits // 2, "."))
-                    c += 1
-                    acc *= field_hosh
-                else:
-                    field_hosh = ~acc * ufu__
-                clone.hoshes[field] = field_hosh
-                clone.data[field] = Lazy(field, other, deps={k: self.data[k] for k in input})
-                clone.data["ids"][field] = field_hosh.id
-
-        for k, v in self.data.items():
-            if k not in clone.data:
-                clone.data[k] = v
-                clone.data["ids"][k] = self.data["ids"][k]
-        for k, v in self.hoshes.items():
-            if k not in clone.hoshes:
-                clone.hoshes[k] = v
-
-        extend_history(clone, clone.hosh)
-        return clone
-        # TODO: d >> {"x": None}   delete by name
-        #   histórico vai ser aumentado em : (---...----x)    e vai placeholder em d
-        # TODO: d >> {2: None}   delete by index
+        return application(clone, other)
 
     def clone(self, readonly=False):
         """
@@ -344,13 +297,15 @@ class Ldict(UserDict, Dict[str, VT]):
         Usage:
 
         >>> from ldict import ldict
-        >>> a = ldict(x=3) >> (lambda x: {"y": x+2})
+        >>> f = lambda x: {"y": x+2}
+        >>> d = ldict(x=3)
+        >>> a = d >> f
         >>> a.show(colored=False)
         {
-            "id": "afegcFZ8MTL4Ll30sPbTuTfvpp2yW4AU0sYuSnwe",
+            "id": "LKJz3bzFi4xSmTxP8Xa-1ax7ku.xW4AU0sYuSnwe",
             "ids": {
-                "y": "02pEMQf2c..XZ4ZlxekIFIAl9u2yW4AU0sYuSnwe",
-                "x": "J._041f61a76b07667e8e845c85b397b2a51b620"
+                "y": "dUeu3VqRSv4UEz0sh3F-pzj7iFUxW4AU0sYuSnwe",
+                "x": "kr_4aee5c3bcac2c478be9901d57fd1ef8a9d002"
             },
             "y": "→(x)",
             "x": 3
@@ -358,10 +313,10 @@ class Ldict(UserDict, Dict[str, VT]):
         >>> a.evaluate()
         >>> a.show(colored=False)
         {
-            "id": "afegcFZ8MTL4Ll30sPbTuTfvpp2yW4AU0sYuSnwe",
+            "id": "LKJz3bzFi4xSmTxP8Xa-1ax7ku.xW4AU0sYuSnwe",
             "ids": {
-                "y": "02pEMQf2c..XZ4ZlxekIFIAl9u2yW4AU0sYuSnwe",
-                "x": "J._041f61a76b07667e8e845c85b397b2a51b620"
+                "y": "dUeu3VqRSv4UEz0sh3F-pzj7iFUxW4AU0sYuSnwe",
+                "x": "kr_4aee5c3bcac2c478be9901d57fd1ef8a9d002"
             },
             "y": 5,
             "x": 3
