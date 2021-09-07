@@ -94,6 +94,7 @@ from garoupa import Hosh, UT40_4
 #     """
 #     bytes = dumps(obj, option=OPT_SORT_KEYS)
 #     return Hosh(bytes, "hybrid", version=version), bytes
+from ldict_modules.exception import NoInputException
 
 
 def fhosh(f, version):
@@ -117,7 +118,7 @@ def fhosh(f, version):
     # Add signature.
     fargs = list(signature(f).parameters.keys())
     if not fargs:
-        raise Exception(f"Missing function input parameters.")
+        raise NoInputException(f"Missing function input parameters.")
     clean = [fargs]
 
     # Clean line numbers.

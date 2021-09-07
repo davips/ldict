@@ -83,9 +83,9 @@ def ldict2txt(d, all):
     >>> from ldict import ldict
     >>> d = ldict(x=1,y=2)
     >>> decolorize(ldict2txt(d, False))
-    '{\\n    "id": "Ba_31d001c1aa4056b46b2016160bb95742eec2b",\\n    "ids": "<1 hidden ids>",\\n    "x": 1,\\n    "y": 2\\n}'
+    '{\\n    "id": "Tb_334cc16924a8bdc38205599e516203f9054c4",\\n    "ids": "<1 hidden ids>",\\n    "x": 1,\\n    "y": 2\\n}'
     >>> decolorize(ldict2txt(d, True))
-    '{\\n    "id": "Ba_31d001c1aa4056b46b2016160bb95742eec2b",\\n    "ids": {\\n        "x": "K3_9780feacd534708303c7f917eaf4c52b5a8c0",\\n        "y": "T6_2f401215c40cd53168681cfe10c491278446a"\\n    },\\n    "x": 1,\\n    "y": 2\\n}'
+    '{\\n    "id": "Tb_334cc16924a8bdc38205599e516203f9054c4",\\n    "ids": {\\n        "x": "lv_56eec09cd869410b23dcb462b64fe26acc2a2",\\n        "y": "yI_a331070d4bcdde465f28ba37ba1310e928122"\\n    },\\n    "x": 1,\\n    "y": 2\\n}'
 
     Parameters
     ----------

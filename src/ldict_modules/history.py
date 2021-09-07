@@ -46,10 +46,10 @@ def extend_history(d, hosh):
     >>> d.history
     {}
     >>> d["x"] = 5
-    >>> d.history == {"g8_70f95e0d9b4e6e2647d114311069bdf618013": None}
+    >>> d.history == {"Tz_d158c49297834fad67e6de7cdba3ea368aae4": None}
     True
     >>> d["y"] = 7
-    >>> d.history == {"r._102b763df082a8b575dc93e0748ce5f4cd2c4": {"bT_b0708720655fbf8f2efa3f9f5423380ea52b1", "g8_70f95e0d9b4e6e2647d114311069bdf618013"}}
+    >>> d.history == {'I0_39c94b4dfbc7a8579ca1304eba25917204a5e': {'Rs_92162dea64a7462725cac7dcee71b67669f69', 'Tz_d158c49297834fad67e6de7cdba3ea368aae4'}}
     True
 
     Parameters
@@ -61,7 +61,7 @@ def extend_history(d, hosh):
     -------
 
     """
-    if not d.history or hosh.etype == "ordered" or "_" not in d.last[:3]:
+    if not d.history or hosh.etype == "ordered" or d.last and "_" not in d.last[:3]:
         d.last = hosh.id
         d.history[d.last] = None
     else:
@@ -82,7 +82,7 @@ def rewrite_history(d, hosh):
     >>> d["x"] = 5
     >>> d["y"] = 7
     >>> del d["x"]
-    >>> d.history == {'bT_b0708720655fbf8f2efa3f9f5423380ea52b1': None}
+    >>> d.history == {'Rs_92162dea64a7462725cac7dcee71b67669f69': None}
     True
 
     Parameters

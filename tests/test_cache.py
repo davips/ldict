@@ -32,9 +32,9 @@ class Test(TestCase):
 
         def f(x):
             c[0] += 1
-            return x + 2
+            return {"z": x + 2}
 
-        a = ø >> {"x": 1, "y": 2, 'z': f} ^ ø
+        a = ø >> {"x": 1, "y": 2} >> f ^ ø
         self.assertEqual(0, c[0])
         self.assertEqual(1, a.x)
         self.assertEqual(0, c[0])

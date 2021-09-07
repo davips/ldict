@@ -57,8 +57,8 @@ def delete(d, clone, k):
         "x": null,
         "y": 7
     }
-    >>> d.history
-    {'I0_39c94b4dfbc7a8579ca1304eba25917204a5e': {'Tz_d158c49297834fad67e6de7cdba3ea368aae4', 'Rs_92162dea64a7462725cac7dcee71b67669f69'}, '--------------------...................x': None}
+    >>> d.history == {'I0_39c94b4dfbc7a8579ca1304eba25917204a5e': {'Tz_d158c49297834fad67e6de7cdba3ea368aae4', 'Rs_92162dea64a7462725cac7dcee71b67669f69'}, '--------------------...................x': None}
+    True
 
     Parameters
     ----------
@@ -80,11 +80,11 @@ def delete(d, clone, k):
     _ = clone[k]
 
 
-def input_fields(d, f):
+def input_fields(f, fields):
     """Extract input fields.
 
-    >>> input_fields(lambda x,y: {"z": x*y, "w": x+y})
-    ['z', 'w']
+    >>> input_fields(lambda x,y: {"z": x*y, "w": x+y}, {"x":None, "y":None})
+    ['x', 'y']
     >>> def f(x,y):
     ...     return {
     ...         "z": x*y,
@@ -101,10 +101,11 @@ def input_fields(d, f):
     if not input_fields:
         raise NoInputException(f"Missing function input parameters.")
     for field in input_fields:
-        if field not in d.data:
+        if field not in fields:
             # TODO: stacktrace para apontar toda a cadeia de dependências, caso seja profunda
-            raise DependenceException(f"Function depends on inexistent field [{field}].", d.data.keys())
-    return input_fields
+            # # TODO criar PartialDict qnd deps não existem ainda
+            raise DependenceException(f"Function depends on inexistent field [{field}].", fields.keys())
+    return list(input_fields)
 
 
 def output_fields(f):
@@ -150,18 +151,18 @@ def substitute(hoshes, fields, uf):
     >>> a = ldict(x=3)
     >>> a.show(colored=False)
     {
-        "id": "J._041f61a76b07667e8e845c85b397b2a51b620",
+        "id": "kr_4aee5c3bcac2c478be9901d57fd1ef8a9d002",
         "ids": {
-            "x": "J._041f61a76b07667e8e845c85b397b2a51b620"
+            "x": "kr_4aee5c3bcac2c478be9901d57fd1ef8a9d002"
         },
         "x": 3
     }
     >>> a >>= (lambda x: {"x": x+2})
     >>> a.show(colored=False)
     {
-        "id": "dSe.tHYFkzcOvIRexYWCR5X1drIYDDRQkGiQ6qJ8",
+        "id": "xzj-xzbxBldbiwP8yXDDSj12lSQYDDRQkGiQ6qJ8",
         "ids": {
-            "x": "dSe.tHYFkzcOvIRexYWCR5X1drIYDDRQkGiQ6qJ8"
+            "x": "xzj-xzbxBldbiwP8yXDDSj12lSQYDDRQkGiQ6qJ8"
         },
         "x": "→(x)"
     }
@@ -182,12 +183,12 @@ def substitute(hoshes, fields, uf):
     True
     >>> a.show(colored=False)
     {
-        "id": "KK4hVq3NIY9hsgeQ51OBFEYwl0FzkEFdqK4B1zjh",
+        "id": "uyEwj.W6933EIaQX8N3NzmjY4oEzkEFdqK4B1zjh",
         "ids": {
-            "x": "XWni1iw0n1skP35E5GaJXbQuBWAgmEFdqG4B1zji",
+            "x": "8mmKFSlfac8iJypOJMng9SYoJ1qgmEFdqG4B1zji",
             "y": "ofEb.nRSYsUsgAnnyp4KYFovZaUOV6000sv....-",
-            "w": "Vz_fe081095fa0e83d34dedead1670ac4d038c83",
-            "z": "KY_1ab63deadd6f558588341334641a142ae5867"
+            "w": "wI_a7efbd0e93a259465f280b47ba1310d928122",
+            "z": "nv_4f699aa0d069410b23dcb462b64fe26acc2a2"
         },
         "x": "→(w x y)",
         "y": "→(w x y)",
@@ -219,8 +220,7 @@ def application(self, clone, other: Callable):
     if other.hosh.etype != "ordered":
         raise FunctionTypeException(f"Functions are not allowed to have etype {other.hosh.etype}.")
 
-    # TODO criar PartialDict qnd deps não existem ainda
-    input = input_fields(self, other)
+    input = input_fields(other, self.data)
     output = output_fields(other)
     u = clone.hosh
     uf = clone.hosh * other.hosh
@@ -262,3 +262,4 @@ def application(self, clone, other: Callable):
             clone.hoshes[k] = v
 
     extend_history(clone, other.hosh)
+    return clone

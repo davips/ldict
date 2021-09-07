@@ -19,6 +19,7 @@
 #  works or verbatim, obfuscated, compiled or rewritten versions of any
 #  part of this work is a crime and is unethical regarding the effort and
 #  time spent here.
+import json
 from collections import UserDict
 from copy import deepcopy
 from typing import Dict, TypeVar, Union, Callable
@@ -27,13 +28,15 @@ from orjson import dumps, OPT_SORT_KEYS
 
 from garoupa import ø40
 from ldict_modules.appearance import ldict2txt, decolorize
-from ldict_modules.apply import delete, output_fields, input_fields, substitute, application
-from ldict_modules.data import fhosh, key2id
-from ldict_modules.exception import FunctionTypeException
+from ldict_modules.apply import delete, application
+from ldict_modules.data import key2id
+from ldict_modules.exception import MissingField
 from ldict_modules.history import extend_history, rewrite_history
 from ldict_modules.lazy import Lazy
 
 VT = TypeVar("VT")
+
+db = {}
 
 
 class Ldict(UserDict, Dict[str, VT]):
@@ -170,6 +173,7 @@ class Ldict(UserDict, Dict[str, VT]):
         if item not in self.data:
             raise KeyError(item)
         content = self.data[item]
+        print(type(content))
         if isinstance(content, Lazy):
             self.data[item] = content()
         return self.data[item]
@@ -257,14 +261,14 @@ class Ldict(UserDict, Dict[str, VT]):
                 elif callable(v):
                     raise Exception(f"Value (for field {k}) cannot have type {type(v)}")
                 elif k not in ["id", "ids"]:
+                    if k in self.data:
+                        raise Exception(f"Cannot overwrite field ({k}) via value insertion through >>")
                     clone[k] = v
-                elif k in self.data:
-                    raise Exception(f"Cannot overwrite field ({k}) via value insertion through >>")
             return clone
         elif not callable(other):
             raise Exception(f"Function should be callable or dict-like, not {type(other)}")
 
-        return application(clone, other)
+        return application(self, clone, other)
 
     def clone(self, readonly=False):
         """
@@ -290,6 +294,7 @@ class Ldict(UserDict, Dict[str, VT]):
         obj.hosh = self.hosh
         obj.data = self.data.copy()
         obj.history = deepcopy(self.history)
+        obj.last = self.last
         return obj
 
     def evaluate(self):
@@ -369,7 +374,7 @@ class Ldict(UserDict, Dict[str, VT]):
 
             return closure
 
-        clone = self.copy()
+        clone = self.clone()
         for field, v in list(self.data.items())[2:]:
             clone.data[field] = trigger(field)
         return clone >> f
@@ -381,6 +386,28 @@ class Ldict(UserDict, Dict[str, VT]):
                 raise MissingField(k)
             dic[k] = self[k]
         return dic
+
+    @property
+    def idc(self):
+        """Colored id"""
+        return self.hosh.idc
+
+    @property
+    def ids(self):
+        return self.data["ids"]
+
+    def __str__(self, all=False):
+        dic = self.data.copy()
+        for k, v in self.data.items():
+            if isinstance(v, Lazy):
+                dic[k] = str(v)
+        if not all:
+            if len(self.ids) < 3:
+                dic["ids"] = " ".join(self.ids.values())
+            else:
+                ids = list(self.ids.values())
+                dic["ids"] = f"{ids[0]}... +{(len(self) - 1) // 2} ...{ids[-1]}"
+        return json.dumps(dic, indent=4, ensure_ascii=False)
 
 
 ldict = Ldict

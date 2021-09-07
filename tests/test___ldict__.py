@@ -35,8 +35,6 @@ class TestLdict(TestCase):
         self.assertEqual(a, b)
 
     def test_illdefined_function(self):
-        with pytest.raises(FromØException):
-            ø >> (lambda y: {"x": 5})
         with pytest.raises(DependenceException):
             ø >> {"x": 5} >> (lambda y: {"x": 5})
         with pytest.raises(NoInputException):
@@ -49,8 +47,8 @@ class TestLdict(TestCase):
         d["z"] = 5
         self.assertEqual(
             """{
-    "id": "00000000001w6Ep1HQgaMx-d-i-4i1OB",
-    "ids": "000000000012DbMaJFRs3dca34FbGven... +2 ...00000000002MOCZRpfJZZbdpTtxagqTj",
+    "id": "Eh_00710612d0ed177a866b2cf5e6fbdbc5b9bff",
+    "ids": "kr_4aee5c3bcac2c478be9901d57fd1ef8a9d002... +2 ...Vz_d467c65677734fad67e6de7cdba3ea368aae4",
     "x": 3,
     "y": 4,
     "z": 5
@@ -66,8 +64,8 @@ class TestLdict(TestCase):
 
         self.assertEqual(
             """{
-    "id": "jnBdalsrWotpNVXb1tp172EErX.uzBcj",
-    "ids": "jnBdalsrWorPQrdwxvEp7mDAvY3V1YRZ... +2 ...00000000000zmiZwOjXbVbfdGeoJrdzK",
+    "id": "Yh6activ2aPNEtjkAeFtbIXZiZoadBnjS7VNt6Mg",
+    "ids": "i9o-7w8EyntJ45qTLHzOyu33capadBnjS7VNt6Mg... +2 ...Uz_0af6d78f77734fad67e6de7cdba3ea368aae4",
     "z": "→(x y)",
     "x": 3,
     "y": 5
@@ -84,15 +82,15 @@ class TestLdict(TestCase):
 
         # Overwrite same value.
         d["y"] = 5
-        self.assertEqual("jnBdalsrWotpNVXb1tp172EErX.uzBcj", d.id)
+        self.assertEqual("Yh6activ2aPNEtjkAeFtbIXZiZoadBnjS7VNt6Mg", d.id)
 
         # Repeate same overwrite.
         d["y"] = 5
-        self.assertEqual("jnBdalsrWotpNVXb1tp172EErX.uzBcj", d.id)
+        self.assertEqual("Yh6activ2aPNEtjkAeFtbIXZiZoadBnjS7VNt6Mg", d.id)
 
         # Overwrite other value.
         d["y"] = 6
-        self.assertEqual("jnBdalsrWor2AgxVe.vYvASzgdhOqgtP", d.id)
+        self.assertEqual("qb0KHIpi2b06ikRW.fzJr5V1.rsadBnjS7VNt6Mg", d.id)
 
     def test_rshift(self):
         d = ldict()
@@ -101,8 +99,8 @@ class TestLdict(TestCase):
         d >>= lambda x, y: {"z": x * y}
         self.assertEqual(
             """{
-    "id": "jnBdalsrWotpNVXb1tp172EErX.uzBcj",
-    "ids": "jnBdalsrWorPQrdwxvEp7mDAvY3V1YRZ... +2 ...00000000000zmiZwOjXbVbfdGeoJrdzK",
+    "id": "Yh6activ2aPNEtjkAeFtbIXZiZoadBnjS7VNt6Mg",
+    "ids": "i9o-7w8EyntJ45qTLHzOyu33capadBnjS7VNt6Mg... +2 ...Uz_0af6d78f77734fad67e6de7cdba3ea368aae4",
     "z": "→(x y)",
     "x": 3,
     "y": 5
