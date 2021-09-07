@@ -38,25 +38,19 @@ poetry install
 ## Persistence
 `poetry install -E full`
 
-## How to use [outdated]
-Two main entities are identifiable: processing functions and bags of values.
-A processing function is any callable the follows the rules below.
-A bag of values is a ldict object. It is a mapping between string keys, called fields,
-and any serializable object.
-The bag id (identifier) and the field ids are also part of the mapping.  
+## Concept
+A ldict is like a common Python dict, with extra funtionality.
+It is a mapping between string keys, called fields, and any serializable object.
+The ldict `id` (identifier) and the field `ids` are also part of the mapping.  
 
-The user should provide a unique identifier for each function object.
-It should be put as a 43 digits long base-62 string under the key "_id", or, 
-alternatively, a Hosh object inside the returned dict, under the key "_id".
-The only exception is when using the assignment syntax, 
-because the return value is the proper result of the calculation.
-When using the assignment syntax, it is assumed the 'id' should be automatically 
-calculated by the bytecode obtained through source code parsing.
-For this reason, such functions should be simple, i.e., 
+The user can provide a unique identifier ([hosh](https://pypi.org/project/garoupa))
+for each function or value object.
+Otherwise, they will be calculated through blake3 hashing of the content of data or bytecode of function.
+For this reason, such functions should be simple, i.e.,
 with minimal external dependencies, to avoid the unfortunate situation where two
 functions with identical local code actually perform different calculations through
 calls to external code that implement different algorithms with the same name.
+Alternatively, a Hosh object can be passed inside the dict that is returned by the function, under the key "_id".
 
-One way to emulate such behavior for the function application syntax (a >> f) is to
-explicitly refuse to provide a hash/id.
-This can be done by setting `"_id": None` inside the returned dictionary.
+## How to use
+[ongoing...]
