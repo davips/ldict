@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "ldict"
-version = "2.210815.7"
-description = "Lazy dict with universaly unique identified values"
+version = "2.210901.1"
+description = "Lazy dict with universally unique identifier for values"
 authors = ["davips <dpsabc@gmail.com>"]
 license = "GPL"
 readme = 'README.md'
@@ -15,10 +15,11 @@ packages = [
 full = ["sqlalchemy"]
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.9"
 orjson = "^3.5.0"
+pdoc3 = "^0.10.0"
+garoupa = "^2.210906.2"
 uncompyle6 = "^3.7.4"
-garoupa = "^2.210811.7"
 
 [tool.poetry.dev-dependencies]
 autoreadme = "^0.2102.20"
