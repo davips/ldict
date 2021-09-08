@@ -70,6 +70,32 @@ print(a)
 """
 ```
 
+```python3
+
+b = ldict(y=5)
+print(b)
+"""
+{
+    "id": "Uz_0af6d78f77734fad67e6de7cdba3ea368aae4",
+    "ids": "Uz_0af6d78f77734fad67e6de7cdba3ea368aae4",
+    "y": 5
+}
+"""
+```
+
+```python3
+
+print(a >> b)
+"""
+{
+    "id": "c._2b0434ca422114262680df425b85cac028be6",
+    "ids": "kr_4aee5c3bcac2c478be9901d57fd1ef8a9d002 Uz_0af6d78f77734fad67e6de7cdba3ea368aae4",
+    "x": 3,
+    "y": 5
+}
+"""
+```
+
 
 </p>
 </details>
@@ -94,26 +120,39 @@ print(a)
 
 ```python3
 
-b = ldict(y=5)
-print(b)
+a = a >> ldict(y=5) >> {"z": 7} >> (lambda x, y, z: {"r": x ** y // z})
+print(a)
 """
 {
-    "id": "Uz_0af6d78f77734fad67e6de7cdba3ea368aae4",
-    "ids": "Uz_0af6d78f77734fad67e6de7cdba3ea368aae4",
-    "y": 5
+    "id": "8jopGVdtSEyCk1NSKcrEF-Lfv8up9MQBdvkLxU2o",
+    "ids": "J3tsy4vUXPELySBicaAy-h-UK7Dp9MQBdvkLxU2o... +2 ...Ss_7dff0a161ba7462725cac7dcee71b67669f69",
+    "r": "→(x y z)",
+    "x": 3,
+    "y": 5,
+    "z": 7
 }
 """
 ```
 
 ```python3
 
-print(a >> b)
+print(a.r)
+"""
+34
+"""
+```
+
+```python3
+
+print(a)
 """
 {
-    "id": "c._2b0434ca422114262680df425b85cac028be6",
-    "ids": "kr_4aee5c3bcac2c478be9901d57fd1ef8a9d002 Uz_0af6d78f77734fad67e6de7cdba3ea368aae4",
+    "id": "8jopGVdtSEyCk1NSKcrEF-Lfv8up9MQBdvkLxU2o",
+    "ids": "J3tsy4vUXPELySBicaAy-h-UK7Dp9MQBdvkLxU2o... +2 ...Ss_7dff0a161ba7462725cac7dcee71b67669f69",
+    "r": 34,
     "x": 3,
-    "y": 5
+    "y": 5,
+    "z": 7
 }
 """
 ```
