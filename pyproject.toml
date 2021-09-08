@@ -15,7 +15,7 @@ packages = [
 full = ["sqlalchemy"]
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = "^3.8"
 orjson = "^3.5.0"
 pdoc3 = "^0.10.0"
 garoupa = "^2.210906.2"
