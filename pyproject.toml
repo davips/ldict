@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ldict"
-version = "2.210908.1"
+version = "2.210908.2"
 description = "Lazy dict with universally unique identifier for values"
 authors = ["davips <dpsabc@gmail.com>"]
 license = "GPL"
@@ -18,8 +18,8 @@ full = ["sqlalchemy"]
 python = "^3.8"
 orjson = "^3.5.0"
 pdoc3 = "^0.10.0"
-garoupa = "^2.210906.2"
 uncompyle6 = "^3.7.4"
+garoupa = "^2.210907.7"
 
 [tool.poetry.dev-dependencies]
 autoreadme = "^0.2102.20"

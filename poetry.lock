@@ -165,7 +165,7 @@ reference = "dvpypi"
 
 [[package]]
 name = "garoupa"
-version = "2.210907.6"
+version = "2.210907.8"
 description = "Predictable operable hash-based identifiers and abstract algebra groups"
 category = "main"
 optional = false
@@ -661,7 +661,7 @@ full = []
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "ef8a6ee0133d89c3ab7eaaba3ed41e61ba62af3c82d2215fa7c431ad9950db8b"
+content-hash = "e99be20cec8eebc7b948e1c8027c94ccc5ecf2b8e2522a1a7858066c0cb27026"
 
 [metadata.files]
 astroid = [
@@ -773,8 +773,8 @@ coverage = [
     {file = "coverage-5.5.tar.gz", hash = "sha256:ebe78fe9a0e874362175b02371bdfbee64d8edc42a044253ddf4ee7d3c15212c"},
 ]
 garoupa = [
-    {file = "garoupa-2.210907.6-py3-none-any.whl", hash = "md5:0dedb81c732fa7d5592c26c87eb0059a"},
-    {file = "garoupa-2.210907.6.tar.gz", hash = "md5:4123f1624103da9ea084eaabaab50ad6"},
+    {file = "garoupa-2.210907.8-py3-none-any.whl", hash = "md5:a404c856100aae1b5f1adfb0d9ecdb2b"},
+    {file = "garoupa-2.210907.8.tar.gz", hash = "md5:0ee2ce9e8aac15d6a321c34834e585af"},
 ]
 iniconfig = [
     {file = "iniconfig-1.1.1-py2.py3-none-any.whl", hash = "sha256:011e24c64b7f47f6ebd835bb12a743f2fbe9a26d4cecaa7f53bc4f35ee9da8b3"},
