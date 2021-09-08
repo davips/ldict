@@ -58,7 +58,7 @@ class TestLdict(TestCase):
         self.assertEqual(
             """{
     "id": "Eh_00710612d0ed177a866b2cf5e6fbdbc5b9bff",
-    "ids": "kr_4aee5c3bcac2c478be9901d57fd1ef8a9d002... +2 ...Vz_d467c65677734fad67e6de7cdba3ea368aae4",
+    "ids": "kr_4aee5c3bcac2c478be9901d57fd1ef8a9d002... +1 ...Vz_d467c65677734fad67e6de7cdba3ea368aae4",
     "x": 3,
     "y": 4,
     "z": 5
@@ -75,7 +75,7 @@ class TestLdict(TestCase):
         self.assertEqual(
             """{
     "id": "Yh6activ2aPNEtjkAeFtbIXZiZoadBnjS7VNt6Mg",
-    "ids": "i9o-7w8EyntJ45qTLHzOyu33capadBnjS7VNt6Mg... +2 ...Uz_0af6d78f77734fad67e6de7cdba3ea368aae4",
+    "ids": "i9o-7w8EyntJ45qTLHzOyu33capadBnjS7VNt6Mg... +1 ...Uz_0af6d78f77734fad67e6de7cdba3ea368aae4",
     "z": "→(x y)",
     "x": 3,
     "y": 5
@@ -110,7 +110,7 @@ class TestLdict(TestCase):
         self.assertEqual(
             """{
     "id": "Yh6activ2aPNEtjkAeFtbIXZiZoadBnjS7VNt6Mg",
-    "ids": "i9o-7w8EyntJ45qTLHzOyu33capadBnjS7VNt6Mg... +2 ...Uz_0af6d78f77734fad67e6de7cdba3ea368aae4",
+    "ids": "i9o-7w8EyntJ45qTLHzOyu33capadBnjS7VNt6Mg... +1 ...Uz_0af6d78f77734fad67e6de7cdba3ea368aae4",
     "z": "→(x y)",
     "x": 3,
     "y": 5

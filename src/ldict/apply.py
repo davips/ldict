@@ -81,7 +81,7 @@ def delete(d, clone, k):
 
     f.hosh = d.identity * removal_id(d, k)
     f.input_fields = f.output_fields = [k]
-    application(d, clone, f)
+    application(d, clone, f, {}, d.rnd)
     _ = clone[k]
 
 

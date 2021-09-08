@@ -25,51 +25,51 @@ d.show(colored=False)
 # ...
 
 # Parameter values are uniformly sampled.
-d1 = d >> f
-d.show(colored=False)
+# d1 = d >> f
+# d.show(colored=False)
 # ...
-
-print(d1.z)
-# ...
-
-d2 = d >> f
-d.show(colored=False)
-# ...
-
-print(d2.z)
-# ...
-
-# Parameter values can also be manually set.
-e = d >> cfg(a=5, b=10) >> f
-print(e.z)
-# ...
-
-# Not all parameters need to be set.
-e = d >> cfg(a=5) >> f
-print(e.z)
-# ...
-
-# Each run will be a different sample for the missing parameters.
-e = e >> cfg(a=5) >> f
-print(e.z)
-# ...
-
-# The metaparameter 'rnd' defines the initial state of the random sampler for this point onwards processing the ldict.
-e = d >> cfg(a=5)(rnd=0) >> f
-print(e.z)
-# ...
-
-# All runs will yield the same result, if starting from the same random number generator seed.
-e = e >> cfg(a=5)(rnd=0) >> f
-print(e.z)
-# ...
-
-# Reproducible different runs are achievable by passing a stateful random number generator, instead of a seed.
-rnd = Random(0)
-e = d >> cfg(a=5)(rnd=rnd) >> f
-print(e.z)
-# ...
-
-e = d >> cfg(a=5)(rnd=rnd) >> f
-print(e.z)
-# ...
+#
+# print(d1.z)
+# # ...
+#
+# d2 = d >> f
+# d.show(colored=False)
+# # ...
+#
+# print(d2.z)
+# # ...
+#
+# # Parameter values can also be manually set.
+# e = d >> cfg(a=5, b=10) >> f
+# print(e.z)
+# # ...
+#
+# # Not all parameters need to be set.
+# e = d >> cfg(a=5) >> f
+# print(e.z)
+# # ...
+#
+# # Each run will be a different sample for the missing parameters.
+# e = e >> cfg(a=5) >> f
+# print(e.z)
+# # ...
+#
+# # The metaparameter 'rnd' defines the initial state of the random sampler for this point onwards processing the ldict.
+# e = d >> cfg(a=5)(rnd=0) >> f
+# print(e.z)
+# # ...
+#
+# # All runs will yield the same result, if starting from the same random number generator seed.
+# e = e >> cfg(a=5)(rnd=0) >> f
+# print(e.z)
+# # ...
+#
+# # Reproducible different runs are achievable by passing a stateful random number generator, instead of a seed.
+# rnd = Random(0)
+# e = d >> cfg(a=5)(rnd=rnd) >> f
+# print(e.z)
+# # ...
+#
+# e = d >> cfg(a=5)(rnd=rnd) >> f
+# print(e.z)
+# # ...

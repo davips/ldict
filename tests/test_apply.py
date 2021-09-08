@@ -19,7 +19,7 @@
 #  works or verbatim, obfuscated, compiled or rewritten versions of any
 #  part of this work is illegal and unethical regarding the effort and
 #  time spent here.
-
+from random import Random
 from unittest import TestCase
 
 import pytest
@@ -60,7 +60,7 @@ class Test(TestCase):
 
         f.hosh = ø40 * 2 ** 65
         with pytest.raises(FunctionETypeException):
-            application(ø, ø, f)
+            application(ø, ø, f, {}, Random())
 
         delattr(f, "hosh")
         with pytest.raises(BadOutput):

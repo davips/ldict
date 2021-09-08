@@ -47,34 +47,19 @@
 #  works or verbatim, obfuscated, compiled or rewritten versions of any
 #  part of this work is illegal and unethical regarding the effort and
 #  time spent here.
-#
-#  garoupa is free software: you can redistribute it and/or modify
-#  it under the terms of the GNU General Public License as published by
-#  the Free Software Foundation, either version 3 of the License, or
-#  (at your option) any later version.
-#
-#  garoupa is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with garoupa.  If not, see &lt;http://www.gnu.org/licenses/&gt;.
-#
-#  (*) Removing authorship by any means, e.g. by distribution of derived
-#  works or verbatim, obfuscated, compiled or rewritten versions of any
-#  part of this work is illegal and unethical regarding the effort and
-#  time spent here.
+
 import re
 from inspect import signature
 from io import StringIO
 from typing import Callable
 
+from lange import AP, GP
+from orjson import OPT_SORT_KEYS, dumps
 from uncompyle6.main import decompile
 
 from ldict.data import fhosh, removal_id
 from ldict.exception import NoInputException, DependenceException, FunctionETypeException, NoReturnException, \
-    BadOutput
+    BadOutput, InconsistentLange
 from ldict.history import extend_history
 from ldict.lazy import Lazy
 
@@ -124,36 +109,47 @@ def delete(d, clone, k):
 
     f.hosh = d.identity * removal_id(d, k)
     f.input_fields = f.output_fields = [k]
-    application(d, clone, f)
+    application(d, clone, f, {}, d.rnd)
     _ = clone[k]
 
 
-def input_fields(f, fields):
-    &#34;&#34;&#34;Extract input fields.
+def input_fields(f, previous_fields):
+    &#34;&#34;&#34;Extract input fields (and parameters, when default values are present).
 
     &gt;&gt;&gt; input_fields(lambda x,y: {&#34;z&#34;: x*y, &#34;w&#34;: x+y}, {&#34;x&#34;:None, &#34;y&#34;:None})
-    [&#39;x&#39;, &#39;y&#39;]
-    &gt;&gt;&gt; def f(x,y):
+    ([&#39;x&#39;, &#39;y&#39;], {})
+    &gt;&gt;&gt; def f(x, y, a=[1,2,3,...,10], b=[1,2,4,...,32]):
     ...     return {
-    ...         &#34;z&#34;: x*y,
+    ...         &#34;z&#34;: a*x + b*y,
     ...         &#34;w&#34;: x+y
     ...     }
-    &gt;&gt;&gt; output_fields(f)
-    [&#39;z&#39;, &#39;w&#39;]
+    &gt;&gt;&gt; input_fields(f, {&#34;x&#34;:None, &#34;y&#34;:None})
+    ([&#39;x&#39;, &#39;y&#39;], {&#39;a&#39;: [1, 2, 3, Ellipsis, 10], &#39;b&#39;: [1, 2, 4, Ellipsis, 32]})
 
     Returns
     -------
 
     &#34;&#34;&#34;
-    input_fields = f.input_fields if hasattr(f, &#34;input_fields&#34;) else signature(f).parameters.keys()
-    if not input_fields:
+    parameters = {}
+    if hasattr(f, &#34;input_fields&#34;):
+        input = f.input_fields
+        if hasattr(f, &#34;parameters&#34;):
+            parameters = f.parameters
+    else:
+        input = []
+        for k, v in signature(f).parameters.items():
+            if v.default is v.empty:
+                input.append(k)
+            else:
+                parameters[k] = v.default
+    if not input:
         raise NoInputException(f&#34;Missing function input parameters.&#34;)
-    for field in input_fields:
-        if field not in fields:
+    for field in input:
+        if field not in previous_fields:
             # TODO: stacktrace para apontar toda a cadeia de dependências, caso seja profunda
             # # TODO criar PartialDict qnd deps não existem ainda
-            raise DependenceException(f&#34;Function depends on inexistent field [{field}].&#34;, fields.keys())
-    return list(input_fields)
+            raise DependenceException(f&#34;Function depends on inexistent field [{field}].&#34;, previous_fields.keys())
+    return input, parameters
 
 
 def output_fields(f):
@@ -263,17 +259,47 @@ def substitute(hoshes, fields, uf):
     return uf * ~others
 
 
-def application(self, clone, other: Callable):
-    # Attach hosh to f if needed.
-    if not hasattr(other, &#34;hosh&#34;):
-        other.hosh = fhosh(other, version=self.version)
-    if other.hosh.etype != &#34;ordered&#34;:
-        raise FunctionETypeException(f&#34;Functions are not allowed to have etype {other.hosh.etype}.&#34;)
+def expand(lst):
+    return list(list2progression(lst))
 
-    input = input_fields(other, self.data)
+
+def list2progression(lst):
+    # TODO move this to lange package
+    diff1 = lst[1] - lst[0]
+    diff2 = lst[2] - lst[1]
+    ratio1 = lst[1] / lst[0]
+    ratio2 = lst[2] / lst[1]
+    newlst = [lst[0], lst[1], ..., lst[-1]]
+    if diff1 == diff2:
+        return AP(*newlst)
+    elif ratio1 == ratio2:
+        return GP(*newlst)
+    else:
+        raise InconsistentLange(f&#34;Cannot identify whether this is a G. or A. progression: {lst}&#34;)
+
+
+def application(self, clone, other: Callable, config, rnd):
+    # Attach hosh to f if needed.
+    hosh = other.hosh if hasattr(other, &#34;hosh&#34;) else fhosh(other, version=self.version)
+    if hosh.etype != &#34;ordered&#34;:
+        raise FunctionETypeException(f&#34;Functions are not allowed to have etype {hosh.etype}.&#34;)
+
+    input, parameters = input_fields(other, self.data)
+    deps = {k: self.data[k] for k in input}
+
+    # Handle parameterized function.
+    if parameters:
+        for k, v in parameters.items():
+            if k in config:
+                parameters[k] = config[k]
+            elif isinstance(v, list):
+                parameters[k] = rnd.choice(expand(v))
+        deps.update(parameters)
+        hosh *= dumps(parameters, option=OPT_SORT_KEYS)
+
     output = output_fields(other)
     u = clone.hosh
-    uf = clone.hosh * other.hosh
+    uf = clone.hosh * hosh
     ufu_ = uf * ~u
 
     # Add triggers for future evaluation.
@@ -286,7 +312,7 @@ def application(self, clone, other: Callable):
     if len(output) == 1:
         field = output[0]
         clone.hoshes[field] = substitute(self.hoshes, [field], uf) if field in self.data else ufu_
-        clone.data[field] = Lazy(field, other, deps={k: self.data[k] for k in input})
+        clone.data[field] = Lazy(field, other, deps)
         clone.data[&#34;ids&#34;][field] = clone.hoshes[field].id
     else:
         acc = self.identity
@@ -300,7 +326,7 @@ def application(self, clone, other: Callable):
             else:
                 field_hosh = ~acc * ufu__
             clone.hoshes[field] = field_hosh
-            clone.data[field] = Lazy(field, other, deps={k: self.data[k] for k in input})
+            clone.data[field] = Lazy(field, other, deps)
             clone.data[&#34;ids&#34;][field] = field_hosh.id
 
     for k, v in self.data.items():
@@ -311,7 +337,7 @@ def application(self, clone, other: Callable):
         if k not in clone.hoshes:
             clone.hoshes[k] = v
 
-    extend_history(clone, other.hosh)
+    extend_history(clone, hosh)
     return clone</code></pre>
 </details>
 </section>
@@ -323,7 +349,7 @@ def application(self, clone, other: Callable):
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="ldict.apply.application"><code class="name flex">
-<span>def <span class="ident">application</span></span>(<span>self, clone, other: Callable)</span>
+<span>def <span class="ident">application</span></span>(<span>self, clone, other: Callable, config, rnd)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -331,17 +357,28 @@ def application(self, clone, other: Callable):
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def application(self, clone, other: Callable):
+<pre><code class="python">def application(self, clone, other: Callable, config, rnd):
     # Attach hosh to f if needed.
-    if not hasattr(other, &#34;hosh&#34;):
-        other.hosh = fhosh(other, version=self.version)
-    if other.hosh.etype != &#34;ordered&#34;:
-        raise FunctionETypeException(f&#34;Functions are not allowed to have etype {other.hosh.etype}.&#34;)
+    hosh = other.hosh if hasattr(other, &#34;hosh&#34;) else fhosh(other, version=self.version)
+    if hosh.etype != &#34;ordered&#34;:
+        raise FunctionETypeException(f&#34;Functions are not allowed to have etype {hosh.etype}.&#34;)
 
-    input = input_fields(other, self.data)
+    input, parameters = input_fields(other, self.data)
+    deps = {k: self.data[k] for k in input}
+
+    # Handle parameterized function.
+    if parameters:
+        for k, v in parameters.items():
+            if k in config:
+                parameters[k] = config[k]
+            elif isinstance(v, list):
+                parameters[k] = rnd.choice(expand(v))
+        deps.update(parameters)
+        hosh *= dumps(parameters, option=OPT_SORT_KEYS)
+
     output = output_fields(other)
     u = clone.hosh
-    uf = clone.hosh * other.hosh
+    uf = clone.hosh * hosh
     ufu_ = uf * ~u
 
     # Add triggers for future evaluation.
@@ -354,7 +391,7 @@ def application(self, clone, other: Callable):
     if len(output) == 1:
         field = output[0]
         clone.hoshes[field] = substitute(self.hoshes, [field], uf) if field in self.data else ufu_
-        clone.data[field] = Lazy(field, other, deps={k: self.data[k] for k in input})
+        clone.data[field] = Lazy(field, other, deps)
         clone.data[&#34;ids&#34;][field] = clone.hoshes[field].id
     else:
         acc = self.identity
@@ -368,7 +405,7 @@ def application(self, clone, other: Callable):
             else:
                 field_hosh = ~acc * ufu__
             clone.hoshes[field] = field_hosh
-            clone.data[field] = Lazy(field, other, deps={k: self.data[k] for k in input})
+            clone.data[field] = Lazy(field, other, deps)
             clone.data[&#34;ids&#34;][field] = field_hosh.id
 
     for k, v in self.data.items():
@@ -379,7 +416,7 @@ def application(self, clone, other: Callable):
         if k not in clone.hoshes:
             clone.hoshes[k] = v
 
-    extend_history(clone, other.hosh)
+    extend_history(clone, hosh)
     return clone</code></pre>
 </details>
 </dd>
@@ -473,56 +510,104 @@ True
 
     f.hosh = d.identity * removal_id(d, k)
     f.input_fields = f.output_fields = [k]
-    application(d, clone, f)
+    application(d, clone, f, {}, d.rnd)
     _ = clone[k]</code></pre>
 </details>
 </dd>
-<dt id="ldict.apply.input_fields"><code class="name flex">
-<span>def <span class="ident">input_fields</span></span>(<span>f, fields)</span>
+<dt id="ldict.apply.expand"><code class="name flex">
+<span>def <span class="ident">expand</span></span>(<span>lst)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Extract input fields.</p>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def expand(lst):
+    return list(list2progression(lst))</code></pre>
+</details>
+</dd>
+<dt id="ldict.apply.input_fields"><code class="name flex">
+<span>def <span class="ident">input_fields</span></span>(<span>f, previous_fields)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Extract input fields (and parameters, when default values are present).</p>
 <pre><code class="language-python-repl">&gt;&gt;&gt; input_fields(lambda x,y: {&quot;z&quot;: x*y, &quot;w&quot;: x+y}, {&quot;x&quot;:None, &quot;y&quot;:None})
-['x', 'y']
-&gt;&gt;&gt; def f(x,y):
+(['x', 'y'], {})
+&gt;&gt;&gt; def f(x, y, a=[1,2,3,...,10], b=[1,2,4,...,32]):
 ...     return {
-...         &quot;z&quot;: x*y,
+...         &quot;z&quot;: a*x + b*y,
 ...         &quot;w&quot;: x+y
 ...     }
-&gt;&gt;&gt; output_fields(f)
-['z', 'w']
+&gt;&gt;&gt; input_fields(f, {&quot;x&quot;:None, &quot;y&quot;:None})
+(['x', 'y'], {'a': [1, 2, 3, Ellipsis, 10], 'b': [1, 2, 4, Ellipsis, 32]})
 </code></pre>
 <h2 id="returns">Returns</h2></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def input_fields(f, fields):
-    &#34;&#34;&#34;Extract input fields.
+<pre><code class="python">def input_fields(f, previous_fields):
+    &#34;&#34;&#34;Extract input fields (and parameters, when default values are present).
 
     &gt;&gt;&gt; input_fields(lambda x,y: {&#34;z&#34;: x*y, &#34;w&#34;: x+y}, {&#34;x&#34;:None, &#34;y&#34;:None})
-    [&#39;x&#39;, &#39;y&#39;]
-    &gt;&gt;&gt; def f(x,y):
+    ([&#39;x&#39;, &#39;y&#39;], {})
+    &gt;&gt;&gt; def f(x, y, a=[1,2,3,...,10], b=[1,2,4,...,32]):
     ...     return {
-    ...         &#34;z&#34;: x*y,
+    ...         &#34;z&#34;: a*x + b*y,
     ...         &#34;w&#34;: x+y
     ...     }
-    &gt;&gt;&gt; output_fields(f)
-    [&#39;z&#39;, &#39;w&#39;]
+    &gt;&gt;&gt; input_fields(f, {&#34;x&#34;:None, &#34;y&#34;:None})
+    ([&#39;x&#39;, &#39;y&#39;], {&#39;a&#39;: [1, 2, 3, Ellipsis, 10], &#39;b&#39;: [1, 2, 4, Ellipsis, 32]})
 
     Returns
     -------
 
     &#34;&#34;&#34;
-    input_fields = f.input_fields if hasattr(f, &#34;input_fields&#34;) else signature(f).parameters.keys()
-    if not input_fields:
+    parameters = {}
+    if hasattr(f, &#34;input_fields&#34;):
+        input = f.input_fields
+        if hasattr(f, &#34;parameters&#34;):
+            parameters = f.parameters
+    else:
+        input = []
+        for k, v in signature(f).parameters.items():
+            if v.default is v.empty:
+                input.append(k)
+            else:
+                parameters[k] = v.default
+    if not input:
         raise NoInputException(f&#34;Missing function input parameters.&#34;)
-    for field in input_fields:
-        if field not in fields:
+    for field in input:
+        if field not in previous_fields:
             # TODO: stacktrace para apontar toda a cadeia de dependências, caso seja profunda
             # # TODO criar PartialDict qnd deps não existem ainda
-            raise DependenceException(f&#34;Function depends on inexistent field [{field}].&#34;, fields.keys())
-    return list(input_fields)</code></pre>
+            raise DependenceException(f&#34;Function depends on inexistent field [{field}].&#34;, previous_fields.keys())
+    return input, parameters</code></pre>
+</details>
+</dd>
+<dt id="ldict.apply.list2progression"><code class="name flex">
+<span>def <span class="ident">list2progression</span></span>(<span>lst)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def list2progression(lst):
+    # TODO move this to lange package
+    diff1 = lst[1] - lst[0]
+    diff2 = lst[2] - lst[1]
+    ratio1 = lst[1] / lst[0]
+    ratio2 = lst[2] / lst[1]
+    newlst = [lst[0], lst[1], ..., lst[-1]]
+    if diff1 == diff2:
+        return AP(*newlst)
+    elif ratio1 == ratio2:
+        return GP(*newlst)
+    else:
+        raise InconsistentLange(f&#34;Cannot identify whether this is a G. or A. progression: {lst}&#34;)</code></pre>
 </details>
 </dd>
 <dt id="ldict.apply.output_fields"><code class="name flex">
@@ -737,10 +822,12 @@ True
 </ul>
 </li>
 <li><h3><a href="#header-functions">Functions</a></h3>
-<ul class="">
+<ul class="two-column">
 <li><code><a title="ldict.apply.application" href="#ldict.apply.application">application</a></code></li>
 <li><code><a title="ldict.apply.delete" href="#ldict.apply.delete">delete</a></code></li>
+<li><code><a title="ldict.apply.expand" href="#ldict.apply.expand">expand</a></code></li>
 <li><code><a title="ldict.apply.input_fields" href="#ldict.apply.input_fields">input_fields</a></code></li>
+<li><code><a title="ldict.apply.list2progression" href="#ldict.apply.list2progression">list2progression</a></code></li>
 <li><code><a title="ldict.apply.output_fields" href="#ldict.apply.output_fields">output_fields</a></code></li>
 <li><code><a title="ldict.apply.substitute" href="#ldict.apply.substitute">substitute</a></code></li>
 </ul>
