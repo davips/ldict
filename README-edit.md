@@ -1,5 +1,6 @@
 ![test](https://github.com/davips/ldict/workflows/test/badge.svg)
 [![codecov](https://codecov.io/gh/davips/ldict/branch/main/graph/badge.svg)](https://codecov.io/gh/davips/ldict)
+<div style="background-color: rgb(15, 20, 25);">
 
 # ldict
 Uniquely identified lazy dict.
@@ -87,3 +88,5 @@ calls to external code that implement different algorithms with the same name.
 ## Grants
 This work was partially supported by Fapesp under supervision of
 Prof. André C. P. L. F. de Carvalho at CEPID-CeMEAI (Grants 2013/07375-0 – 2019/01735-0).
+
+</div>
