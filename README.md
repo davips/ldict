@@ -1,5 +1,6 @@
 ![test](https://github.com/davips/ldict/workflows/test/badge.svg)
 [![codecov](https://codecov.io/gh/davips/ldict/branch/main/graph/badge.svg)](https://codecov.io/gh/davips/ldict)
+<div style="background-color: rgb(15, 20, 25);">
 
 # ldict
 Uniquely identified lazy dict.
@@ -234,7 +235,7 @@ d.show(colored=False)
 
 print(d1.z)
 """
-69610.0
+125.007
 """
 ```
 
@@ -259,7 +260,7 @@ d.show(colored=False)
 
 print(d2.z)
 """
--29.93
+245.0
 """
 ```
 
@@ -279,7 +280,7 @@ print(e.z)
 e = d >> cfg(a=5) >> fun
 print(e.z)
 """
-70025.0
+25.0007
 """
 ```
 
@@ -289,7 +290,7 @@ print(e.z)
 e = e >> cfg(a=5) >> fun
 print(e.z)
 """
-95.0
+32.0
 """
 ```
 
@@ -379,8 +380,8 @@ d = {"x": 5, "y": 7} >> fun
 print(d)
 """
 {
-    "id": "VNqIlnelOh9VJbgIBTtsB20MjhrHDycdeBrDsE9V",
-    "ids": "LzRJyJ7ApyJLoJ.OVI8m.1sp56rHDycdeBrDsE9V... +1 ...Rs_92162dea64a7462725cac7dcee71b67669f69",
+    "id": "fW1sfhJxYcI0bsnvzzvI4IivY4mX6Nqw027wEroQ",
+    "ids": "DNBcbS.LSuPNOX6CToaCuHK8KVlX6Nqw027wEroQ... +1 ...Rs_92162dea64a7462725cac7dcee71b67669f69",
     "z": "→(z→(x y a b) c)",
     "x": 5,
     "y": 7
@@ -392,7 +393,7 @@ print(d)
 
 print(d.z)
 """
-2100090.0
+14090.0
 """
 ```
 
@@ -401,7 +402,7 @@ print(d.z)
 d = {"x": 5, "y": 7} >> fun
 print(d.z)
 """
-94.0
+7020.0
 """
 ```
 
@@ -473,3 +474,5 @@ calls to external code that implement different algorithms with the same name.
 ## Grants
 This work was partially supported by Fapesp under supervision of
 Prof. André C. P. L. F. de Carvalho at CEPID-CeMEAI (Grants 2013/07375-0 – 2019/01735-0).
+
+</div>
