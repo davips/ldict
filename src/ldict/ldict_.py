@@ -268,11 +268,9 @@ class Ldict(UserDict, Dict[str, VT]):
         """
         return self.__repr__(all=True)
 
-    def __rshift__(self, other: Union[Dict, Callable, FunctionSpace], config={}, rnd=None):
+    def __rshift__(self, other: Union[Dict, Callable, FunctionSpace], config={}):
         from ldict.cfg import cfg
         clone = self.clone()
-        if rnd is not None:
-            clone.rnd = Random(rnd) if isinstance(rnd, int) else rnd
 
         # Insertion of dict-like.
         if isinstance(other, Dict):
@@ -290,10 +288,13 @@ class Ldict(UserDict, Dict[str, VT]):
             return reduce(operator.rshift, (clone,) + other.functions)
         elif isinstance(other, cfg):
             from ldict.cfg import Ldict_cfg
-            d = Ldict_cfg(clone, other.config, other.rnd)
+            d = Ldict_cfg(clone, other.config)
             if other.f:
                 d >>= other.f
             return d
+        elif isinstance(other, Random):
+            clone.rnd = other
+            return clone
         elif not callable(other):
             raise WrongValueType(f"Value passed to >> should be callable or dict-like, not {type(other)}")
 

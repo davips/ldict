@@ -20,8 +20,6 @@
 #  part of this work is illegal and unethical regarding the effort and
 #  time spent here.
 from dataclasses import dataclass
-from random import Random
-from typing import Union
 
 from ldict import Ldict
 
@@ -30,26 +28,21 @@ from ldict import Ldict
 class Ldict_cfg:
     ldict: Ldict
     config: dict
-    rnd: Union[int, Random]
 
     def __rshift__(self, other):
-        return self.ldict.__rshift__(other, self.config, self.rnd)
+        return self.ldict.__rshift__(other, self.config)
 
 
 class cfg:
-    def __init__(self, _rnd=None, _f=None, **kwargs):
+    def __init__(self, _f=None, **kwargs):
         self.config = kwargs
-        self.rnd = _rnd
         self.f = _f
 
     def __rshift__(self, other):
-        return self.__class__(_rnd=self.rnd, _f=other, **self.config)
+        return self.__class__(_f=other, **self.config)
 
     def __rrshift__(self, other):
         from ldict import Ldict
         if not isinstance(other, dict):
             return NotImplemented
         return Ldict(other) >> self
-
-    def __call__(self, rnd):
-        return self.__class__(_rnd=rnd, _f=self.f, **self.config)

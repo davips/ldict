@@ -54,22 +54,22 @@ e = e >> cfg(a=5) >> fun
 print(e.z)
 # ...
 
-# The metaparameter 'rnd' defines the initial state of the random sampler for this point onwards processing the ldict.
-e = d >> cfg(a=5)(rnd=0) >> fun
+# Defining the initial state of the random sampler for this point onwards processing the ldict...
+e = d >> cfg(a=5) >> Random(0) >> fun
 print(e.z)
 # ...
 
 # All runs will yield the same result, if starting from the same random number generator seed.
-e = e >> cfg(a=5)(rnd=0) >> fun
+e = e >> cfg(a=5) >> Random(0) >> fun
 print(e.z)
 # ...
 
-# Reproducible different runs are achievable by passing a stateful random number generator, instead of a seed.
+# Reproducible different runs are achievable by using the same stateful random number generator.
 rnd = Random(0)
-e = d >> cfg(a=5)(rnd=rnd) >> fun
+e = d >> cfg(a=5) >> rnd >> fun
 print(e.z)
 # ...
 
-e = d >> cfg(a=5)(rnd=rnd) >> fun
+e = d >> cfg(a=5) >> rnd >> fun  # Alternative syntax.
 print(e.z)
 # ...

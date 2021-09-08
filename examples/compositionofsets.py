@@ -40,19 +40,20 @@ print(d.z)
 
 # Reproducible different runs by passing a stateful random number generator.
 rnd = Random(0)
-e = d >> cfg()(rnd=rnd) >> fun
+e = d >> rnd >> fun
 print(e.z)
 # ...
 
-e = d >> cfg()(rnd=rnd) >> fun
+e = d >> rnd >> fun
 print(e.z)
 # ...
 
+# Repeating the same results.
 rnd = Random(0)
-e = d >> cfg()(rnd=rnd) >> fun
+e = d >> rnd >> fun
 print(e.z)
 # ...
 
-e = d >> cfg()(rnd=rnd) >> fun
+e = d >> rnd >> fun
 print(e.z)
 # ...
