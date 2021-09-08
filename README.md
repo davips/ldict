@@ -161,12 +161,13 @@ print(a)
 </p>
 </details>
 
-## Persistence
+<!--- ## Persistence
 Extra dependencies can be installed to support saving data to disk or to a server in the network. 
 
 **[still an ongoing work...]**
 
 `poetry install -E full`
+--->
 
 ## Concept
 A ldict is like a common Python dict, with extra funtionality and lazy.
@@ -180,8 +181,8 @@ For this reason, such functions should be simple, i.e.,
 with minimal external dependencies, to avoid the unfortunate situation where two
 functions with identical local code actually perform different calculations through
 calls to external code that implement different algorithms with the same name.
-Alternatively, a Hosh object can be passed inside the dict that is returned by the function, under the key "_id".
+<!--- Alternatively, a Hosh object can be passed inside the dict that is returned by the function, under the key "_id". --->
 
-## Usage
-
-**[still an ongoing work...]**
+## Grants
+This work was partially supported by Fapesp under supervision of
+Prof. André C. P. L. F. de Carvalho at CEPID-CeMEAI (Grants 2013/07375-0 – 2019/01735-0).
