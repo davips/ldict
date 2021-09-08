@@ -26,8 +26,8 @@ import pytest
 
 from garoupa import ø40
 from ldict import ø
-from ldict_modules.apply import input_fields, output_fields, application
-from ldict_modules.exception import NoInputException, NoReturnException, BadOutput, FunctionTypeException
+from ldict.apply import input_fields, output_fields, application
+from ldict.exception import NoInputException, NoReturnException, BadOutput, FunctionTypeException
 
 
 class Test(TestCase):

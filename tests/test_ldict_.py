@@ -26,7 +26,7 @@ import pytest
 from sys import maxsize
 
 from ldict import ldict, ø
-from ldict_modules.exception import DependenceException, NoInputException, WrongKeyType, WrongValueType, ReadOnlyLdict, \
+from ldict.exception import DependenceException, NoInputException, WrongKeyType, WrongValueType, ReadOnlyLdict, \
     OverwriteException
 
 

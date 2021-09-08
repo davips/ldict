@@ -1,6 +1,24 @@
 #  Copyright (c) 2021. Davi Pereira dos Santos
-#  This file is part of the garoupa project.
+#  This file is part of the ldict project.
 #  Please respect the license - more about this in the section (*) below.
+#
+#  ldict is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  ldict is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with ldict.  If not, see <http://www.gnu.org/licenses/>.
+#
+#  (*) Removing authorship by any means, e.g. by distribution of derived
+#  works or verbatim, obfuscated, compiled or rewritten versions of any
+#  part of this work is illegal and unethical regarding the effort and
+#  time spent here.
 #
 #  garoupa is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -23,7 +41,7 @@
 import json
 import re
 
-from ldict_modules.customjson import CustomJSONEncoder
+from ldict.customjson import CustomJSONEncoder
 
 
 def decolorize(txt):
@@ -75,8 +93,8 @@ def ldict2txt(d, all):
 
 
 def ldict2dic(d, all):
-    from ldict_modules.lazy import Lazy
-    from ldict_modules.ldict_ import ldict
+    from ldict.lazy import Lazy
+    from ldict.ldict_ import ldict
     dic = d.data.copy()
     for k, v in d.data.items():
         if isinstance(v, Lazy):

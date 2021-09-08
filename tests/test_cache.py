@@ -24,7 +24,6 @@
 from unittest import TestCase
 
 from ldict import ø
-from ldict_modules.ldict_ import db
 
 
 class Test(TestCase):

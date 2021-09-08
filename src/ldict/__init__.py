@@ -1,5 +1,5 @@
-from ldict_modules.appearance import decolorize
-from ldict_modules.ldict_ import Ldict
+from .appearance import decolorize
+from .ldict_ import Ldict
 
 ldict = Ldict
 

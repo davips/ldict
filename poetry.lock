@@ -660,8 +660,8 @@ full = []
 
 [metadata]
 lock-version = "1.1"
-python-versions = "^3.9"
-content-hash = "513d0f7979a93783b23f395667659fe1a386e9f07cb6090a178303071689f99a"
+python-versions = "^3.8"
+content-hash = "ef8a6ee0133d89c3ab7eaaba3ed41e61ba62af3c82d2215fa7c431ad9950db8b"
 
 [metadata.files]
 astroid = [
