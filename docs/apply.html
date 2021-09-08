@@ -73,7 +73,7 @@ from typing import Callable
 from uncompyle6.main import decompile
 
 from ldict.data import fhosh, removal_id
-from ldict.exception import NoInputException, DependenceException, FunctionTypeException, NoReturnException, \
+from ldict.exception import NoInputException, DependenceException, FunctionETypeException, NoReturnException, \
     BadOutput
 from ldict.history import extend_history
 from ldict.lazy import Lazy
@@ -185,11 +185,14 @@ def output_fields(f):
     dicts = re.findall(&#34;(?={)(.+?)(?&lt;=})&#34;, ret)
     if len(dicts) != 1:
         raise BadOutput(
-            &#34;Cannot detect output fields:&#34; &#34;Missing dict (with pairs &#39;identifier&#39;-&gt;result) as a return value.&#34;,
+            &#34;Cannot detect output fields, or missing dict (with proper pairs &#39;identifier&#39;-&gt;result) as a return value.&#34;,
             dicts,
             ret,
         )
-    return re.findall(r&#34;(?:[\&#34;&#39;])([a-zA-Z]+[a-zA-Z0-9_]*)(?:[\&#34;&#39;])&#34;, dicts[0])
+    ret = re.findall(r&#34;(?:[\&#34;&#39;])([a-zA-Z]+[a-zA-Z0-9_]*)(?:[\&#34;&#39;])&#34;, dicts[0])
+    if not ret:
+        raise BadOutput(&#34;Cannot find output fields that are valid identifiers:&#34;, dicts, ret, )
+    return ret
 
 
 def substitute(hoshes, fields, uf):
@@ -265,7 +268,7 @@ def application(self, clone, other: Callable):
     if not hasattr(other, &#34;hosh&#34;):
         other.hosh = fhosh(other, version=self.version)
     if other.hosh.etype != &#34;ordered&#34;:
-        raise FunctionTypeException(f&#34;Functions are not allowed to have etype {other.hosh.etype}.&#34;)
+        raise FunctionETypeException(f&#34;Functions are not allowed to have etype {other.hosh.etype}.&#34;)
 
     input = input_fields(other, self.data)
     output = output_fields(other)
@@ -333,7 +336,7 @@ def application(self, clone, other: Callable):
     if not hasattr(other, &#34;hosh&#34;):
         other.hosh = fhosh(other, version=self.version)
     if other.hosh.etype != &#34;ordered&#34;:
-        raise FunctionTypeException(f&#34;Functions are not allowed to have etype {other.hosh.etype}.&#34;)
+        raise FunctionETypeException(f&#34;Functions are not allowed to have etype {other.hosh.etype}.&#34;)
 
     input = input_fields(other, self.data)
     output = output_fields(other)
@@ -572,11 +575,14 @@ True
     dicts = re.findall(&#34;(?={)(.+?)(?&lt;=})&#34;, ret)
     if len(dicts) != 1:
         raise BadOutput(
-            &#34;Cannot detect output fields:&#34; &#34;Missing dict (with pairs &#39;identifier&#39;-&gt;result) as a return value.&#34;,
+            &#34;Cannot detect output fields, or missing dict (with proper pairs &#39;identifier&#39;-&gt;result) as a return value.&#34;,
             dicts,
             ret,
         )
-    return re.findall(r&#34;(?:[\&#34;&#39;])([a-zA-Z]+[a-zA-Z0-9_]*)(?:[\&#34;&#39;])&#34;, dicts[0])</code></pre>
+    ret = re.findall(r&#34;(?:[\&#34;&#39;])([a-zA-Z]+[a-zA-Z0-9_]*)(?:[\&#34;&#39;])&#34;, dicts[0])
+    if not ret:
+        raise BadOutput(&#34;Cannot find output fields that are valid identifiers:&#34;, dicts, ret, )
+    return ret</code></pre>
 </details>
 </dd>
 <dt id="ldict.apply.substitute"><code class="name flex">
