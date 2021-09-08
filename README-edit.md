@@ -14,12 +14,12 @@ The process is a sequence of transformation steps that can be of two types:
 value insertion and function application.
 Value insertion is done using dict-like objects as shown below.
 The operator `>>` concatenate the steps chronologically.
-![img_2.png](https://raw.githubusercontent.com/davips/ldict/main/examples/img_2.png)
+![img.png](https://raw.githubusercontent.com/davips/ldict/main/examples/img.png)
 
 Function application is done in the same way.
 The parameter names define the input fields,
 while the keys in the returned dict define the output fields:
-![img_3.png](https://raw.githubusercontent.com/davips/ldict/main/examples/img_3.png)
+![img_1.png](https://raw.githubusercontent.com/davips/ldict/main/examples/img_1.png)
 
 Similarly, for anonymous functions:
 ![img_5.png](https://raw.githubusercontent.com/davips/ldict/main/examples/img_5.png)
