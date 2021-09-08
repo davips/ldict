@@ -234,7 +234,7 @@ d.show(colored=False)
 
 print(d1.z)
 """
-70145.0
+69610.0
 """
 ```
 
@@ -259,7 +259,7 @@ d.show(colored=False)
 
 print(d2.z)
 """
-100.0
+-29.93
 """
 ```
 
@@ -279,7 +279,7 @@ print(e.z)
 e = d >> cfg(a=5) >> fun
 print(e.z)
 """
-25.7
+70025.0
 """
 ```
 
@@ -289,7 +289,7 @@ print(e.z)
 e = e >> cfg(a=5) >> fun
 print(e.z)
 """
-7025.0
+95.0
 """
 ```
 
@@ -379,8 +379,8 @@ d = {"x": 5, "y": 7} >> fun
 print(d)
 """
 {
-    "id": "RIlJC7MjYD3AVG4a01tVO09RBI-uWm8b1FLcw7oI",
-    "ids": "d7M.I2J7YwKqSeQgkS7Pc0Bunx-uWm8b1FLcw7oI... +1 ...Rs_92162dea64a7462725cac7dcee71b67669f69",
+    "id": "VNqIlnelOh9VJbgIBTtsB20MjhrHDycdeBrDsE9V",
+    "ids": "LzRJyJ7ApyJLoJ.OVI8m.1sp56rHDycdeBrDsE9V... +1 ...Rs_92162dea64a7462725cac7dcee71b67669f69",
     "z": "→(z→(x y a b) c)",
     "x": 5,
     "y": 7
@@ -392,7 +392,7 @@ print(d)
 
 print(d.z)
 """
-120.00021000000001
+2100090.0
 """
 ```
 
@@ -401,7 +401,7 @@ print(d.z)
 d = {"x": 5, "y": 7} >> fun
 print(d.z)
 """
-210135.0
+94.0
 """
 ```
 
