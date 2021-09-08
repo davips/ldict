@@ -45,7 +45,7 @@ from typing import Callable
 from uncompyle6.main import decompile
 
 from ldict.data import fhosh, removal_id
-from ldict.exception import NoInputException, DependenceException, FunctionTypeException, NoReturnException, \
+from ldict.exception import NoInputException, DependenceException, FunctionETypeException, NoReturnException, \
     BadOutput
 from ldict.history import extend_history
 from ldict.lazy import Lazy
@@ -157,11 +157,14 @@ def output_fields(f):
     dicts = re.findall("(?={)(.+?)(?<=})", ret)
     if len(dicts) != 1:
         raise BadOutput(
-            "Cannot detect output fields:" "Missing dict (with pairs 'identifier'->result) as a return value.",
+            "Cannot detect output fields, or missing dict (with proper pairs 'identifier'->result) as a return value.",
             dicts,
             ret,
         )
-    return re.findall(r"(?:[\"'])([a-zA-Z]+[a-zA-Z0-9_]*)(?:[\"'])", dicts[0])
+    ret = re.findall(r"(?:[\"'])([a-zA-Z]+[a-zA-Z0-9_]*)(?:[\"'])", dicts[0])
+    if not ret:
+        raise BadOutput("Cannot find output fields that are valid identifiers:", dicts, ret, )
+    return ret
 
 
 def substitute(hoshes, fields, uf):
@@ -237,7 +240,7 @@ def application(self, clone, other: Callable):
     if not hasattr(other, "hosh"):
         other.hosh = fhosh(other, version=self.version)
     if other.hosh.etype != "ordered":
-        raise FunctionTypeException(f"Functions are not allowed to have etype {other.hosh.etype}.")
+        raise FunctionETypeException(f"Functions are not allowed to have etype {other.hosh.etype}.")
 
     input = input_fields(other, self.data)
     output = output_fields(other)

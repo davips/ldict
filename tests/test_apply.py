@@ -27,7 +27,7 @@ import pytest
 from garoupa import ø40
 from ldict import ø
 from ldict.apply import input_fields, output_fields, application
-from ldict.exception import NoInputException, NoReturnException, BadOutput, FunctionTypeException
+from ldict.exception import NoInputException, NoReturnException, BadOutput, FunctionETypeException
 
 
 class Test(TestCase):
@@ -56,10 +56,12 @@ class Test(TestCase):
 
     def test_application(self):
         def f(x):
-            return {"x": 1}
+            return {"x³": x ** 3}
 
-        f.hosh = ø40.h * 238476
-        d = ø
+        f.hosh = ø40 * 2 ** 65
+        with pytest.raises(FunctionETypeException):
+            application(ø, ø, f)
 
-        with pytest.raises(FunctionTypeException):
-            application(d, d, f)
+        delattr(f, "hosh")
+        with pytest.raises(BadOutput):
+            _ = ø >> {"x": 2} >> f

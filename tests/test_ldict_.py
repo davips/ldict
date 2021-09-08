@@ -136,7 +136,6 @@ class TestLdict(TestCase):
         with pytest.raises(OverwriteException):
             self.assertNotEqual(a, a >> {"x": 3})
 
-
     def test_setitem_overwrite_function(self):
         d = ldict()
         d["x"] = 1
@@ -157,7 +156,6 @@ class TestLdict(TestCase):
         old = d
         d >>= lambda x, y, z: {"z": x + y * z}  # 31
         self.assertNotEqual(old, d)
-
         self.assertEqual(31, d.z)
 
         def f(x):
