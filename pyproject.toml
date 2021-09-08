@@ -19,6 +19,7 @@ orjson = "^3.5.0"
 pdoc3 = "^0.10.0"
 uncompyle6 = "^3.7.4"
 garoupa = "^2.210907.7"
+lange = "^0.2101.24"
 
 [tool.poetry.dev-dependencies]
 autoreadme = "^0.2102.20"

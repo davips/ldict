@@ -81,3 +81,11 @@ class WrongKeyType(Exception):
 
 class WrongValueType(Exception):
     pass
+
+
+class ConflictingParameter(Exception):
+    pass
+
+
+class InconsistentLange(Exception):
+    pass

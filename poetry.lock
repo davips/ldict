@@ -223,6 +223,14 @@ qa = ["flake8 (==3.8.3)", "mypy (==0.782)"]
 testing = ["Django (<3.1)", "colorama", "docopt", "pytest (<6.0.0)"]
 
 [[package]]
+name = "lange"
+version = "0.2101.24"
+description = "Haskell-like intervals for Python"
+category = "main"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "lazy-object-proxy"
 version = "1.6.0"
 description = "A fast and thorough lazy object proxy."
@@ -615,7 +623,7 @@ full = []
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "cd7f362844408402e369c25a8458428d216eebed69db04ebedff7d3eca6cc54c"
+content-hash = "1e08ae04c82caf4ce661c24e0dbc1f208bb5cb144811e064d0feb03171a16831"
 
 [metadata.files]
 appnope = [
@@ -757,6 +765,10 @@ isort = [
 jedi = [
     {file = "jedi-0.18.0-py2.py3-none-any.whl", hash = "sha256:18456d83f65f400ab0c2d3319e48520420ef43b23a086fdc05dff34132f0fb93"},
     {file = "jedi-0.18.0.tar.gz", hash = "sha256:92550a404bad8afed881a137ec9a461fed49eca661414be45059329614ed0707"},
+]
+lange = [
+    {file = "lange-0.2101.24-py3-none-any.whl", hash = "sha256:571ef1da9d66eba1f9d76cb62bd1e0e1e9dfa9239a52ab7cf8a72032d0ee5709"},
+    {file = "lange-0.2101.24.tar.gz", hash = "sha256:f82df304d5921ef605fa17d7203213e2578cd8e698876991dda2ed2dc6e1e359"},
 ]
 lazy-object-proxy = [
     {file = "lazy-object-proxy-1.6.0.tar.gz", hash = "sha256:489000d368377571c6f982fba6497f2aa13c6d1facc40660963da62f5c379726"},
