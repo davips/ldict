@@ -48,8 +48,7 @@
 #  part of this work is illegal and unethical regarding the effort and
 #  time spent here.
 from dataclasses import dataclass
-from random import Random
-from typing import Union
+from typing import Dict
 
 from ldict import Ldict
 
@@ -58,29 +57,24 @@ from ldict import Ldict
 class Ldict_cfg:
     ldict: Ldict
     config: dict
-    rnd: Union[int, Random]
 
     def __rshift__(self, other):
-        return self.ldict.__rshift__(other, self.config, self.rnd)
+        return self.ldict.__rshift__(other, self.config)
 
 
 class cfg:
-    def __init__(self, _rnd=None, _f=None, **kwargs):
+    def __init__(self, _f=None, **kwargs):
         self.config = kwargs
-        self.rnd = _rnd
         self.f = _f
 
     def __rshift__(self, other):
-        return self.__class__(_rnd=self.rnd, _f=other, **self.config)
+        return self.__class__(_f=other, **self.config)
 
     def __rrshift__(self, other):
         from ldict import Ldict
-        if not isinstance(other, dict):
+        if not isinstance(other, Dict):
             return NotImplemented
-        return Ldict(other) &gt;&gt; self
-
-    def __call__(self, rnd):
-        return self.__class__(_rnd=rnd, _f=self.f, **self.config)</code></pre>
+        return Ldict(other) &gt;&gt; self</code></pre>
 </details>
 </section>
 <section>
@@ -94,10 +88,10 @@ class cfg:
 <dl>
 <dt id="ldict.cfg.Ldict_cfg"><code class="flex name class">
 <span>class <span class="ident">Ldict_cfg</span></span>
-<span>(</span><span>ldict: <a title="ldict.ldict_.Ldict" href="ldict_.html#ldict.ldict_.Ldict">Ldict</a>, config: dict, rnd: Union[int, random.Random])</span>
+<span>(</span><span>ldict: <a title="ldict.ldict_.Ldict" href="ldict_.html#ldict.ldict_.Ldict">Ldict</a>, config: dict)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Ldict_cfg(ldict: ldict.ldict_.Ldict, config: dict, rnd: Union[int, random.Random])</p></div>
+<div class="desc"><p>Ldict_cfg(ldict: ldict.ldict_.Ldict, config: dict)</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -105,10 +99,9 @@ class cfg:
 <pre><code class="python">class Ldict_cfg:
     ldict: Ldict
     config: dict
-    rnd: Union[int, Random]
 
     def __rshift__(self, other):
-        return self.ldict.__rshift__(other, self.config, self.rnd)</code></pre>
+        return self.ldict.__rshift__(other, self.config)</code></pre>
 </details>
 <h3>Class variables</h3>
 <dl>
@@ -117,10 +110,6 @@ class cfg:
 <div class="desc"></div>
 </dd>
 <dt id="ldict.cfg.Ldict_cfg.ldict"><code class="name">var <span class="ident">ldict</span> : <a title="ldict.ldict_.Ldict" href="ldict_.html#ldict.ldict_.Ldict">Ldict</a></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="ldict.cfg.Ldict_cfg.rnd"><code class="name">var <span class="ident">rnd</span> : Union[int, random.Random]</code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
@@ -137,22 +126,18 @@ class cfg:
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class cfg:
-    def __init__(self, _rnd=None, _f=None, **kwargs):
+    def __init__(self, _f=None, **kwargs):
         self.config = kwargs
-        self.rnd = _rnd
         self.f = _f
 
     def __rshift__(self, other):
-        return self.__class__(_rnd=self.rnd, _f=other, **self.config)
+        return self.__class__(_f=other, **self.config)
 
     def __rrshift__(self, other):
         from ldict import Ldict
-        if not isinstance(other, dict):
+        if not isinstance(other, Dict):
             return NotImplemented
-        return Ldict(other) &gt;&gt; self
-
-    def __call__(self, rnd):
-        return self.__class__(_rnd=rnd, _f=self.f, **self.config)</code></pre>
+        return Ldict(other) &gt;&gt; self</code></pre>
 </details>
 </dd>
 </dl>
@@ -176,7 +161,6 @@ class cfg:
 <ul class="">
 <li><code><a title="ldict.cfg.Ldict_cfg.config" href="#ldict.cfg.Ldict_cfg.config">config</a></code></li>
 <li><code><a title="ldict.cfg.Ldict_cfg.ldict" href="#ldict.cfg.Ldict_cfg.ldict">ldict</a></code></li>
-<li><code><a title="ldict.cfg.Ldict_cfg.rnd" href="#ldict.cfg.Ldict_cfg.rnd">rnd</a></code></li>
 </ul>
 </li>
 <li>

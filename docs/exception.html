@@ -116,6 +116,10 @@ class ConflictingParameter(Exception):
 
 
 class InconsistentLange(Exception):
+    pass
+
+
+class EmptyNextToGlobalCache(Exception):
     pass</code></pre>
 </details>
 </section>
@@ -177,6 +181,25 @@ class InconsistentLange(Exception):
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class DependenceException(Exception):
+    pass</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>builtins.Exception</li>
+<li>builtins.BaseException</li>
+</ul>
+</dd>
+<dt id="ldict.exception.EmptyNextToGlobalCache"><code class="flex name class">
+<span>class <span class="ident">EmptyNextToGlobalCache</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Common base class for all non-exit exceptions.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class EmptyNextToGlobalCache(Exception):
     pass</code></pre>
 </details>
 <h3>Ancestors</h3>
@@ -399,6 +422,9 @@ class InconsistentLange(Exception):
 </li>
 <li>
 <h4><code><a title="ldict.exception.DependenceException" href="#ldict.exception.DependenceException">DependenceException</a></code></h4>
+</li>
+<li>
+<h4><code><a title="ldict.exception.EmptyNextToGlobalCache" href="#ldict.exception.EmptyNextToGlobalCache">EmptyNextToGlobalCache</a></code></h4>
 </li>
 <li>
 <h4><code><a title="ldict.exception.FromØException" href="#ldict.exception.FromØException">FromØException</a></code></h4>

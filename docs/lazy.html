@@ -56,15 +56,19 @@ class Lazy:
 
     def __call__(self, *args, **kwargs):
         for k, v in self.deps.items():
-            if isinstance(v, Lazy):
+            if islazy(v):
                 self.deps[k] = v()
         return self.f(**self.deps)[self.field]
 
     def __repr__(self):
         dic = {}
         for k, v in self.deps.items():
-            dic[k] = v if isinstance(v, Lazy) else &#34;&#34;
-        return f&#34;→({&#39; &#39;.join([f&#39;{k}{v}&#39; for k,v in dic.items()])})&#34;</code></pre>
+            dic[k] = v if islazy(v) else &#34;&#34;
+        return f&#34;→({&#39; &#39;.join([f&#39;{k}{v}&#39; for k, v in dic.items()])})&#34;
+
+
+def islazy(obj):
+    return obj.__class__.__name__ == &#34;Lazy&#34;</code></pre>
 </details>
 </section>
 <section>
@@ -72,6 +76,22 @@ class Lazy:
 <section>
 </section>
 <section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="ldict.lazy.islazy"><code class="name flex">
+<span>def <span class="ident">islazy</span></span>(<span>obj)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def islazy(obj):
+    return obj.__class__.__name__ == &#34;Lazy&#34;</code></pre>
+</details>
+</dd>
+</dl>
 </section>
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
@@ -94,15 +114,15 @@ class Lazy:
 
     def __call__(self, *args, **kwargs):
         for k, v in self.deps.items():
-            if isinstance(v, Lazy):
+            if islazy(v):
                 self.deps[k] = v()
         return self.f(**self.deps)[self.field]
 
     def __repr__(self):
         dic = {}
         for k, v in self.deps.items():
-            dic[k] = v if isinstance(v, Lazy) else &#34;&#34;
-        return f&#34;→({&#39; &#39;.join([f&#39;{k}{v}&#39; for k,v in dic.items()])})&#34;</code></pre>
+            dic[k] = v if islazy(v) else &#34;&#34;
+        return f&#34;→({&#39; &#39;.join([f&#39;{k}{v}&#39; for k, v in dic.items()])})&#34;</code></pre>
 </details>
 </dd>
 </dl>
@@ -117,6 +137,11 @@ class Lazy:
 <li><h3>Super-module</h3>
 <ul>
 <li><code><a title="ldict" href="index.html">ldict</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="ldict.lazy.islazy" href="#ldict.lazy.islazy">islazy</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-classes">Classes</a></h3>
