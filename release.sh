@@ -18,13 +18,14 @@ read -p "press enter"
 rm docs -rf
 poetry run pdoc --html --force ldict -o docs
 mv docs/ldict/* docs/
+rm docs/ldict -rf
 git add docs
 echo "----------------- docs done -----------------------"
 echo; echo
 
 echo "---------------- readme ----------------"
 read -p "press enter"
-autoreadme -i README-edit.md -s examples/ -o README.md
+poetry run autoreadme -i README-edit.md -s examples/ -o README.md
 echo "---------------- readme done ----------------"
 echo; echo
 

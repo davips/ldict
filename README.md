@@ -237,7 +237,7 @@ d.show(colored=False)
 
 print(d1.z)
 """
--104.93
+7000260.0
 """
 ```
 
@@ -262,7 +262,7 @@ d.show(colored=False)
 
 print(d2.z)
 """
-69595.0
+699999615.0
 """
 ```
 
@@ -282,7 +282,7 @@ print(e.z)
 e = d >> cfg(a=5) >> fun
 print(e.z)
 """
-70000025.0
+700025.0
 """
 ```
 
@@ -292,47 +292,47 @@ print(e.z)
 e = e >> cfg(a=5) >> fun
 print(e.z)
 """
-70025.0
+32.0
 """
 ```
 
 ```python3
 
-# The metaparameter 'rnd' defines the initial state of the random sampler for this point onwards processing the ldict.
-e = d >> cfg(a=5)(rnd=0) >> fun
+# Defining the initial state of the random sampler for this point onwards processing the ldict...
+e = d >> cfg(a=5) >> Random(0) >> fun
 print(e.z)
 """
-725.0
+699999990.0
 """
 ```
 
 ```python3
 
 # All runs will yield the same result, if starting from the same random number generator seed.
-e = e >> cfg(a=5)(rnd=0) >> fun
+e = e >> cfg(a=5) >> Random(0) >> fun
 print(e.z)
 """
-725.0
+699999990.0
 """
 ```
 
 ```python3
 
-# Reproducible different runs are achievable by passing a stateful random number generator, instead of a seed.
+# Reproducible different runs are achievable by using the same stateful random number generator.
 rnd = Random(0)
-e = d >> cfg(a=5)(rnd=rnd) >> fun
+e = d >> cfg(a=5) >> rnd >> fun
 print(e.z)
 """
-725.0
+699999990.0
 """
 ```
 
 ```python3
 
-e = d >> cfg(a=5)(rnd=rnd) >> fun
+e = d >> cfg(a=5) >> rnd >> fun  # Alternative syntax.
 print(e.z)
 """
-700000025.0
+35.0007
 """
 ```
 
@@ -365,10 +365,11 @@ def h(z, c=[1, 2, 3]):
 # In the ldict framework 'data is function',
 # so the alias ø represents the 'empty data object' and the 'reflexive function' at the same time.
 # In other words: 'inserting nothing' has the same effect as 'doing nothing'.
+# The operator '*' is an alias for '>>', used just to make the context clearer.
 fun = ø * g * h  # ø enable the cartesian product of the subsequent sets of functions within the expression.
 print(fun)
 """
-g×h
+g × h
 """
 ```
 
@@ -382,8 +383,8 @@ d = {"x": 5, "y": 7} >> fun
 print(d)
 """
 {
-    "id": "d-NsKAXeKM.nnap.rWREZgIBFoWaXILstI8auAG1",
-    "ids": "UcB1kXd1ZWouoJ86MLwyng8frdWaXILstI8auAG1... +1 ...Rs_92162dea64a7462725cac7dcee71b67669f69",
+    "id": "O5nlmxZxRAt0i9FjpcZ9N7qdOewzfe3CoPdeDd.1",
+    "ids": "Yqa9OeUa05UBMHoqJ1E3b7SSz3wzfe3CoPdeDd.1... +1 ...Rs_92162dea64a7462725cac7dcee71b67669f69",
     "z": "→(z→(x y a b) c)",
     "x": 5,
     "y": 7
@@ -395,7 +396,7 @@ print(d)
 
 print(d.z)
 """
-2100105.0
+7020.0
 """
 ```
 
@@ -404,7 +405,7 @@ print(d.z)
 d = {"x": 5, "y": 7} >> fun
 print(d.z)
 """
-745.0
+35.07
 """
 ```
 
@@ -412,7 +413,7 @@ print(d.z)
 
 # Reproducible different runs by passing a stateful random number generator.
 rnd = Random(0)
-e = d >> cfg()(rnd=rnd) >> fun
+e = d >> rnd >> fun
 print(e.z)
 """
 105.0
@@ -421,7 +422,7 @@ print(e.z)
 
 ```python3
 
-e = d >> cfg()(rnd=rnd) >> fun
+e = d >> rnd >> fun
 print(e.z)
 """
 14050.0
@@ -430,8 +431,9 @@ print(e.z)
 
 ```python3
 
+# Repeating the same results.
 rnd = Random(0)
-e = d >> cfg()(rnd=rnd) >> fun
+e = d >> rnd >> fun
 print(e.z)
 """
 105.0
@@ -440,10 +442,79 @@ print(e.z)
 
 ```python3
 
-e = d >> cfg()(rnd=rnd) >> fun
+e = d >> rnd >> fun
 print(e.z)
 """
 14050.0
+"""
+```
+
+
+</p>
+</details>
+
+**Transparent persistence**
+<details>
+<p>
+
+```python3
+from ldict import ldict, ø, setcache
+
+# The cache can be set globally.
+# It is as simple as a dict, or any dict-like implementation mapping str to serializable content.
+# Implementations can, e.g., store data on disk or in a remote computer.
+
+setcache({})
+
+
+def fun(x, y):
+    print("Calculated!")  # Watch whether the value had to be calculated.
+    return {"z": x ** y}
+
+
+# The operator '^' indicates a relevant point during the process, i.e., a point where data should be stored.
+# It is mostly intended to avoid costly recalculations or log results.
+# The symbol points upwards, meaning data can momentarily come from or go outside of the process.
+# When the same process is repeated, only the first request will trigger calculation.
+# Local caching objects (dicts or dict-like database servers) can also be used.
+# They should be wrapped by square brackets to avoid ambiguity.
+# The list may contain many different caches, e.g.: [RAM, local, remote].
+mycache = {}
+remote = {}
+d = ø >> {"x": 3, "y": 2} >> fun >> [mycache, remote]
+print(d)
+print(d.z, d.id)
+"""
+{
+    "id": "dpWeC4tFX.7oD1PMWLoyNAaH6gtNSvzvAw2XMZVi",
+    "ids": "GsDJe8CjPiVCEoJEoNzyfKAyyirNSvzvAw2XMZVi... +1 ...yI_a331070d4bcdde465f28ba37ba1310e928122",
+    "z": "→(^ x y)",
+    "x": 3,
+    "y": 2
+}
+Calculated!
+9 dpWeC4tFX.7oD1PMWLoyNAaH6gtNSvzvAw2XMZVi
+"""
+```
+
+```python3
+
+# The second request just retrieves the cached value.
+d = ldict(y=2, x=3) >> fun >> [remote]
+print(d.z, d.id)
+"""
+9 dpWeC4tFX.7oD1PMWLoyNAaH6gtNSvzvAw2XMZVi
+"""
+```
+
+```python3
+
+# The caching operator can appear in multiple places in the expression, if intermediate values are of interest.
+# The ø is used as ldict-inducer when needed.
+d = ldict(y=2, x=3) >> fun ^ ø >> (lambda x: {"x": x ** 2}) >> ø >> {"w": 5, "k": 5} >> ø >> [mycache]
+print(d.z, d.id)
+"""
+9 QaRWaaqyTLRqBDzvIff.HdTGQVDeSMDamXXwaYMA
 """
 ```
 
