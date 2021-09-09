@@ -65,6 +65,8 @@ poetry install
 
 <<compositionofsets>>
 
+<<persistence>>
+
 <!--- ## Persistence
 Extra dependencies can be installed to support saving data to disk or to a server in the network. 
 
