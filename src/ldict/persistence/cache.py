@@ -20,24 +20,21 @@
 #  part of this work is illegal and unethical regarding the effort and
 #  time spent here.
 
-class Lazy:
-    def __init__(self, field, f, deps):
-        self.field = field
-        self.f = f
-        self.deps = deps
+from abc import ABC, abstractmethod
+from typing import Dict, TypeVar
 
-    def __call__(self, *args, **kwargs):
-        for k, v in self.deps.items():
-            if islazy(v):
-                self.deps[k] = v()
-        return self.f(**self.deps)[self.field]
-
-    def __repr__(self):
-        dic = {}
-        for k, v in self.deps.items():
-            dic[k] = v if islazy(v) else ""
-        return f"→({' '.join([f'{k}{v}' for k, v in dic.items()])})"
+VT = TypeVar("VT")
 
 
-def islazy(obj):
-    return obj.__class__.__name__ == "Lazy"
+class Cache(Dict[str, VT], ABC):
+    @abstractmethod
+    def __setitem__(self, key, value):
+        raise NotImplementedError
+
+    @abstractmethod
+    def __getitem__(self, key):
+        raise NotImplementedError
+
+    @abstractmethod
+    def __delitem__(self, key):
+        raise NotImplementedError

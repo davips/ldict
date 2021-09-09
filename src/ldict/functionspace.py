@@ -21,21 +21,35 @@
 #  time spent here.
 import operator
 from functools import reduce
+from typing import Dict
 
 
 class FunctionSpace:
     def __init__(self, *args):
         self.functions = args
 
-    def __mul__(self, other):
-        new_functions = other.functions if isinstance(other, FunctionSpace) else (other,)
-        return FunctionSpace(*self.functions, *new_functions)
+    def __rshift__(self, other):
+        from ldict import Ldict
+        from ldict import Empty
+        if isinstance(other, Empty):
+            return self
+        if isinstance(other, Dict) and not isinstance(other, Ldict):
+            other = Ldict(other)
+        if callable(other) or isinstance(other, (Ldict, FunctionSpace, list)):
+            new_functions = other.functions if isinstance(other, FunctionSpace) else (other,)
+            return FunctionSpace(*self.functions, *new_functions)
+        return NotImplemented
+
+    __mul__ = __rshift__
 
     def __rrshift__(self, other):
         from ldict import Ldict
-        if not isinstance(other, dict):
+        if not isinstance(other, Dict) or isinstance(other, Ldict):
             return NotImplemented
         return reduce(operator.rshift, (Ldict(other),) + self.functions)
 
     def __repr__(self):
-        return "×".join(f.__name__ for f in self.functions)
+        txt = []
+        for f in self.functions:
+            txt.append("^" if isinstance(f, list) else f.__name__)
+        return " × ".join(txt)

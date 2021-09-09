@@ -19,6 +19,7 @@ def h(z, c=[1, 2, 3]):
 # In the ldict framework 'data is function',
 # so the alias ø represents the 'empty data object' and the 'reflexive function' at the same time.
 # In other words: 'inserting nothing' has the same effect as 'doing nothing'.
+# The operator '*' is an alias for '>>', used just to make the context clearer.
 fun = ø * g * h  # ø enable the cartesian product of the subsequent sets of functions within the expression.
 print(fun)
 # ...

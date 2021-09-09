@@ -20,6 +20,7 @@
 #  part of this work is illegal and unethical regarding the effort and
 #  time spent here.
 from dataclasses import dataclass
+from typing import Dict
 
 from ldict import Ldict
 
@@ -43,6 +44,6 @@ class cfg:
 
     def __rrshift__(self, other):
         from ldict import Ldict
-        if not isinstance(other, dict):
+        if not isinstance(other, Dict):
             return NotImplemented
         return Ldict(other) >> self

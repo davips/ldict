@@ -1,9 +1,13 @@
+from ldict.persistence import setcache
 from .appearance import decolorize
+from .empty import Empty
+from .functionspace import FunctionSpace
 from .ldict_ import Ldict
 
 ldict = Ldict
 
-empty = ldict(readonly=True)
+
+empty = Empty()
 """The empty object is used to induce a ldict from a dict"""
 
 ø = empty

@@ -89,3 +89,7 @@ class ConflictingParameter(Exception):
 
 class InconsistentLange(Exception):
     pass
+
+
+class EmptyNextToGlobalCache(Exception):
+    pass

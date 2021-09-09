@@ -35,14 +35,14 @@ from ldict.appearance import ldict2txt, decolorize, ldict2dic
 from ldict.apply import delete, application
 from ldict.customjson import CustomJSONEncoder
 from ldict.data import key2id
-from ldict.exception import MissingField, ReadOnlyLdict, WrongKeyType, WrongValueType, OverwriteException
+from ldict.exception import ReadOnlyLdict, WrongKeyType, WrongValueType, OverwriteException
 from ldict.functionspace import FunctionSpace
 from ldict.history import extend_history, rewrite_history
-from ldict.lazy import Lazy
+from ldict.lazy import islazy
+from ldict.persistence import GLOBAL
+from ldict.persistence.cached import cached
 
 VT = TypeVar("VT")
-
-db = {}
 
 
 class Ldict(UserDict, Dict[str, VT]):
@@ -151,6 +151,7 @@ class Ldict(UserDict, Dict[str, VT]):
         super().__init__()
         self.data.update(id=identity.id, ids={})
         self.update(**(_dictionary or {}), **kwargs)
+        self.__name__ = self.id[:10]
 
     def __setitem__(self, key: str, value):
         if self.readonly:
@@ -189,7 +190,7 @@ class Ldict(UserDict, Dict[str, VT]):
         if item not in self.data:
             raise KeyError(item)
         content = self.data[item]
-        if isinstance(content, Lazy):
+        if islazy(content):
             self.data[item] = content()
         return self.data[item]
 
@@ -268,12 +269,18 @@ class Ldict(UserDict, Dict[str, VT]):
         """
         return self.__repr__(all=True)
 
+    def __rrshift__(self, other: Union[Dict, Callable, FunctionSpace]):
+        if isinstance(other, Dict) and not isinstance(other, Ldict):
+            return Ldict(other) >> self
+        if callable(other):
+            return FunctionSpace(other, self)
+        return NotImplemented
+
     def __rshift__(self, other: Union[Dict, Callable, FunctionSpace], config={}):
         from ldict.cfg import cfg
-        clone = self.clone()
-
-        # Insertion of dict-like.
         if isinstance(other, Dict):
+            # Insertion of dict-like.
+            clone = self.clone()
             for k, v in other.items():
                 if v is None:
                     delete(self, clone, k)
@@ -284,20 +291,25 @@ class Ldict(UserDict, Dict[str, VT]):
                         raise OverwriteException(f"Cannot overwrite field ({k}) via value insertion through >>")
                     clone[k] = v
             return clone
-        elif isinstance(other, FunctionSpace):
-            return reduce(operator.rshift, (clone,) + other.functions)
-        elif isinstance(other, cfg):
+        if isinstance(other, FunctionSpace):
+            return reduce(operator.rshift, (self,) + other.functions)
+        if isinstance(other, cfg):
             from ldict.cfg import Ldict_cfg
-            d = Ldict_cfg(clone, other.config)
+            d = Ldict_cfg(self, other.config)
             if other.f:
                 d >>= other.f
             return d
-        elif isinstance(other, Random):
-            clone.rnd = other
+        if isinstance(other, Random):
+            (clone := self.clone()).rnd = other
             return clone
-        elif not callable(other):
+        if isinstance(other, list):
+            d = self
+            for cache in other:
+                d = cached(d, cache)
+            return d
+        if not callable(other):
             raise WrongValueType(f"Value passed to >> should be callable or dict-like, not {type(other)}")
-
+        clone = self.clone()
         return application(self, clone, other, config, clone.rnd)
 
     def clone(self, readonly=False):
@@ -366,65 +378,18 @@ class Ldict(UserDict, Dict[str, VT]):
         for field in self:
             _ = self[field]
 
-    def _trigger(self, output_field, f, fargs):
+    def __rxor__(self, other: Union[Dict, Callable]):
+        if isinstance(other, Dict) and not isinstance(other, Ldict):
+            return Ldict(other) >= self
+        return NotImplemented
 
-        def closure():
-            # Process.
-            try:
-                input_dic = self._getkwargs(fargs)  # evaluate input
-                output_dic = f(**input_dic)  # evaluate output
-            except MissingField as mf:
-                print(self)
-                raise MissingField(f"Missing field {mf} needed by {f} to calculate field {output_field}.")
-
-            # Reflect changes.
-            for arg, value in output_dic.items():
-                self.data[arg] = value
-
-            return self[output_field]
-
-        return closure
-
-    # TODO remover referencia a self do closure
-    def __xor__(self, f: Union[Dict, Callable]):
-        def closure(self, output_field):
-            if output_field in self.hashes:
-                id = self.hashes[output_field].id
-            else:
-                id = self.hoshes[output_field].id
-
-            def func():
-                # Try loading.
-                if id in db:
-                    return {output_field: db[id]}
-
-                # Return requested value without caching, if it has no cost.
-                value = self.data[output_field]
-                if value.__class__.__name__ != "Lazy":
-                    # Python bug: <class 'ldict_modules.lazy.Lazy'> is not recognized as Lazy...
-                    return {output_field: value}
-
-                # Process and save (all fields, to avoid a parcial ldict being stored).
-                for k, v in self.ids.items():
-                    db[v] = self[k]
-
-                # Return requested value.
-                return {output_field: self[output_field]}
-
-            return func
-
-        clone = self.clone()
-        for field, v in list(self.data.items())[2:]:
-            clone.data[field] = Lazy(field, closure(self, field), {})
-        return clone >> f
-
-    def _getkwargs(self, fargs):
-        dic = {}
-        for k in fargs:
-            if k not in self:
-                raise MissingField(k)
-            dic[k] = self[k]
-        return dic
+    def __xor__(self, other: Union[Dict, Callable]):
+        # from ldict import Empty
+        # if isinstance(other, FunctionSpace) and isinstance(other[0], Empty):
+        #     raise EmptyNextToGlobalCache("Cannot use ø after ^ due to Python precedence rules.")
+        c = cached(self, GLOBAL["CACHE"])
+        c = cached(self, GLOBAL["CACHE"]) >> other
+        return cached(self, GLOBAL["CACHE"]) >> other
 
     @property
     def idc(self):
@@ -438,7 +403,7 @@ class Ldict(UserDict, Dict[str, VT]):
     def __str__(self, all=False):
         dic = self.data.copy()
         for k, v in self.data.items():
-            if isinstance(v, Lazy):
+            if islazy(v):
                 dic[k] = str(v)
         if not all:
             if len(self.ids) < 3:

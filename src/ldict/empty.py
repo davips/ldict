@@ -19,25 +19,19 @@
 #  works or verbatim, obfuscated, compiled or rewritten versions of any
 #  part of this work is illegal and unethical regarding the effort and
 #  time spent here.
+from typing import Callable, Dict, Union
 
-class Lazy:
-    def __init__(self, field, f, deps):
-        self.field = field
-        self.f = f
-        self.deps = deps
-
-    def __call__(self, *args, **kwargs):
-        for k, v in self.deps.items():
-            if islazy(v):
-                self.deps[k] = v()
-        return self.f(**self.deps)[self.field]
-
-    def __repr__(self):
-        dic = {}
-        for k, v in self.deps.items():
-            dic[k] = v if islazy(v) else ""
-        return f"→({' '.join([f'{k}{v}' for k, v in dic.items()])})"
+from ldict.functionspace import FunctionSpace
+from ldict.ldict_ import Ldict
 
 
-def islazy(obj):
-    return obj.__class__.__name__ == "Lazy"
+class Empty(Ldict):
+    def __init__(self):
+        super().__init__(readonly=True)
+
+    def __rshift__(self, other: Union[Dict, Callable, FunctionSpace], config={}):
+        if callable(other):
+            return FunctionSpace(other)
+        if isinstance(other,dict):
+            return Ldict(other)
+        return NotImplemented

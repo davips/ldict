@@ -24,6 +24,7 @@ import json
 import re
 
 from ldict.customjson import CustomJSONEncoder
+from ldict.lazy import islazy
 
 
 def decolorize(txt):
@@ -79,7 +80,7 @@ def ldict2dic(d, all):
     from ldict.ldict_ import ldict
     dic = d.data.copy()
     for k, v in d.data.items():
-        if isinstance(v, Lazy):
+        if islazy(v):
             dic[k] = str(v)
         elif isinstance(v, ldict):
             dic[k] = ldict2dic(v, all)

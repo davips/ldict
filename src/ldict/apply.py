@@ -120,7 +120,7 @@ def input_fields(f, previous_fields):
         if field not in previous_fields:
             # TODO: stacktrace para apontar toda a cadeia de dependências, caso seja profunda
             # # TODO criar PartialDict qnd deps não existem ainda
-            raise DependenceException(f"Function depends on inexistent field [{field}].", previous_fields.keys())
+            raise DependenceException(f"Function depends on inexistent field [{field}]. Current", list(previous_fields.keys())[2:])
     return input, parameters
 
 
