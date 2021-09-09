@@ -387,8 +387,6 @@ class Ldict(UserDict, Dict[str, VT]):
         # from ldict import Empty
         # if isinstance(other, FunctionSpace) and isinstance(other[0], Empty):
         #     raise EmptyNextToGlobalCache("Cannot use ø after ^ due to Python precedence rules.")
-        c = cached(self, GLOBAL["CACHE"])
-        c = cached(self, GLOBAL["CACHE"]) >> other
         return cached(self, GLOBAL["CACHE"]) >> other
 
     @property

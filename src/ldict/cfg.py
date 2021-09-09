@@ -22,7 +22,7 @@
 from dataclasses import dataclass
 from typing import Dict
 
-from ldict import Ldict
+from ldict import Ldict, FunctionSpace
 
 
 @dataclass
@@ -40,10 +40,12 @@ class cfg:
         self.f = _f
 
     def __rshift__(self, other):
-        return self.__class__(_f=other, **self.config)
+        return FunctionSpace(cfg(_f=other, **self.config))
 
     def __rrshift__(self, other):
         from ldict import Ldict
         if not isinstance(other, Dict):
             return NotImplemented
-        return Ldict(other) >> self
+        if not isinstance(other, Ldict):
+            other = Ldict(other)
+        return other >> self

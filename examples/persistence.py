@@ -1,9 +1,15 @@
 # Transparent persistence
-from ldict import ldict, ø, setcache
+import shelve
+from collections import namedtuple
+from pprint import pprint
 
+from math import sqrt
+
+from ldict import ldict, ø, setcache
 # The cache can be set globally.
 # It is as simple as a dict, or any dict-like implementation mapping str to serializable content.
 # Implementations can, e.g., store data on disk or in a remote computer.
+from ldict.cfg import cfg
 
 setcache({})
 
@@ -37,3 +43,32 @@ print(d.z, d.id)
 d = ldict(y=2, x=3) >> fun ^ ø >> (lambda x: {"x": x ** 2}) >> ø >> {"w": 5, "k": 5} >> ø >> [mycache]
 print(d.z, d.id)
 # ...
+
+# Persisting to disk is easily done via Python shelve.
+P = namedtuple("P", "x y")
+a = [3, 2]
+b = [1, 4]
+measure_distance = lambda a, b: {"distance": sqrt((a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2)}
+with shelve.open("/tmp/my-cache-file.db") as db:
+    d = ldict(a=a, b=b) >> measure_distance >> [db]
+    pprint(dict(db))  # Cache is initially empty.
+    print(d.distance)
+    pprint(dict(db))
+    #  ...
+
+    # '^' syntax is also possible.
+    a = [7, 1]
+    b = [4, 3]
+    copy = lambda source=None, target=None, **kwargs: {target: kwargs[source]}
+    mean = lambda distance, other_distance: {"m": (distance + other_distance) / 2}
+    e = (
+            ldict(a=a, b=b)
+            >> measure_distance
+            >> {"other_distance": d.distance}
+            >> mean
+            ^ ø
+            ^ cfg(source="m", target="m0")
+            >> copy
+            >> (lambda m: {"m": m ** 2})
+    )
+    print(e.m0, e.m)

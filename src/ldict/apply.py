@@ -23,6 +23,7 @@
 import re
 from inspect import signature
 from io import StringIO
+from pprint import pprint
 from typing import Callable
 
 from lange import AP, GP
@@ -108,23 +109,27 @@ def input_fields(f, previous_fields):
         if hasattr(f, "parameters"):
             parameters = f.parameters
     else:
+        pars = dict(signature(f).parameters)
         input = []
-        for k, v in signature(f).parameters.items():
+        if "kwargs" in pars:
+            del pars["kwargs"]
+        for k, v in pars.items():
             if v.default is v.empty:
                 input.append(k)
             else:
                 parameters[k] = v.default
-    if not input:
+    if not input and not parameters:
         raise NoInputException(f"Missing function input parameters.")
     for field in input:
         if field not in previous_fields:
             # TODO: stacktrace para apontar toda a cadeia de dependências, caso seja profunda
             # # TODO criar PartialDict qnd deps não existem ainda
-            raise DependenceException(f"Function depends on inexistent field [{field}]. Current", list(previous_fields.keys())[2:])
+            raise DependenceException(f"Function depends on inexistent field [{field}]. Current",
+                                      list(previous_fields.keys())[2:])
     return input, parameters
 
 
-def output_fields(f):
+def output_and_implicit_fields(f, parameters):
     """Extract output fields.
 
     https://stackoverflow.com/a/68753149/9681577
@@ -157,10 +162,16 @@ def output_fields(f):
             dicts,
             ret,
         )
-    ret = re.findall(r"(?:[\"'])([a-zA-Z]+[a-zA-Z0-9_]*)(?:[\"'])", dicts[0])
-    if not ret:
-        raise BadOutput("Cannot find output fields that are valid identifiers:", dicts, ret, )
-    return ret
+    explicit = re.findall(r"(?:[\"'])([a-zA-Z]+[a-zA-Z0-9_]*)(?:[\"']): ", dicts[0])
+    implicit = re.findall(r"([a-zA-Z]+[a-zA-Z0-9_]*): ", dicts[0])
+    explicit.extend(parameters[field] for field in implicit)
+    if not explicit:
+        pprint(dicts)
+        pprint(ret)
+        raise BadOutput("Cannot find output fields that are valid identifiers (or kwargs[...]):")
+
+    implicit_input = re.findall(r"(?:kwargs\[)([a-zA-Z]+[a-zA-Z0-9_]*)(?:\])[^: ]", dicts[0])
+    return explicit, implicit_input
 
 
 def substitute(hoshes, fields, uf):
@@ -257,7 +268,6 @@ def application(self, clone, other: Callable, config, rnd):
         raise FunctionETypeException(f"Functions are not allowed to have etype {hosh.etype}.")
 
     input, parameters = input_fields(other, self.data)
-    deps = {k: self.data[k] for k in input}
 
     # Handle parameterized function.
     if parameters:
@@ -266,10 +276,14 @@ def application(self, clone, other: Callable, config, rnd):
                 parameters[k] = config[k]
             elif isinstance(v, list):
                 parameters[k] = rnd.choice(expand(v))
-        deps.update(parameters)
         hosh *= dumps(parameters, option=OPT_SORT_KEYS)
 
-    output = output_fields(other)
+    output, implicit_input = output_and_implicit_fields(other, parameters)
+
+    deps = parameters
+    deps.update({k: self.data[k] for k in input})
+    deps.update({(k := parameters[par]): self.data[k] for par in implicit_input})
+
     u = clone.hosh
     uf = clone.hosh * hosh
     ufu_ = uf * ~u

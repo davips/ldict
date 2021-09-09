@@ -1,6 +1,5 @@
 # Parameterized functions and sampling
 from random import Random
-
 from ldict import ø
 from ldict.cfg import cfg
 

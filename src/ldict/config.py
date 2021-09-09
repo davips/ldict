@@ -19,4 +19,6 @@
 #  works or verbatim, obfuscated, compiled or rewritten versions of any
 #  part of this work is illegal and unethical regarding the effort and
 #  time spent here.
-GLOBAL = {"CACHE": None}  # TODO replace by disk()
+from pathlib import Path
+
+GLOBAL = {"CACHE": f"{Path.home()}/{'.ldict/shelve.db'}"}
