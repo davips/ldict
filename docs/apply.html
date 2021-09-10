@@ -51,6 +51,7 @@
 import re
 from inspect import signature
 from io import StringIO
+from pprint import pprint
 from typing import Callable
 
 from lange import AP, GP
@@ -136,43 +137,47 @@ def input_fields(f, previous_fields):
         if hasattr(f, &#34;parameters&#34;):
             parameters = f.parameters
     else:
+        pars = dict(signature(f).parameters)
         input = []
-        for k, v in signature(f).parameters.items():
+        if &#34;kwargs&#34; in pars:
+            del pars[&#34;kwargs&#34;]
+        for k, v in pars.items():
             if v.default is v.empty:
                 input.append(k)
             else:
                 parameters[k] = v.default
-    if not input:
+    if not input and not parameters:
         raise NoInputException(f&#34;Missing function input parameters.&#34;)
     for field in input:
         if field not in previous_fields:
             # TODO: stacktrace para apontar toda a cadeia de dependências, caso seja profunda
             # # TODO criar PartialDict qnd deps não existem ainda
-            raise DependenceException(f&#34;Function depends on inexistent field [{field}]. Current&#34;, list(previous_fields.keys())[2:])
+            raise DependenceException(f&#34;Function depends on inexistent field [{field}]. Current&#34;,
+                                      list(previous_fields.keys())[2:])
     return input, parameters
 
 
-def output_fields(f):
+def output_and_implicit_fields(f, parameters):
     &#34;&#34;&#34;Extract output fields.
 
     https://stackoverflow.com/a/68753149/9681577
 
-    &gt;&gt;&gt; output_fields(lambda x,y: {&#34;z&#34;: x*y, &#34;w&#34;: x+y})
-    [&#39;z&#39;, &#39;w&#39;]
+    &gt;&gt;&gt; output_and_implicit_fields(lambda x,y: {&#34;z&#34;: x*y, &#34;w&#34;: x+y}, {&#34;a&#34;:5})
+    ([&#39;z&#39;, &#39;w&#39;], [])
     &gt;&gt;&gt; def f(x,y):
     ...     return {
     ...         &#34;z&#34;: x*y,
     ...         &#34;w&#34;: x+y
     ...     }
-    &gt;&gt;&gt; output_fields(f)
-    [&#39;z&#39;, &#39;w&#39;]
+    &gt;&gt;&gt; output_and_implicit_fields(f, [&#34;a&#34;])
+    ([&#39;z&#39;, &#39;w&#39;], [])
 
     Returns
     -------
 
     &#34;&#34;&#34;
     if hasattr(f, &#34;output_fields&#34;):
-        return f.output_fields
+        return f.output_fields, []
     out = StringIO()
     decompile(bytecode_version=None, co=f.__code__, out=out)
     ret = &#34;&#34;.join([line for line in out.getvalue().split(&#34;\n&#34;) if not line.startswith(&#34;#&#34;)])
@@ -185,10 +190,16 @@ def output_fields(f):
             dicts,
             ret,
         )
-    ret = re.findall(r&#34;(?:[\&#34;&#39;])([a-zA-Z]+[a-zA-Z0-9_]*)(?:[\&#34;&#39;])&#34;, dicts[0])
-    if not ret:
-        raise BadOutput(&#34;Cannot find output fields that are valid identifiers:&#34;, dicts, ret, )
-    return ret
+    explicit = re.findall(r&#34;(?:[\&#34;&#39;])([a-zA-Z]+[a-zA-Z0-9_]*)(?:[\&#34;&#39;]):&#34;, dicts[0])
+    implicit = re.findall(r&#34;([a-zA-Z]+[a-zA-Z0-9_]*):&#34;, dicts[0])
+    explicit.extend(parameters[field] for field in implicit)
+    if not explicit:
+        pprint(dicts)
+        pprint(ret)
+        raise BadOutput(&#34;Cannot find output fields that are valid identifiers (or kwargs[...]):&#34;)
+
+    implicit_input = re.findall(r&#34;(?:kwargs\[)([a-zA-Z]+[a-zA-Z0-9_]*)(?:\])[^:]&#34;, dicts[0])
+    return explicit, implicit_input
 
 
 def substitute(hoshes, fields, uf):
@@ -285,7 +296,6 @@ def application(self, clone, other: Callable, config, rnd):
         raise FunctionETypeException(f&#34;Functions are not allowed to have etype {hosh.etype}.&#34;)
 
     input, parameters = input_fields(other, self.data)
-    deps = {k: self.data[k] for k in input}
 
     # Handle parameterized function.
     if parameters:
@@ -294,10 +304,14 @@ def application(self, clone, other: Callable, config, rnd):
                 parameters[k] = config[k]
             elif isinstance(v, list):
                 parameters[k] = rnd.choice(expand(v))
-        deps.update(parameters)
         hosh *= dumps(parameters, option=OPT_SORT_KEYS)
 
-    output = output_fields(other)
+    output, implicit_input = output_and_implicit_fields(other, parameters)
+
+    deps = parameters
+    deps.update({k: self.data[k] for k in input})
+    deps.update({(k := parameters[par]): self.data[k] for par in implicit_input})
+
     u = clone.hosh
     uf = clone.hosh * hosh
     ufu_ = uf * ~u
@@ -337,7 +351,7 @@ def application(self, clone, other: Callable, config, rnd):
         if k not in clone.hoshes:
             clone.hoshes[k] = v
 
-    extend_history(clone, hosh)
+    clone.last = extend_history(clone.history, clone.last, hosh)
     return clone</code></pre>
 </details>
 </section>
@@ -364,7 +378,6 @@ def application(self, clone, other: Callable, config, rnd):
         raise FunctionETypeException(f&#34;Functions are not allowed to have etype {hosh.etype}.&#34;)
 
     input, parameters = input_fields(other, self.data)
-    deps = {k: self.data[k] for k in input}
 
     # Handle parameterized function.
     if parameters:
@@ -373,10 +386,14 @@ def application(self, clone, other: Callable, config, rnd):
                 parameters[k] = config[k]
             elif isinstance(v, list):
                 parameters[k] = rnd.choice(expand(v))
-        deps.update(parameters)
         hosh *= dumps(parameters, option=OPT_SORT_KEYS)
 
-    output = output_fields(other)
+    output, implicit_input = output_and_implicit_fields(other, parameters)
+
+    deps = parameters
+    deps.update({k: self.data[k] for k in input})
+    deps.update({(k := parameters[par]): self.data[k] for par in implicit_input})
+
     u = clone.hosh
     uf = clone.hosh * hosh
     ufu_ = uf * ~u
@@ -416,7 +433,7 @@ def application(self, clone, other: Callable, config, rnd):
         if k not in clone.hoshes:
             clone.hoshes[k] = v
 
-    extend_history(clone, hosh)
+    clone.last = extend_history(clone.history, clone.last, hosh)
     return clone</code></pre>
 </details>
 </dd>
@@ -570,19 +587,23 @@ True
         if hasattr(f, &#34;parameters&#34;):
             parameters = f.parameters
     else:
+        pars = dict(signature(f).parameters)
         input = []
-        for k, v in signature(f).parameters.items():
+        if &#34;kwargs&#34; in pars:
+            del pars[&#34;kwargs&#34;]
+        for k, v in pars.items():
             if v.default is v.empty:
                 input.append(k)
             else:
                 parameters[k] = v.default
-    if not input:
+    if not input and not parameters:
         raise NoInputException(f&#34;Missing function input parameters.&#34;)
     for field in input:
         if field not in previous_fields:
             # TODO: stacktrace para apontar toda a cadeia de dependências, caso seja profunda
             # # TODO criar PartialDict qnd deps não existem ainda
-            raise DependenceException(f&#34;Function depends on inexistent field [{field}]. Current&#34;, list(previous_fields.keys())[2:])
+            raise DependenceException(f&#34;Function depends on inexistent field [{field}]. Current&#34;,
+                                      list(previous_fields.keys())[2:])
     return input, parameters</code></pre>
 </details>
 </dd>
@@ -610,48 +631,48 @@ True
         raise InconsistentLange(f&#34;Cannot identify whether this is a G. or A. progression: {lst}&#34;)</code></pre>
 </details>
 </dd>
-<dt id="ldict.apply.output_fields"><code class="name flex">
-<span>def <span class="ident">output_fields</span></span>(<span>f)</span>
+<dt id="ldict.apply.output_and_implicit_fields"><code class="name flex">
+<span>def <span class="ident">output_and_implicit_fields</span></span>(<span>f, parameters)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Extract output fields.</p>
 <p><a href="https://stackoverflow.com/a/68753149/9681577">https://stackoverflow.com/a/68753149/9681577</a></p>
-<pre><code class="language-python-repl">&gt;&gt;&gt; output_fields(lambda x,y: {&quot;z&quot;: x*y, &quot;w&quot;: x+y})
-['z', 'w']
+<pre><code class="language-python-repl">&gt;&gt;&gt; output_and_implicit_fields(lambda x,y: {&quot;z&quot;: x*y, &quot;w&quot;: x+y}, {&quot;a&quot;:5})
+(['z', 'w'], [])
 &gt;&gt;&gt; def f(x,y):
 ...     return {
 ...         &quot;z&quot;: x*y,
 ...         &quot;w&quot;: x+y
 ...     }
-&gt;&gt;&gt; output_fields(f)
-['z', 'w']
+&gt;&gt;&gt; output_and_implicit_fields(f, [&quot;a&quot;])
+(['z', 'w'], [])
 </code></pre>
 <h2 id="returns">Returns</h2></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def output_fields(f):
+<pre><code class="python">def output_and_implicit_fields(f, parameters):
     &#34;&#34;&#34;Extract output fields.
 
     https://stackoverflow.com/a/68753149/9681577
 
-    &gt;&gt;&gt; output_fields(lambda x,y: {&#34;z&#34;: x*y, &#34;w&#34;: x+y})
-    [&#39;z&#39;, &#39;w&#39;]
+    &gt;&gt;&gt; output_and_implicit_fields(lambda x,y: {&#34;z&#34;: x*y, &#34;w&#34;: x+y}, {&#34;a&#34;:5})
+    ([&#39;z&#39;, &#39;w&#39;], [])
     &gt;&gt;&gt; def f(x,y):
     ...     return {
     ...         &#34;z&#34;: x*y,
     ...         &#34;w&#34;: x+y
     ...     }
-    &gt;&gt;&gt; output_fields(f)
-    [&#39;z&#39;, &#39;w&#39;]
+    &gt;&gt;&gt; output_and_implicit_fields(f, [&#34;a&#34;])
+    ([&#39;z&#39;, &#39;w&#39;], [])
 
     Returns
     -------
 
     &#34;&#34;&#34;
     if hasattr(f, &#34;output_fields&#34;):
-        return f.output_fields
+        return f.output_fields, []
     out = StringIO()
     decompile(bytecode_version=None, co=f.__code__, out=out)
     ret = &#34;&#34;.join([line for line in out.getvalue().split(&#34;\n&#34;) if not line.startswith(&#34;#&#34;)])
@@ -664,10 +685,16 @@ True
             dicts,
             ret,
         )
-    ret = re.findall(r&#34;(?:[\&#34;&#39;])([a-zA-Z]+[a-zA-Z0-9_]*)(?:[\&#34;&#39;])&#34;, dicts[0])
-    if not ret:
-        raise BadOutput(&#34;Cannot find output fields that are valid identifiers:&#34;, dicts, ret, )
-    return ret</code></pre>
+    explicit = re.findall(r&#34;(?:[\&#34;&#39;])([a-zA-Z]+[a-zA-Z0-9_]*)(?:[\&#34;&#39;]):&#34;, dicts[0])
+    implicit = re.findall(r&#34;([a-zA-Z]+[a-zA-Z0-9_]*):&#34;, dicts[0])
+    explicit.extend(parameters[field] for field in implicit)
+    if not explicit:
+        pprint(dicts)
+        pprint(ret)
+        raise BadOutput(&#34;Cannot find output fields that are valid identifiers (or kwargs[...]):&#34;)
+
+    implicit_input = re.findall(r&#34;(?:kwargs\[)([a-zA-Z]+[a-zA-Z0-9_]*)(?:\])[^:]&#34;, dicts[0])
+    return explicit, implicit_input</code></pre>
 </details>
 </dd>
 <dt id="ldict.apply.substitute"><code class="name flex">
@@ -822,13 +849,13 @@ True
 </ul>
 </li>
 <li><h3><a href="#header-functions">Functions</a></h3>
-<ul class="two-column">
+<ul class="">
 <li><code><a title="ldict.apply.application" href="#ldict.apply.application">application</a></code></li>
 <li><code><a title="ldict.apply.delete" href="#ldict.apply.delete">delete</a></code></li>
 <li><code><a title="ldict.apply.expand" href="#ldict.apply.expand">expand</a></code></li>
 <li><code><a title="ldict.apply.input_fields" href="#ldict.apply.input_fields">input_fields</a></code></li>
 <li><code><a title="ldict.apply.list2progression" href="#ldict.apply.list2progression">list2progression</a></code></li>
-<li><code><a title="ldict.apply.output_fields" href="#ldict.apply.output_fields">output_fields</a></code></li>
+<li><code><a title="ldict.apply.output_and_implicit_fields" href="#ldict.apply.output_and_implicit_fields">output_and_implicit_fields</a></code></li>
 <li><code><a title="ldict.apply.substitute" href="#ldict.apply.substitute">substitute</a></code></li>
 </ul>
 </li>

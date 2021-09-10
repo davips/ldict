@@ -46,17 +46,7 @@
 #  (*) Removing authorship by any means, e.g. by distribution of derived
 #  works or verbatim, obfuscated, compiled or rewritten versions of any
 #  part of this work is illegal and unethical regarding the effort and
-#  time spent here.
-from typing import TypeVar, Dict
-
-from ldict.config import GLOBAL
-from ldict.persistence.cache import Cache
-
-VT = TypeVar(&#34;VT&#34;)
-
-
-def setcache(cache: Dict[str, VT]):
-    GLOBAL[&#34;CACHE&#34;] = cache</code></pre>
+#  time spent here.</code></pre>
 </details>
 </section>
 <section>
@@ -75,22 +65,6 @@ def setcache(cache: Dict[str, VT]):
 <section>
 </section>
 <section>
-<h2 class="section-title" id="header-functions">Functions</h2>
-<dl>
-<dt id="ldict.persistence.setcache"><code class="name flex">
-<span>def <span class="ident">setcache</span></span>(<span>cache: Dict[str, ~VT])</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def setcache(cache: Dict[str, VT]):
-    GLOBAL[&#34;CACHE&#34;] = cache</code></pre>
-</details>
-</dd>
-</dl>
 </section>
 <section>
 </section>
@@ -110,11 +84,6 @@ def setcache(cache: Dict[str, VT]):
 <ul>
 <li><code><a title="ldict.persistence.cache" href="cache.html">ldict.persistence.cache</a></code></li>
 <li><code><a title="ldict.persistence.cached" href="cached.html">ldict.persistence.cached</a></code></li>
-</ul>
-</li>
-<li><h3><a href="#header-functions">Functions</a></h3>
-<ul class="">
-<li><code><a title="ldict.persistence.setcache" href="#ldict.persistence.setcache">setcache</a></code></li>
 </ul>
 </li>
 </ul>

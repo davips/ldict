@@ -3,8 +3,6 @@ import shelve
 from collections import namedtuple
 from pprint import pprint
 
-from math import sqrt
-
 from ldict import ldict, ø
 # The cache can be set globally.
 # It is as simple as a dict, or any dict-like implementation mapping str to serializable content.
@@ -49,7 +47,13 @@ print(d.z, d.id)
 P = namedtuple("P", "x y")
 a = [3, 2]
 b = [1, 4]
-measure_distance = lambda a, b: {"distance": sqrt((a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2)}
+
+
+def measure_distance(a, b):
+    from math import sqrt
+    return {"distance": sqrt((a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2)}
+
+
 with shelve.open("/tmp/my-cache-file.db") as db:
     d = ldict(a=a, b=b) >> measure_distance >> [db]
     pprint(dict(db))  # Cache is initially empty.

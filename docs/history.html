@@ -47,9 +47,10 @@
 #  works or verbatim, obfuscated, compiled or rewritten versions of any
 #  part of this work is illegal and unethical regarding the effort and
 #  time spent here.
+from ldict.config import GLOBAL
 
 
-def extend_history(d, hosh):
+def extend_history(history, last, hosh):
     &#34;&#34;&#34;
     &gt;&gt;&gt; from ldict import ldict
     &gt;&gt;&gt; d = ldict()
@@ -65,28 +66,32 @@ def extend_history(d, hosh):
 
     Parameters
     ----------
-    d
+    history
+    last
     hosh
 
     Returns
     -------
 
     &#34;&#34;&#34;
-    if not d.history or hosh.etype == &#34;ordered&#34; or d.last and &#34;_&#34; not in d.last.id[:3]:
-        d.last = hosh
-        d.history[d.last] = None
+    if not GLOBAL[&#34;history&#34;]:
+        return last
+    if not history or hosh.etype == &#34;ordered&#34; or last and &#34;_&#34; not in last.id[:3]:
+        last = hosh
+        history[last] = None
     else:
-        many = d.history.pop(d.last)
-        previous_last = d.last
-        d.last *= hosh
+        many = history.pop(last)
+        previous_last = last
+        last *= hosh
         if many is None:
-            d.history[d.last] = {previous_last, hosh}
+            history[last] = {previous_last, hosh}
         else:
             many.add(hosh)
-            d.history[d.last] = many
+            history[last] = many
+    return last
 
 
-def rewrite_history(d, hosh):
+def rewrite_history(history, last, hosh, hoshes):
     &#34;&#34;&#34;
     &gt;&gt;&gt; from ldict import ldict
     &gt;&gt;&gt; d = ldict()
@@ -167,33 +172,36 @@ def rewrite_history(d, hosh):
     -------
 
     &#34;&#34;&#34;
-    lastitem = d.last and d.history[d.last]
-    if d.last == hosh:
-        del d.history[d.last]
-        hist = list(d.history.keys())
-        d.last = hist[-1] if len(hist) &gt; 0 else None
+    if not GLOBAL[&#34;history&#34;]:
+        return last
+    lastitem = last and history[last]
+    if last == hosh:
+        del history[last]
+        hist = list(history.keys())
+        last = hist[-1] if len(hist) &gt; 0 else None
     elif isinstance(lastitem, set) and hosh in lastitem:  # TODO: check inside list?
         lastitem.remove(hosh)
-        del d.history[d.last]
-        d.last /= hosh
-        d.history[d.last] = lastitem if len(lastitem) &gt; 1 else None  # pragma: no cover
+        del history[last]
+        last /= hosh
+        history[last] = lastitem if len(lastitem) &gt; 1 else None  # pragma: no cover
     else:
-        d.history = {}
-        hosh = d.identity.h
+        history.clear()
+        hosh = hosh.ø
         many = set()
-        for k, v in d.hoshes.items():
+        for k, v in hoshes.items():
             if v.etype == &#34;ordered&#34;:
-                if hosh != d.identity.h:
-                    d.history[hosh] = None if len(many) == 1 else many
-                    hosh = d.identity.h
+                if hosh != hosh.ø:
+                    history[hosh] = None if len(many) == 1 else many
+                    hosh = hosh.ø
                     many = set()
-                d.history[v] = None
+                history[v] = None
             else:
                 hosh *= v
                 many.add(v)
-        if hosh != d.identity.h:
-            d.history[hosh] = None if len(many) == 1 else many
-        d.last = list(d.history.keys())[-1]</code></pre>
+        if hosh != hosh.ø:
+            history[hosh] = None if len(many) == 1 else many
+        last = list(history.keys())[-1]
+    return last</code></pre>
 </details>
 </section>
 <section>
@@ -204,7 +212,7 @@ def rewrite_history(d, hosh):
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="ldict.history.extend_history"><code class="name flex">
-<span>def <span class="ident">extend_history</span></span>(<span>d, hosh)</span>
+<span>def <span class="ident">extend_history</span></span>(<span>history, last, hosh)</span>
 </code></dt>
 <dd>
 <div class="desc"><pre><code class="language-python-repl">&gt;&gt;&gt; from ldict import ldict
@@ -221,7 +229,9 @@ True
 </code></pre>
 <h2 id="parameters">Parameters</h2>
 <dl>
-<dt><strong><code>d</code></strong></dt>
+<dt><strong><code>history</code></strong></dt>
+<dd>&nbsp;</dd>
+<dt><strong><code>last</code></strong></dt>
 <dd>&nbsp;</dd>
 <dt><strong><code>hosh</code></strong></dt>
 <dd>&nbsp;</dd>
@@ -231,7 +241,7 @@ True
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def extend_history(d, hosh):
+<pre><code class="python">def extend_history(history, last, hosh):
     &#34;&#34;&#34;
     &gt;&gt;&gt; from ldict import ldict
     &gt;&gt;&gt; d = ldict()
@@ -247,29 +257,33 @@ True
 
     Parameters
     ----------
-    d
+    history
+    last
     hosh
 
     Returns
     -------
 
     &#34;&#34;&#34;
-    if not d.history or hosh.etype == &#34;ordered&#34; or d.last and &#34;_&#34; not in d.last.id[:3]:
-        d.last = hosh
-        d.history[d.last] = None
+    if not GLOBAL[&#34;history&#34;]:
+        return last
+    if not history or hosh.etype == &#34;ordered&#34; or last and &#34;_&#34; not in last.id[:3]:
+        last = hosh
+        history[last] = None
     else:
-        many = d.history.pop(d.last)
-        previous_last = d.last
-        d.last *= hosh
+        many = history.pop(last)
+        previous_last = last
+        last *= hosh
         if many is None:
-            d.history[d.last] = {previous_last, hosh}
+            history[last] = {previous_last, hosh}
         else:
             many.add(hosh)
-            d.history[d.last] = many</code></pre>
+            history[last] = many
+    return last</code></pre>
 </details>
 </dd>
 <dt id="ldict.history.rewrite_history"><code class="name flex">
-<span>def <span class="ident">rewrite_history</span></span>(<span>d, hosh)</span>
+<span>def <span class="ident">rewrite_history</span></span>(<span>history, last, hosh, hoshes)</span>
 </code></dt>
 <dd>
 <div class="desc"><pre><code class="language-python-repl">&gt;&gt;&gt; from ldict import ldict
@@ -354,7 +368,7 @@ True
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def rewrite_history(d, hosh):
+<pre><code class="python">def rewrite_history(history, last, hosh, hoshes):
     &#34;&#34;&#34;
     &gt;&gt;&gt; from ldict import ldict
     &gt;&gt;&gt; d = ldict()
@@ -435,33 +449,36 @@ True
     -------
 
     &#34;&#34;&#34;
-    lastitem = d.last and d.history[d.last]
-    if d.last == hosh:
-        del d.history[d.last]
-        hist = list(d.history.keys())
-        d.last = hist[-1] if len(hist) &gt; 0 else None
+    if not GLOBAL[&#34;history&#34;]:
+        return last
+    lastitem = last and history[last]
+    if last == hosh:
+        del history[last]
+        hist = list(history.keys())
+        last = hist[-1] if len(hist) &gt; 0 else None
     elif isinstance(lastitem, set) and hosh in lastitem:  # TODO: check inside list?
         lastitem.remove(hosh)
-        del d.history[d.last]
-        d.last /= hosh
-        d.history[d.last] = lastitem if len(lastitem) &gt; 1 else None  # pragma: no cover
+        del history[last]
+        last /= hosh
+        history[last] = lastitem if len(lastitem) &gt; 1 else None  # pragma: no cover
     else:
-        d.history = {}
-        hosh = d.identity.h
+        history.clear()
+        hosh = hosh.ø
         many = set()
-        for k, v in d.hoshes.items():
+        for k, v in hoshes.items():
             if v.etype == &#34;ordered&#34;:
-                if hosh != d.identity.h:
-                    d.history[hosh] = None if len(many) == 1 else many
-                    hosh = d.identity.h
+                if hosh != hosh.ø:
+                    history[hosh] = None if len(many) == 1 else many
+                    hosh = hosh.ø
                     many = set()
-                d.history[v] = None
+                history[v] = None
             else:
                 hosh *= v
                 many.add(v)
-        if hosh != d.identity.h:
-            d.history[hosh] = None if len(many) == 1 else many
-        d.last = list(d.history.keys())[-1]</code></pre>
+        if hosh != hosh.ø:
+            history[hosh] = None if len(many) == 1 else many
+        last = list(history.keys())[-1]
+    return last</code></pre>
 </details>
 </dd>
 </dl>

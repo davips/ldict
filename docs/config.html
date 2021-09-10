@@ -47,7 +47,23 @@
 #  works or verbatim, obfuscated, compiled or rewritten versions of any
 #  part of this work is illegal and unethical regarding the effort and
 #  time spent here.
-GLOBAL = {&#34;CACHE&#34;: None}  # TODO replace by disk()</code></pre>
+from pathlib import Path
+from typing import TypeVar, Dict
+
+VT = TypeVar(&#34;VT&#34;)
+
+GLOBAL = {
+    &#34;cache&#34;: f&#34;{Path.home()}/{&#39;.ldict/shelve.db&#39;}&#34;,
+    &#34;history&#34;: True
+}
+
+
+def setcache(cache: Dict[str, VT]):
+    GLOBAL[&#34;cache&#34;] = cache
+
+
+def sethistory(state: bool):
+    GLOBAL[&#34;history&#34;] = state</code></pre>
 </details>
 </section>
 <section>
@@ -55,6 +71,35 @@ GLOBAL = {&#34;CACHE&#34;: None}  # TODO replace by disk()</code></pre>
 <section>
 </section>
 <section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="ldict.config.setcache"><code class="name flex">
+<span>def <span class="ident">setcache</span></span>(<span>cache: Dict[str, ~VT])</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def setcache(cache: Dict[str, VT]):
+    GLOBAL[&#34;cache&#34;] = cache</code></pre>
+</details>
+</dd>
+<dt id="ldict.config.sethistory"><code class="name flex">
+<span>def <span class="ident">sethistory</span></span>(<span>state: bool)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def sethistory(state: bool):
+    GLOBAL[&#34;history&#34;] = state</code></pre>
+</details>
+</dd>
+</dl>
 </section>
 <section>
 </section>
@@ -68,6 +113,12 @@ GLOBAL = {&#34;CACHE&#34;: None}  # TODO replace by disk()</code></pre>
 <li><h3>Super-module</h3>
 <ul>
 <li><code><a title="ldict" href="index.html">ldict</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="ldict.config.setcache" href="#ldict.config.setcache">setcache</a></code></li>
+<li><code><a title="ldict.config.sethistory" href="#ldict.config.sethistory">sethistory</a></code></li>
 </ul>
 </li>
 </ul>

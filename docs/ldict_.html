@@ -61,13 +61,13 @@ from orjson import dumps, OPT_SORT_KEYS
 from garoupa import ø40
 from ldict.appearance import ldict2txt, decolorize, ldict2dic
 from ldict.apply import delete, application
+from ldict.config import GLOBAL
 from ldict.customjson import CustomJSONEncoder
 from ldict.data import key2id
-from ldict.exception import ReadOnlyLdict, WrongKeyType, WrongValueType, OverwriteException
+from ldict.exception import WrongKeyType, WrongValueType, OverwriteException, check
 from ldict.functionspace import FunctionSpace
 from ldict.history import extend_history, rewrite_history
 from ldict.lazy import islazy
-from ldict.persistence import GLOBAL
 from ldict.persistence.cached import cached
 
 VT = TypeVar(&#34;VT&#34;)
@@ -166,15 +166,11 @@ class Ldict(UserDict, Dict[str, VT]):
     &#34;&#34;&#34;
 
     def __init__(self, /, _dictionary=None, identity=ø40, readonly=False, **kwargs):
-        self.identity, self.readonly, self.digits, self.version = identity, readonly, identity.digits, identity.version
-        self.blobs = {}
-        self.hashes = {}
-        self.hoshes = {}
-        self.hosh = identity
-        self.rho = identity.rho
-        self.delete = identity.delete
-        self.history = {}
-        self.last = None
+        self.hosh = self.identity = identity
+        self.readonly, self.digits, self.version = readonly, identity.digits, identity.version
+        self.rho, self.delete = identity.rho, identity.delete
+        self.blobs, self.hashes, self.hoshes = {}, {}, {}
+        self.history, self.last = {}, None
         self.rnd = Random()
         super().__init__()
         self.data.update(id=identity.id, ids={})
@@ -182,19 +178,10 @@ class Ldict(UserDict, Dict[str, VT]):
         self.__name__ = self.id[:10]
 
     def __setitem__(self, key: str, value):
-        if self.readonly:
-            raise ReadOnlyLdict(f&#34;Cannot change a readonly ldict ({self.id}).&#34;, key)
-        if not isinstance(key, str):
-            raise WrongKeyType(f&#34;Key must be string, not {type(key)}.&#34;, key)
-        if callable(value):
-            raise WrongValueType(f&#34;A value for the field [{key}] cannot have type {type(value)}. &#34;
-                                 f&#34;For (pseudo)inplace function application, use operator &gt;&gt;= instead&#34;)
-        if isinstance(value, Ldict):
-            value = value.clone(readonly=True)
-
+        check(self.id, self.readonly, key, value)
+        value = value.clone(readonly=True) if isinstance(value, Ldict) else value
         if key in self.data:
             del self[key]
-
         if hasattr(value, &#34;hosh&#34;):
             if isinstance(value, Ldict):
                 self.hashes[key] = value.hosh
@@ -210,7 +197,7 @@ class Ldict(UserDict, Dict[str, VT]):
         self.data[key] = value
         self.data[&#34;id&#34;] = self.hosh.id
         self.data[&#34;ids&#34;][key] = self.hoshes[key].id
-        extend_history(self, self.hoshes[key])
+        self.last = extend_history(self.history, self.last, self.hoshes[key])
 
     def __getitem__(self, item):
         if not isinstance(item, str):
@@ -223,10 +210,7 @@ class Ldict(UserDict, Dict[str, VT]):
         return self.data[item]
 
     def __delitem__(self, key):
-        if self.readonly:
-            raise ReadOnlyLdict(f&#34;Cannot change a readonly ldict ({self.id}).&#34;, key)
-        if not isinstance(key, str):
-            raise WrongKeyType(f&#34;Key must be string, not {type(key)}.&#34;, key)
+        check(self.id, self.readonly, key)
         if key in self.blobs:
             del self.blobs[key]
             del self.hashes[key]
@@ -237,7 +221,7 @@ class Ldict(UserDict, Dict[str, VT]):
         del self.data[key]
         self.data[&#34;id&#34;] = self.hosh.id
         del self.data[&#34;ids&#34;][key]
-        rewrite_history(self, deleted)
+        self.last = rewrite_history(self.history, self.last, deleted, self.hoshes)
 
     def __repr__(self, all=False):
         return ldict2txt(self, all)
@@ -415,9 +399,7 @@ class Ldict(UserDict, Dict[str, VT]):
         # from ldict import Empty
         # if isinstance(other, FunctionSpace) and isinstance(other[0], Empty):
         #     raise EmptyNextToGlobalCache(&#34;Cannot use ø after ^ due to Python precedence rules.&#34;)
-        c = cached(self, GLOBAL[&#34;CACHE&#34;])
-        c = cached(self, GLOBAL[&#34;CACHE&#34;]) &gt;&gt; other
-        return cached(self, GLOBAL[&#34;CACHE&#34;]) &gt;&gt; other
+        return cached(self, GLOBAL[&#34;cache&#34;]) &gt;&gt; other
 
     @property
     def idc(self):
@@ -650,15 +632,11 @@ nO_6d3d2d399495b6545837334176b6c49bfbc2d
     &#34;&#34;&#34;
 
     def __init__(self, /, _dictionary=None, identity=ø40, readonly=False, **kwargs):
-        self.identity, self.readonly, self.digits, self.version = identity, readonly, identity.digits, identity.version
-        self.blobs = {}
-        self.hashes = {}
-        self.hoshes = {}
-        self.hosh = identity
-        self.rho = identity.rho
-        self.delete = identity.delete
-        self.history = {}
-        self.last = None
+        self.hosh = self.identity = identity
+        self.readonly, self.digits, self.version = readonly, identity.digits, identity.version
+        self.rho, self.delete = identity.rho, identity.delete
+        self.blobs, self.hashes, self.hoshes = {}, {}, {}
+        self.history, self.last = {}, None
         self.rnd = Random()
         super().__init__()
         self.data.update(id=identity.id, ids={})
@@ -666,19 +644,10 @@ nO_6d3d2d399495b6545837334176b6c49bfbc2d
         self.__name__ = self.id[:10]
 
     def __setitem__(self, key: str, value):
-        if self.readonly:
-            raise ReadOnlyLdict(f&#34;Cannot change a readonly ldict ({self.id}).&#34;, key)
-        if not isinstance(key, str):
-            raise WrongKeyType(f&#34;Key must be string, not {type(key)}.&#34;, key)
-        if callable(value):
-            raise WrongValueType(f&#34;A value for the field [{key}] cannot have type {type(value)}. &#34;
-                                 f&#34;For (pseudo)inplace function application, use operator &gt;&gt;= instead&#34;)
-        if isinstance(value, Ldict):
-            value = value.clone(readonly=True)
-
+        check(self.id, self.readonly, key, value)
+        value = value.clone(readonly=True) if isinstance(value, Ldict) else value
         if key in self.data:
             del self[key]
-
         if hasattr(value, &#34;hosh&#34;):
             if isinstance(value, Ldict):
                 self.hashes[key] = value.hosh
@@ -694,7 +663,7 @@ nO_6d3d2d399495b6545837334176b6c49bfbc2d
         self.data[key] = value
         self.data[&#34;id&#34;] = self.hosh.id
         self.data[&#34;ids&#34;][key] = self.hoshes[key].id
-        extend_history(self, self.hoshes[key])
+        self.last = extend_history(self.history, self.last, self.hoshes[key])
 
     def __getitem__(self, item):
         if not isinstance(item, str):
@@ -707,10 +676,7 @@ nO_6d3d2d399495b6545837334176b6c49bfbc2d
         return self.data[item]
 
     def __delitem__(self, key):
-        if self.readonly:
-            raise ReadOnlyLdict(f&#34;Cannot change a readonly ldict ({self.id}).&#34;, key)
-        if not isinstance(key, str):
-            raise WrongKeyType(f&#34;Key must be string, not {type(key)}.&#34;, key)
+        check(self.id, self.readonly, key)
         if key in self.blobs:
             del self.blobs[key]
             del self.hashes[key]
@@ -721,7 +687,7 @@ nO_6d3d2d399495b6545837334176b6c49bfbc2d
         del self.data[key]
         self.data[&#34;id&#34;] = self.hosh.id
         del self.data[&#34;ids&#34;][key]
-        rewrite_history(self, deleted)
+        self.last = rewrite_history(self.history, self.last, deleted, self.hoshes)
 
     def __repr__(self, all=False):
         return ldict2txt(self, all)
@@ -899,9 +865,7 @@ nO_6d3d2d399495b6545837334176b6c49bfbc2d
         # from ldict import Empty
         # if isinstance(other, FunctionSpace) and isinstance(other[0], Empty):
         #     raise EmptyNextToGlobalCache(&#34;Cannot use ø after ^ due to Python precedence rules.&#34;)
-        c = cached(self, GLOBAL[&#34;CACHE&#34;])
-        c = cached(self, GLOBAL[&#34;CACHE&#34;]) &gt;&gt; other
-        return cached(self, GLOBAL[&#34;CACHE&#34;]) &gt;&gt; other
+        return cached(self, GLOBAL[&#34;cache&#34;]) &gt;&gt; other
 
     @property
     def idc(self):
@@ -1394,15 +1358,11 @@ nO_6d3d2d399495b6545837334176b6c49bfbc2d
     &#34;&#34;&#34;
 
     def __init__(self, /, _dictionary=None, identity=ø40, readonly=False, **kwargs):
-        self.identity, self.readonly, self.digits, self.version = identity, readonly, identity.digits, identity.version
-        self.blobs = {}
-        self.hashes = {}
-        self.hoshes = {}
-        self.hosh = identity
-        self.rho = identity.rho
-        self.delete = identity.delete
-        self.history = {}
-        self.last = None
+        self.hosh = self.identity = identity
+        self.readonly, self.digits, self.version = readonly, identity.digits, identity.version
+        self.rho, self.delete = identity.rho, identity.delete
+        self.blobs, self.hashes, self.hoshes = {}, {}, {}
+        self.history, self.last = {}, None
         self.rnd = Random()
         super().__init__()
         self.data.update(id=identity.id, ids={})
@@ -1410,19 +1370,10 @@ nO_6d3d2d399495b6545837334176b6c49bfbc2d
         self.__name__ = self.id[:10]
 
     def __setitem__(self, key: str, value):
-        if self.readonly:
-            raise ReadOnlyLdict(f&#34;Cannot change a readonly ldict ({self.id}).&#34;, key)
-        if not isinstance(key, str):
-            raise WrongKeyType(f&#34;Key must be string, not {type(key)}.&#34;, key)
-        if callable(value):
-            raise WrongValueType(f&#34;A value for the field [{key}] cannot have type {type(value)}. &#34;
-                                 f&#34;For (pseudo)inplace function application, use operator &gt;&gt;= instead&#34;)
-        if isinstance(value, Ldict):
-            value = value.clone(readonly=True)
-
+        check(self.id, self.readonly, key, value)
+        value = value.clone(readonly=True) if isinstance(value, Ldict) else value
         if key in self.data:
             del self[key]
-
         if hasattr(value, &#34;hosh&#34;):
             if isinstance(value, Ldict):
                 self.hashes[key] = value.hosh
@@ -1438,7 +1389,7 @@ nO_6d3d2d399495b6545837334176b6c49bfbc2d
         self.data[key] = value
         self.data[&#34;id&#34;] = self.hosh.id
         self.data[&#34;ids&#34;][key] = self.hoshes[key].id
-        extend_history(self, self.hoshes[key])
+        self.last = extend_history(self.history, self.last, self.hoshes[key])
 
     def __getitem__(self, item):
         if not isinstance(item, str):
@@ -1451,10 +1402,7 @@ nO_6d3d2d399495b6545837334176b6c49bfbc2d
         return self.data[item]
 
     def __delitem__(self, key):
-        if self.readonly:
-            raise ReadOnlyLdict(f&#34;Cannot change a readonly ldict ({self.id}).&#34;, key)
-        if not isinstance(key, str):
-            raise WrongKeyType(f&#34;Key must be string, not {type(key)}.&#34;, key)
+        check(self.id, self.readonly, key)
         if key in self.blobs:
             del self.blobs[key]
             del self.hashes[key]
@@ -1465,7 +1413,7 @@ nO_6d3d2d399495b6545837334176b6c49bfbc2d
         del self.data[key]
         self.data[&#34;id&#34;] = self.hosh.id
         del self.data[&#34;ids&#34;][key]
-        rewrite_history(self, deleted)
+        self.last = rewrite_history(self.history, self.last, deleted, self.hoshes)
 
     def __repr__(self, all=False):
         return ldict2txt(self, all)
@@ -1643,9 +1591,7 @@ nO_6d3d2d399495b6545837334176b6c49bfbc2d
         # from ldict import Empty
         # if isinstance(other, FunctionSpace) and isinstance(other[0], Empty):
         #     raise EmptyNextToGlobalCache(&#34;Cannot use ø after ^ due to Python precedence rules.&#34;)
-        c = cached(self, GLOBAL[&#34;CACHE&#34;])
-        c = cached(self, GLOBAL[&#34;CACHE&#34;]) &gt;&gt; other
-        return cached(self, GLOBAL[&#34;CACHE&#34;]) &gt;&gt; other
+        return cached(self, GLOBAL[&#34;cache&#34;]) &gt;&gt; other
 
     @property
     def idc(self):

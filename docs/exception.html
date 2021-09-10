@@ -48,24 +48,16 @@
 #  part of this work is illegal and unethical regarding the effort and
 #  time spent here.
 #
-#  ldict is free software: you can redistribute it and/or modify
-#  it under the terms of the GNU General Public License as published by
-#  the Free Software Foundation, either version 3 of the License, or
-#  (at your option) any later version.
-#
-#  ldict is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with ldict.  If not, see &lt;http://www.gnu.org/licenses/&gt;.
-#
-#  (*) Removing authorship by any means, e.g. by distribution of derived
-#  works or verbatim, obfuscated, compiled or rewritten versions of any
-#  part of this work is a crime and is unethical regarding the effort and
-#  time spent here.
-#
+
+def check(id, readonly, key, value=None):
+    if readonly:
+        raise ReadOnlyLdict(f&#34;Cannot change a readonly ldict ({id}).&#34;, key)
+    if not isinstance(key, str):
+        raise WrongKeyType(f&#34;Key must be string, not {type(key)}.&#34;, key)
+    if callable(value):
+        raise WrongValueType(f&#34;A value for the field [{key}] cannot have type {type(value)}. &#34;
+                             f&#34;For (pseudo)inplace function application, use operator &gt;&gt;= instead&#34;)
+
 
 class OverwriteException(Exception):
     pass
@@ -128,6 +120,28 @@ class EmptyNextToGlobalCache(Exception):
 <section>
 </section>
 <section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="ldict.exception.check"><code class="name flex">
+<span>def <span class="ident">check</span></span>(<span>id, readonly, key, value=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def check(id, readonly, key, value=None):
+    if readonly:
+        raise ReadOnlyLdict(f&#34;Cannot change a readonly ldict ({id}).&#34;, key)
+    if not isinstance(key, str):
+        raise WrongKeyType(f&#34;Key must be string, not {type(key)}.&#34;, key)
+    if callable(value):
+        raise WrongValueType(f&#34;A value for the field [{key}] cannot have type {type(value)}. &#34;
+                             f&#34;For (pseudo)inplace function application, use operator &gt;&gt;= instead&#34;)</code></pre>
+</details>
+</dd>
+</dl>
 </section>
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
@@ -410,6 +424,11 @@ class EmptyNextToGlobalCache(Exception):
 <li><h3>Super-module</h3>
 <ul>
 <li><code><a title="ldict" href="index.html">ldict</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="ldict.exception.check" href="#ldict.exception.check">check</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-classes">Classes</a></h3>

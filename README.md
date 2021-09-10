@@ -172,12 +172,12 @@ print(a)
 
 ```python3
 from random import Random
-
 from ldict import ø
 from ldict.cfg import cfg
 
 
 # A function provide input fields and, optionally, parameters.
+# For instance:
 # 'a' is sampled from an arithmetic progression
 # 'b' is sampled from a geometric progression
 # Here, the syntax for default parameter values is borrowed with a new meaning.
@@ -220,6 +220,7 @@ d.show(colored=False)
 # Parameter values are uniformly sampled.
 d1 = d >> fun
 d.show(colored=False)
+print(d1.z)
 """
 {
     "id": "I0_39c94b4dfbc7a8579ca1304eba25917204a5e",
@@ -230,14 +231,7 @@ d.show(colored=False)
     "x": 5,
     "y": 7
 }
-"""
-```
-
-```python3
-
-print(d1.z)
-"""
--109.3
+699720.0
 """
 ```
 
@@ -245,6 +239,7 @@ print(d1.z)
 
 d2 = d >> fun
 d.show(colored=False)
+print(d2.z)
 """
 {
     "id": "I0_39c94b4dfbc7a8579ca1304eba25917204a5e",
@@ -255,14 +250,7 @@ d.show(colored=False)
     "x": 5,
     "y": 7
 }
-"""
-```
-
-```python3
-
-print(d2.z)
-"""
-440.7
+485.0
 """
 ```
 
@@ -282,7 +270,7 @@ print(e.z)
 e = d >> cfg(a=5) >> fun
 print(e.z)
 """
-25.7
+725.0
 """
 ```
 
@@ -292,13 +280,14 @@ print(e.z)
 e = e >> cfg(a=5) >> fun
 print(e.z)
 """
-25.7
+725.0
 """
 ```
 
 ```python3
 
-# Defining the initial state of the random sampler for this point onwards processing the ldict...
+# We can define the initial state of the random sampler.
+# It will be in effect from its location place onwards in the expression.
 e = d >> cfg(a=5) >> Random(0) >> fun
 print(e.z)
 """
@@ -308,7 +297,8 @@ print(e.z)
 
 ```python3
 
-# All runs will yield the same result, if starting from the same random number generator seed.
+# All runs will yield the same result,
+# if starting from the same random number generator seed.
 e = e >> cfg(a=5) >> Random(0) >> fun
 print(e.z)
 """
@@ -318,20 +308,14 @@ print(e.z)
 
 ```python3
 
-# Reproducible different runs are achievable by using the same stateful random number generator.
+# Reproducible different runs are achievable by using a single random number generator.
 rnd = Random(0)
 e = d >> cfg(a=5) >> rnd >> fun
 print(e.z)
-"""
-699999990.0
-"""
-```
-
-```python3
-
 e = d >> cfg(a=5) >> rnd >> fun  # Alternative syntax.
 print(e.z)
 """
+699999990.0
 35.0007
 """
 ```
@@ -383,9 +367,9 @@ d = {"x": 5, "y": 7} >> fun
 print(d)
 """
 {
-    "id": "4ZaEIt0OkGrK1WYasM4GxHiaSc0bHvs2LqnZ2CNg",
-    "ids": "sevV5FgS2lsuRpIhMBLzXGKPD10bHvs2LqnZ2CNg... +1 ...Rs_92162dea64a7462725cac7dcee71b67669f69",
-    "z": "→(z→(x y a b) c)",
+    "id": "oz7JJHDOb6uOsOb3ExhaK7DnbDAFqfTSiVWqtiS8",
+    "ids": "XctYqqL-dtgxxiX9YmY38731ZrAFqfTSiVWqtiS8... +1 ...Rs_92162dea64a7462725cac7dcee71b67669f69",
+    "z": "→(c z→(a b x y))",
     "x": 5,
     "y": 7
 }
@@ -396,7 +380,7 @@ print(d)
 
 print(d.z)
 """
-1450.0
+94.0
 """
 ```
 
@@ -405,7 +389,7 @@ print(d.z)
 d = {"x": 5, "y": 7} >> fun
 print(d.z)
 """
-50.0007
+740.0
 """
 ```
 
@@ -458,11 +442,16 @@ print(e.z)
 <p>
 
 ```python3
-from ldict import ldict, ø
+import shelve
+from collections import namedtuple
+from pprint import pprint
 
+from ldict import ldict, ø
 # The cache can be set globally.
 # It is as simple as a dict, or any dict-like implementation mapping str to serializable content.
 # Implementations can, e.g., store data on disk or in a remote computer.
+from ldict.cfg import cfg
+from ldict.config import setcache
 
 setcache({})
 
@@ -515,6 +504,57 @@ d = ldict(y=2, x=3) >> fun ^ ø >> (lambda x: {"x": x ** 2}) >> ø >> {"w": 5, "
 print(d.z, d.id)
 """
 9 QaRWaaqyTLRqBDzvIff.HdTGQVDeSMDamXXwaYMA
+"""
+```
+
+```python3
+
+# Persisting to disk is easily done via Python shelve.
+P = namedtuple("P", "x y")
+a = [3, 2]
+b = [1, 4]
+
+
+def measure_distance(a, b):
+    from math import sqrt
+    return {"distance": sqrt((a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2)}
+
+
+with shelve.open("/tmp/my-cache-file.db") as db:
+    d = ldict(a=a, b=b) >> measure_distance >> [db]
+    pprint(dict(db))  # Cache is initially empty.
+    print(d.distance)
+    pprint(dict(db))
+    #  ...
+
+    # '^' syntax is also possible.
+    a = [7, 1]
+    b = [4, 3]
+    copy = lambda source=None, target=None, **kwargs: {target: kwargs[source]}
+    mean = lambda distance, other_distance: {"m": (distance + other_distance) / 2}
+    e = (
+            ldict(a=a, b=b)
+            >> measure_distance
+            >> {"other_distance": d.distance}
+            >> mean
+            ^ ø
+            ^ cfg(source="m", target="m0")
+            >> copy
+            >> (lambda m: {"m": m ** 2})
+    )
+    print(e.m0, e.m)
+
+"""
+{'3Q_85403c3464883af128dc24eef54294173d8ef': [1, 4],
+ 'E0_45bf7de0dcdfc012da8a0f556492e8880b09d': [3, 2],
+ 'KBQMiN2gHLwCewlu6HC67I1R2-m8hIbZ8IXI2c0c': 2.8284271247461903,
+ 'uSytg7O3BaGIggOzqYSBO3ees4KQw0Bf1SouJQht': 2.8284271247461903}
+2.8284271247461903
+{'3Q_85403c3464883af128dc24eef54294173d8ef': [1, 4],
+ 'E0_45bf7de0dcdfc012da8a0f556492e8880b09d': [3, 2],
+ 'KBQMiN2gHLwCewlu6HC67I1R2-m8hIbZ8IXI2c0c': 2.8284271247461903,
+ 'uSytg7O3BaGIggOzqYSBO3ees4KQw0Bf1SouJQht': 2.8284271247461903}
+3.2169892001050897 10.349019513592784
 """
 ```
 
