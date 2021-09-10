@@ -64,7 +64,7 @@ def ldict2txt(d, all):
     -------
 
     """
-    dic = ldict2dic(d,all)
+    dic = ldict2dic(d, all)
     txt = json.dumps(dic, indent=4, ensure_ascii=False, cls=CustomJSONEncoder)
     for k, v in dic.items():
         if k == "id":
@@ -76,7 +76,6 @@ def ldict2txt(d, all):
 
 
 def ldict2dic(d, all):
-    from ldict.lazy import Lazy
     from ldict.ldict_ import ldict
     dic = d.data.copy()
     for k, v in d.data.items():
@@ -85,5 +84,5 @@ def ldict2dic(d, all):
         elif isinstance(v, ldict):
             dic[k] = ldict2dic(v, all)
         if not all:
-            dic["ids"] = "<1 hidden id>" if len(dic["ids"]) == 1 else f"<{len(d) -  2} hidden ids>"
+            dic["ids"] = "<1 hidden id>" if len(dic["ids"]) == 1 else f"<{len(d) - 2} hidden ids>"
     return dic

@@ -5,11 +5,12 @@ from pprint import pprint
 
 from math import sqrt
 
-from ldict import ldict, ø, setcache
+from ldict import ldict, ø
 # The cache can be set globally.
 # It is as simple as a dict, or any dict-like implementation mapping str to serializable content.
 # Implementations can, e.g., store data on disk or in a remote computer.
 from ldict.cfg import cfg
+from ldict.config import setcache
 
 setcache({})
 

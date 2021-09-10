@@ -19,13 +19,3 @@
 #  works or verbatim, obfuscated, compiled or rewritten versions of any
 #  part of this work is illegal and unethical regarding the effort and
 #  time spent here.
-from typing import TypeVar, Dict
-
-from ldict.config import GLOBAL
-from ldict.persistence.cache import Cache
-
-VT = TypeVar("VT")
-
-
-def setcache(cache: Dict[str, VT]):
-    GLOBAL["CACHE"] = cache

@@ -23,7 +23,8 @@
 
 from unittest import TestCase
 
-from ldict import ø, setcache
+from ldict import ø
+from ldict.config import setcache
 
 
 class Test(TestCase):

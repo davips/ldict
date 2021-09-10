@@ -20,5 +20,19 @@
 #  part of this work is illegal and unethical regarding the effort and
 #  time spent here.
 from pathlib import Path
+from typing import TypeVar, Dict
 
-GLOBAL = {"CACHE": f"{Path.home()}/{'.ldict/shelve.db'}"}
+VT = TypeVar("VT")
+
+GLOBAL = {
+    "cache": f"{Path.home()}/{'.ldict/shelve.db'}",
+    "history": True
+}
+
+
+def setcache(cache: Dict[str, VT]):
+    GLOBAL["cache"] = cache
+
+
+def sethistory(state: bool):
+    GLOBAL["history"] = state

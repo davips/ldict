@@ -33,13 +33,13 @@ from orjson import dumps, OPT_SORT_KEYS
 from garoupa import ø40
 from ldict.appearance import ldict2txt, decolorize, ldict2dic
 from ldict.apply import delete, application
+from ldict.config import GLOBAL
 from ldict.customjson import CustomJSONEncoder
 from ldict.data import key2id
 from ldict.exception import WrongKeyType, WrongValueType, OverwriteException, check
 from ldict.functionspace import FunctionSpace
 from ldict.history import extend_history, rewrite_history
 from ldict.lazy import islazy
-from ldict.persistence import GLOBAL
 from ldict.persistence.cached import cached
 
 VT = TypeVar("VT")
@@ -371,7 +371,7 @@ class Ldict(UserDict, Dict[str, VT]):
         # from ldict import Empty
         # if isinstance(other, FunctionSpace) and isinstance(other[0], Empty):
         #     raise EmptyNextToGlobalCache("Cannot use ø after ^ due to Python precedence rules.")
-        return cached(self, GLOBAL["CACHE"]) >> other
+        return cached(self, GLOBAL["cache"]) >> other
 
     @property
     def idc(self):

@@ -25,7 +25,7 @@ from ldict.config import GLOBAL
 def extend_history(history, last, hosh):
     """
     >>> from ldict import ldict
-    >>> d = ldict(history=True)
+    >>> d = ldict()
     >>> d.history
     {}
     >>> d["x"] = 5
@@ -66,7 +66,7 @@ def extend_history(history, last, hosh):
 def rewrite_history(history, last, hosh, hoshes):
     """
     >>> from ldict import ldict
-    >>> d = ldict(history=True)
+    >>> d = ldict()
     >>> d["x"] = 5
     >>> del d["x"]
     >>> list(d.ids.keys()) == []

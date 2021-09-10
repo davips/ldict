@@ -458,7 +458,7 @@ print(e.z)
 <p>
 
 ```python3
-from ldict import ldict, ø, setcache
+from ldict import ldict, ø
 
 # The cache can be set globally.
 # It is as simple as a dict, or any dict-like implementation mapping str to serializable content.

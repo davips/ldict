@@ -1,4 +1,3 @@
-from ldict.persistence import setcache
 from .appearance import decolorize
 from .empty import Empty
 from .functionspace import FunctionSpace
