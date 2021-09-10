@@ -170,6 +170,7 @@ print(a)
 
 ```python3
 from random import Random
+
 from ldict import ø
 from ldict.cfg import cfg
 
@@ -217,38 +218,42 @@ d.show(colored=False)
 
 # Parameter values are uniformly sampled.
 d1 = d >> fun
-d.show(colored=False)
+d1.show(colored=False)
 print(d1.z)
 """
 {
-    "id": "I0_39c94b4dfbc7a8579ca1304eba25917204a5e",
+    "id": "8V.-4QNz1yTYTvaqyYsidl5MAb3XonMswn-DHJOF",
     "ids": {
+        "z": "Cm4WMKnbrGxdn3WwSN7cDkxpm03XonMswn-DHJOF",
         "x": "Tz_d158c49297834fad67e6de7cdba3ea368aae4",
         "y": "Rs_92162dea64a7462725cac7dcee71b67669f69"
     },
+    "z": "→(a b x y)",
     "x": 5,
     "y": 7
 }
--339.93
+699999540.0
 """
 ```
 
 ```python3
 
 d2 = d >> fun
-d.show(colored=False)
+d2.show(colored=False)
 print(d2.z)
 """
 {
-    "id": "I0_39c94b4dfbc7a8579ca1304eba25917204a5e",
+    "id": "dd7Rd7FG1mEkeQ2IgglhbWXE39l6U0QgJoO0pl4j",
     "ids": {
+        "z": "kHX10i5llhZWXnOOA50bBVniRZk6U0QgJoO0pl4j",
         "x": "Tz_d158c49297834fad67e6de7cdba3ea368aae4",
         "y": "Rs_92162dea64a7462725cac7dcee71b67669f69"
     },
+    "z": "→(a b x y)",
     "x": 5,
     "y": 7
 }
-30.07
+70000250.0
 """
 ```
 
@@ -268,7 +273,7 @@ print(e.z)
 e = d >> cfg(a=5) >> fun
 print(e.z)
 """
-725.0
+700000025.0
 """
 ```
 
@@ -278,7 +283,7 @@ print(e.z)
 e = e >> cfg(a=5) >> fun
 print(e.z)
 """
-25.7
+725.0
 """
 ```
 
@@ -365,8 +370,8 @@ d = {"x": 5, "y": 7} >> fun
 print(d)
 """
 {
-    "id": "pYMGh-jReMZ7vH-FdXB4mM89TPDHqysvOqVXfpcO",
-    "ids": "fyaf3XOQADXfFeKMxMg-LLAOEEDHqysvOqVXfpcO... +1 ...Rs_92162dea64a7462725cac7dcee71b67669f69",
+    "id": "2ZAAn49L2ODpxYHaVL.4GuWpuSLHbHstjVFR5KsJ",
+    "ids": "Gs-3jOosu8ARTrrhdBG-3um3gHLHbHstjVFR5KsJ... +1 ...Rs_92162dea64a7462725cac7dcee71b67669f69",
     "z": "→(c z→(a b x y))",
     "x": 5,
     "y": 7
@@ -378,7 +383,7 @@ print(d)
 
 print(d.z)
 """
-50.00007
+21150.0
 """
 ```
 
@@ -387,7 +392,7 @@ print(d.z)
 d = {"x": 5, "y": 7} >> fun
 print(d.z)
 """
-220.0
+190.0
 """
 ```
 
