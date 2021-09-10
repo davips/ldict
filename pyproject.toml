@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ldict"
-version = "2.210910.1"
+version = "2.210910.23"
 description = "Lazy dict with universally unique identifier for values"
 authors = ["davips <dpsabc@gmail.com>"]
 license = "GPL"
@@ -35,7 +35,7 @@ ipython = "^7.26.0"
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
-#[[tool.poetry.source]]
-#name = "dvpypi"
-#url = "http://localhost:8080/simple"
-#secondary = true
+[[tool.poetry.source]]
+name = "dvpypi"
+url = "http://localhost:8080/simple"
+secondary = true

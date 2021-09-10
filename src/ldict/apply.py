@@ -280,8 +280,7 @@ def application(self, clone, other: Callable, config, rnd):
 
     output, implicit_input = output_and_implicit_fields(other, parameters)
 
-    deps = parameters
-    deps.update({k: self.data[k] for k in input})
+    deps = {k: self.data[k] for k in input}
     deps.update({(k := parameters[par]): self.data[k] for par in implicit_input})
 
     u = clone.hosh

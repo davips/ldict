@@ -32,6 +32,15 @@ class CustomJSONEncoder(JSONEncoder):
             elif isinstance(obj, FunctionType):
                 return obj.__name__
             elif not isinstance(obj, (list, set, str, int, float, bytearray, bool)):
+                try:
+                    from pandas.core.frame import DataFrame, Series
+                    if isinstance(obj, (DataFrame, Series)):
+                        return str(obj.to_numpy())
+                    from numpy import ndarray
+                    if isinstance(obj, ndarray):
+                        return str(obj)
+                except ImportError:
+                    print("Pandas or numpy may be missing.")
                 return obj.asdict if hasattr(obj, "asdict") else obj.aslist
         return JSONEncoder.default(self, obj)
 

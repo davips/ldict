@@ -6,6 +6,11 @@ category = "dev"
 optional = false
 python-versions = "*"
 
+[package.source]
+type = "legacy"
+url = "http://localhost:8080/simple"
+reference = "dvpypi"
+
 [[package]]
 name = "astroid"
 version = "2.7.3"
@@ -18,6 +23,11 @@ python-versions = "~=3.6"
 lazy-object-proxy = ">=1.4.0"
 wrapt = ">=1.11,<1.13"
 
+[package.source]
+type = "legacy"
+url = "http://localhost:8080/simple"
+reference = "dvpypi"
+
 [[package]]
 name = "atomicwrites"
 version = "1.4.0"
@@ -25,6 +35,11 @@ description = "Atomic file writes."
 category = "dev"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
+
+[package.source]
+type = "legacy"
+url = "http://localhost:8080/simple"
+reference = "dvpypi"
 
 [[package]]
 name = "attrs"
@@ -40,6 +55,11 @@ docs = ["furo", "sphinx", "zope.interface", "sphinx-notfound-page"]
 tests = ["coverage[toml] (>=5.0.2)", "hypothesis", "pympler", "pytest (>=4.3.0)", "six", "mypy", "pytest-mypy-plugins", "zope.interface"]
 tests_no_zope = ["coverage[toml] (>=5.0.2)", "hypothesis", "pympler", "pytest (>=4.3.0)", "six", "mypy", "pytest-mypy-plugins"]
 
+[package.source]
+type = "legacy"
+url = "http://localhost:8080/simple"
+reference = "dvpypi"
+
 [[package]]
 name = "autoreadme"
 version = "0.2102.20"
@@ -48,6 +68,11 @@ category = "dev"
 optional = false
 python-versions = "*"
 
+[package.source]
+type = "legacy"
+url = "http://localhost:8080/simple"
+reference = "dvpypi"
+
 [[package]]
 name = "backcall"
 version = "0.2.0"
@@ -55,6 +80,11 @@ description = "Specifications for callback functions passed in to an API"
 category = "dev"
 optional = false
 python-versions = "*"
+
+[package.source]
+type = "legacy"
+url = "http://localhost:8080/simple"
+reference = "dvpypi"
 
 [[package]]
 name = "black"
@@ -83,6 +113,11 @@ jupyter = ["ipython (>=7.8.0)", "tokenize-rt (>=3.2.0)"]
 python2 = ["typed-ast (>=1.4.2)"]
 uvloop = ["uvloop (>=0.15.2)"]
 
+[package.source]
+type = "legacy"
+url = "http://localhost:8080/simple"
+reference = "dvpypi"
+
 [[package]]
 name = "blake3"
 version = "0.1.8"
@@ -90,6 +125,11 @@ description = "Python bindings for the Rust blake3 crate"
 category = "main"
 optional = false
 python-versions = "*"
+
+[package.source]
+type = "legacy"
+url = "http://localhost:8080/simple"
+reference = "dvpypi"
 
 [[package]]
 name = "click"
@@ -102,6 +142,11 @@ python-versions = ">=3.6"
 [package.dependencies]
 colorama = {version = "*", markers = "platform_system == \"Windows\""}
 
+[package.source]
+type = "legacy"
+url = "http://localhost:8080/simple"
+reference = "dvpypi"
+
 [[package]]
 name = "colorama"
 version = "0.4.4"
@@ -110,6 +155,11 @@ category = "main"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
 
+[package.source]
+type = "legacy"
+url = "http://localhost:8080/simple"
+reference = "dvpypi"
+
 [[package]]
 name = "colored"
 version = "1.4.2"
@@ -117,6 +167,11 @@ description = "Simple library for color and formatting to terminal"
 category = "main"
 optional = false
 python-versions = "*"
+
+[package.source]
+type = "legacy"
+url = "http://localhost:8080/simple"
+reference = "dvpypi"
 
 [[package]]
 name = "coverage"
@@ -129,6 +184,11 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, <4"
 [package.extras]
 toml = ["toml"]
 
+[package.source]
+type = "legacy"
+url = "http://localhost:8080/simple"
+reference = "dvpypi"
+
 [[package]]
 name = "decorator"
 version = "5.0.9"
@@ -136,6 +196,11 @@ description = "Decorators for Humans"
 category = "dev"
 optional = false
 python-versions = ">=3.5"
+
+[package.source]
+type = "legacy"
+url = "http://localhost:8080/simple"
+reference = "dvpypi"
 
 [[package]]
 name = "garoupa"
@@ -151,7 +216,12 @@ colored = ">=1.4.2,<2.0.0"
 pdoc3 = ">=0.10.0,<0.11.0"
 
 [package.extras]
-full = ["progress (>=1.5,<2.0)", "pathos (>=0.2.7,<0.3.0)"]
+full = ["pathos (>=0.2.7,<0.3.0)", "progress (>=1.5,<2.0)"]
+
+[package.source]
+type = "legacy"
+url = "http://localhost:8080/simple"
+reference = "dvpypi"
 
 [[package]]
 name = "iniconfig"
@@ -160,6 +230,11 @@ description = "iniconfig: brain-dead simple config-ini parsing"
 category = "dev"
 optional = false
 python-versions = "*"
+
+[package.source]
+type = "legacy"
+url = "http://localhost:8080/simple"
+reference = "dvpypi"
 
 [[package]]
 name = "ipython"
@@ -193,6 +268,11 @@ parallel = ["ipyparallel"]
 qtconsole = ["qtconsole"]
 test = ["nose (>=0.10.1)", "requests", "testpath", "pygments", "nbformat", "ipykernel", "numpy (>=1.17)"]
 
+[package.source]
+type = "legacy"
+url = "http://localhost:8080/simple"
+reference = "dvpypi"
+
 [[package]]
 name = "isort"
 version = "5.9.3"
@@ -202,10 +282,15 @@ optional = false
 python-versions = ">=3.6.1,<4.0"
 
 [package.extras]
-pipfile_deprecated_finder = ["pipreqs", "requirementslib"]
-requirements_deprecated_finder = ["pipreqs", "pip-api"]
 colors = ["colorama (>=0.4.3,<0.5.0)"]
+requirements_deprecated_finder = ["pip-api", "pipreqs"]
+pipfile_deprecated_finder = ["pipreqs", "requirementslib"]
 plugins = ["setuptools"]
+
+[package.source]
+type = "legacy"
+url = "http://localhost:8080/simple"
+reference = "dvpypi"
 
 [[package]]
 name = "jedi"
@@ -222,6 +307,11 @@ parso = ">=0.8.0,<0.9.0"
 qa = ["flake8 (==3.8.3)", "mypy (==0.782)"]
 testing = ["Django (<3.1)", "colorama", "docopt", "pytest (<6.0.0)"]
 
+[package.source]
+type = "legacy"
+url = "http://localhost:8080/simple"
+reference = "dvpypi"
+
 [[package]]
 name = "lange"
 version = "0.2101.24"
@@ -230,6 +320,11 @@ category = "main"
 optional = false
 python-versions = "*"
 
+[package.source]
+type = "legacy"
+url = "http://localhost:8080/simple"
+reference = "dvpypi"
+
 [[package]]
 name = "lazy-object-proxy"
 version = "1.6.0"
@@ -237,6 +332,11 @@ description = "A fast and thorough lazy object proxy."
 category = "dev"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, !=3.5.*"
+
+[package.source]
+type = "legacy"
+url = "http://localhost:8080/simple"
+reference = "dvpypi"
 
 [[package]]
 name = "mako"
@@ -253,6 +353,11 @@ MarkupSafe = ">=0.9.2"
 babel = ["babel"]
 lingua = ["lingua"]
 
+[package.source]
+type = "legacy"
+url = "http://localhost:8080/simple"
+reference = "dvpypi"
+
 [[package]]
 name = "markdown"
 version = "3.3.4"
@@ -264,6 +369,11 @@ python-versions = ">=3.6"
 [package.extras]
 testing = ["coverage", "pyyaml"]
 
+[package.source]
+type = "legacy"
+url = "http://localhost:8080/simple"
+reference = "dvpypi"
+
 [[package]]
 name = "markupsafe"
 version = "2.0.1"
@@ -271,6 +381,11 @@ description = "Safely add untrusted strings to HTML/XML markup."
 category = "main"
 optional = false
 python-versions = ">=3.6"
+
+[package.source]
+type = "legacy"
+url = "http://localhost:8080/simple"
+reference = "dvpypi"
 
 [[package]]
 name = "matplotlib-inline"
@@ -283,6 +398,11 @@ python-versions = ">=3.5"
 [package.dependencies]
 traitlets = "*"
 
+[package.source]
+type = "legacy"
+url = "http://localhost:8080/simple"
+reference = "dvpypi"
+
 [[package]]
 name = "mccabe"
 version = "0.6.1"
@@ -290,6 +410,11 @@ description = "McCabe checker, plugin for flake8"
 category = "dev"
 optional = false
 python-versions = "*"
+
+[package.source]
+type = "legacy"
+url = "http://localhost:8080/simple"
+reference = "dvpypi"
 
 [[package]]
 name = "mypy-extensions"
@@ -299,6 +424,11 @@ category = "dev"
 optional = false
 python-versions = "*"
 
+[package.source]
+type = "legacy"
+url = "http://localhost:8080/simple"
+reference = "dvpypi"
+
 [[package]]
 name = "orjson"
 version = "3.6.3"
@@ -306,6 +436,11 @@ description = "Fast, correct Python JSON library supporting dataclasses, datetim
 category = "main"
 optional = false
 python-versions = ">=3.7"
+
+[package.source]
+type = "legacy"
+url = "http://localhost:8080/simple"
+reference = "dvpypi"
 
 [[package]]
 name = "packaging"
@@ -318,6 +453,11 @@ python-versions = ">=3.6"
 [package.dependencies]
 pyparsing = ">=2.0.2"
 
+[package.source]
+type = "legacy"
+url = "http://localhost:8080/simple"
+reference = "dvpypi"
+
 [[package]]
 name = "parso"
 version = "0.8.2"
@@ -329,6 +469,11 @@ python-versions = ">=3.6"
 [package.extras]
 qa = ["flake8 (==3.8.3)", "mypy (==0.782)"]
 testing = ["docopt", "pytest (<6.0.0)"]
+
+[package.source]
+type = "legacy"
+url = "http://localhost:8080/simple"
+reference = "dvpypi"
 
 [[package]]
 name = "passlib"
@@ -344,6 +489,11 @@ bcrypt = ["bcrypt (>=3.1.0)"]
 build_docs = ["sphinx (>=1.6)", "sphinxcontrib-fulltoc (>=1.2.0)", "cloud-sptheme (>=1.10.1)"]
 totp = ["cryptography"]
 
+[package.source]
+type = "legacy"
+url = "http://localhost:8080/simple"
+reference = "dvpypi"
+
 [[package]]
 name = "pathspec"
 version = "0.9.0"
@@ -351,6 +501,11 @@ description = "Utility library for gitignore style pattern matching of file path
 category = "dev"
 optional = false
 python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,>=2.7"
+
+[package.source]
+type = "legacy"
+url = "http://localhost:8080/simple"
+reference = "dvpypi"
 
 [[package]]
 name = "pdoc3"
@@ -364,6 +519,11 @@ python-versions = ">= 3.6"
 mako = "*"
 markdown = ">=3.0"
 
+[package.source]
+type = "legacy"
+url = "http://localhost:8080/simple"
+reference = "dvpypi"
+
 [[package]]
 name = "pexpect"
 version = "4.8.0"
@@ -375,6 +535,11 @@ python-versions = "*"
 [package.dependencies]
 ptyprocess = ">=0.5"
 
+[package.source]
+type = "legacy"
+url = "http://localhost:8080/simple"
+reference = "dvpypi"
+
 [[package]]
 name = "pickleshare"
 version = "0.7.5"
@@ -382,6 +547,11 @@ description = "Tiny 'shelve'-like database with concurrency support"
 category = "dev"
 optional = false
 python-versions = "*"
+
+[package.source]
+type = "legacy"
+url = "http://localhost:8080/simple"
+reference = "dvpypi"
 
 [[package]]
 name = "platformdirs"
@@ -395,6 +565,11 @@ python-versions = ">=3.6"
 docs = ["Sphinx (>=4)", "furo (>=2021.7.5b38)", "proselint (>=0.10.2)", "sphinx-autodoc-typehints (>=1.12)"]
 test = ["appdirs (==1.4.4)", "pytest (>=6)", "pytest-cov (>=2.7)", "pytest-mock (>=3.6)"]
 
+[package.source]
+type = "legacy"
+url = "http://localhost:8080/simple"
+reference = "dvpypi"
+
 [[package]]
 name = "pluggy"
 version = "1.0.0"
@@ -407,6 +582,11 @@ python-versions = ">=3.6"
 dev = ["pre-commit", "tox"]
 testing = ["pytest", "pytest-benchmark"]
 
+[package.source]
+type = "legacy"
+url = "http://localhost:8080/simple"
+reference = "dvpypi"
+
 [[package]]
 name = "prompt-toolkit"
 version = "3.0.20"
@@ -418,6 +598,11 @@ python-versions = ">=3.6.2"
 [package.dependencies]
 wcwidth = "*"
 
+[package.source]
+type = "legacy"
+url = "http://localhost:8080/simple"
+reference = "dvpypi"
+
 [[package]]
 name = "ptyprocess"
 version = "0.7.0"
@@ -425,6 +610,11 @@ description = "Run a subprocess in a pseudo terminal"
 category = "dev"
 optional = false
 python-versions = "*"
+
+[package.source]
+type = "legacy"
+url = "http://localhost:8080/simple"
+reference = "dvpypi"
 
 [[package]]
 name = "py"
@@ -434,6 +624,11 @@ category = "dev"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 
+[package.source]
+type = "legacy"
+url = "http://localhost:8080/simple"
+reference = "dvpypi"
+
 [[package]]
 name = "pygments"
 version = "2.10.0"
@@ -441,6 +636,11 @@ description = "Pygments is a syntax highlighting package written in Python."
 category = "dev"
 optional = false
 python-versions = ">=3.5"
+
+[package.source]
+type = "legacy"
+url = "http://localhost:8080/simple"
+reference = "dvpypi"
 
 [[package]]
 name = "pylint"
@@ -458,6 +658,11 @@ mccabe = ">=0.6,<0.7"
 platformdirs = ">=2.2.0"
 toml = ">=0.7.1"
 
+[package.source]
+type = "legacy"
+url = "http://localhost:8080/simple"
+reference = "dvpypi"
+
 [[package]]
 name = "pyparsing"
 version = "2.4.7"
@@ -465,6 +670,11 @@ description = "Python parsing module"
 category = "dev"
 optional = false
 python-versions = ">=2.6, !=3.0.*, !=3.1.*, !=3.2.*"
+
+[package.source]
+type = "legacy"
+url = "http://localhost:8080/simple"
+reference = "dvpypi"
 
 [[package]]
 name = "pypiserver"
@@ -477,6 +687,11 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 [package.extras]
 cache = ["watchdog"]
 passlib = ["passlib (>=1.6)"]
+
+[package.source]
+type = "legacy"
+url = "http://localhost:8080/simple"
+reference = "dvpypi"
 
 [[package]]
 name = "pytest"
@@ -499,6 +714,11 @@ toml = "*"
 [package.extras]
 testing = ["argcomplete", "hypothesis (>=3.56)", "mock", "nose", "requests", "xmlschema"]
 
+[package.source]
+type = "legacy"
+url = "http://localhost:8080/simple"
+reference = "dvpypi"
+
 [[package]]
 name = "pytest-cov"
 version = "2.12.1"
@@ -515,6 +735,11 @@ toml = "*"
 [package.extras]
 testing = ["fields", "hunter", "process-tests", "six", "pytest-xdist", "virtualenv"]
 
+[package.source]
+type = "legacy"
+url = "http://localhost:8080/simple"
+reference = "dvpypi"
+
 [[package]]
 name = "regex"
 version = "2021.8.28"
@@ -523,6 +748,11 @@ category = "dev"
 optional = false
 python-versions = "*"
 
+[package.source]
+type = "legacy"
+url = "http://localhost:8080/simple"
+reference = "dvpypi"
+
 [[package]]
 name = "six"
 version = "1.16.0"
@@ -530,6 +760,11 @@ description = "Python 2 and 3 compatibility utilities"
 category = "main"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*"
+
+[package.source]
+type = "legacy"
+url = "http://localhost:8080/simple"
+reference = "dvpypi"
 
 [[package]]
 name = "spark-parser"
@@ -542,6 +777,11 @@ python-versions = "*"
 [package.dependencies]
 click = "*"
 
+[package.source]
+type = "legacy"
+url = "http://localhost:8080/simple"
+reference = "dvpypi"
+
 [[package]]
 name = "toml"
 version = "0.10.2"
@@ -550,6 +790,11 @@ category = "dev"
 optional = false
 python-versions = ">=2.6, !=3.0.*, !=3.1.*, !=3.2.*"
 
+[package.source]
+type = "legacy"
+url = "http://localhost:8080/simple"
+reference = "dvpypi"
+
 [[package]]
 name = "tomli"
 version = "1.2.1"
@@ -557,6 +802,11 @@ description = "A lil' TOML parser"
 category = "dev"
 optional = false
 python-versions = ">=3.6"
+
+[package.source]
+type = "legacy"
+url = "http://localhost:8080/simple"
+reference = "dvpypi"
 
 [[package]]
 name = "traitlets"
@@ -569,6 +819,11 @@ python-versions = ">=3.7"
 [package.extras]
 test = ["pytest"]
 
+[package.source]
+type = "legacy"
+url = "http://localhost:8080/simple"
+reference = "dvpypi"
+
 [[package]]
 name = "typing-extensions"
 version = "3.10.0.2"
@@ -576,6 +831,11 @@ description = "Backported and Experimental Type Hints for Python 3.5+"
 category = "dev"
 optional = false
 python-versions = "*"
+
+[package.source]
+type = "legacy"
+url = "http://localhost:8080/simple"
+reference = "dvpypi"
 
 [[package]]
 name = "uncompyle6"
@@ -589,6 +849,11 @@ python-versions = "*"
 spark-parser = ">=1.8.9,<1.9.0"
 xdis = ">=5.0.4,<5.1.0"
 
+[package.source]
+type = "legacy"
+url = "http://localhost:8080/simple"
+reference = "dvpypi"
+
 [[package]]
 name = "wcwidth"
 version = "0.2.5"
@@ -597,6 +862,11 @@ category = "dev"
 optional = false
 python-versions = "*"
 
+[package.source]
+type = "legacy"
+url = "http://localhost:8080/simple"
+reference = "dvpypi"
+
 [[package]]
 name = "wrapt"
 version = "1.12.1"
@@ -604,6 +874,11 @@ description = "Module for decorators, wrappers and monkey patching."
 category = "dev"
 optional = false
 python-versions = "*"
+
+[package.source]
+type = "legacy"
+url = "http://localhost:8080/simple"
+reference = "dvpypi"
 
 [[package]]
 name = "xdis"
@@ -617,13 +892,18 @@ python-versions = "*"
 click = "*"
 six = ">=1.10.0"
 
+[package.source]
+type = "legacy"
+url = "http://localhost:8080/simple"
+reference = "dvpypi"
+
 [extras]
 full = []
 
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "1e08ae04c82caf4ce661c24e0dbc1f208bb5cb144811e064d0feb03171a16831"
+content-hash = "fb16d8a9ba2c17b31ebbd2cb1016cbe1b21abd51448e95b0587d0a6774769057"
 
 [metadata.files]
 appnope = [
@@ -1013,8 +1293,6 @@ six = [
 ]
 spark-parser = [
     {file = "spark_parser-1.8.9-py2-none-any.whl", hash = "sha256:ea9c25fa79206f23b2b4c233edf5ce9c17edc97b4f39a70056b31f50a2166cce"},
-    {file = "spark_parser-1.8.9-py2.4.egg", hash = "sha256:bfd887af6c68c0061fbcc2e763c961a4d82a057081afc5fa26af1a9cfc6bb372"},
-    {file = "spark_parser-1.8.9-py2.6.egg", hash = "sha256:c9914d49a46d08346b03efa85d9c1f353cf8dcb660307277ccead151a9cf22ef"},
     {file = "spark_parser-1.8.9-py26-none-any.whl", hash = "sha256:0a6293d05e30a093273bf81eebb97443cb4b8e733c71ad6cc2b6a223b80f3aeb"},
     {file = "spark_parser-1.8.9-py3-none-any.whl", hash = "sha256:e4d366116268010100f054ebda99b3b880c64e4b0aa3d58629ec79e6d033b077"},
     {file = "spark_parser-1.8.9-py38-none-any.whl", hash = "sha256:0a96852dacfbe3a267bba6c9ebc1fcab8904158a5045107267e310e8d18919e5"},
@@ -1039,18 +1317,7 @@ typing-extensions = [
 ]
 uncompyle6 = [
     {file = "uncompyle6-3.7.4-py2-none-any.whl", hash = "sha256:61e91c0d3f58bdc4282833ac71b84c75070d3d4b91d0dada93278e7d32266c1a"},
-    {file = "uncompyle6-3.7.4-py2.4.egg", hash = "sha256:fb9fe09fb9e4b491d9c59d95b7bfa40c096f78f17f07c62d1303f449a5dfd0d6"},
-    {file = "uncompyle6-3.7.4-py2.5.egg", hash = "sha256:3dd03b6b8d851b32fcf56d2e6fb33e52e29f52857b711725258703caf67b9808"},
-    {file = "uncompyle6-3.7.4-py2.6.egg", hash = "sha256:36e90b244129efd75e4c5866827bdf1d8650ee5b227d733197cc5f66db2fa220"},
-    {file = "uncompyle6-3.7.4-py2.7.egg", hash = "sha256:a6544683b1f93f025601c5e0cba6f777e1e0b0f4a4e286a420f34ca977df0845"},
     {file = "uncompyle6-3.7.4-py3-none-any.whl", hash = "sha256:1d4159c4962ae990bdf903e53b0f52b3a7b50c44e391834fc7dd2f30dd46f49c"},
-    {file = "uncompyle6-3.7.4-py3.2.egg", hash = "sha256:2452e326245998aba5694ae304f74f39605bb327e742483edfa5c147d76a5dbe"},
-    {file = "uncompyle6-3.7.4-py3.3.egg", hash = "sha256:67e9c259444f86f715b98c243017d3f7b70a1ab84f05a4c6dda713b74621474c"},
-    {file = "uncompyle6-3.7.4-py3.4.egg", hash = "sha256:b4a6b375bf0d0348ac13876011a07a01ab169ec1a0f0e95b49616a740f6741ae"},
-    {file = "uncompyle6-3.7.4-py3.5.egg", hash = "sha256:4274b53653dab9249b773ae1110f89a8cac82a38c8e46c236a42c6e3a9164d53"},
-    {file = "uncompyle6-3.7.4-py3.6.egg", hash = "sha256:2f9af225ae2df9cfba005197086a1e9ce08ade021232b491dcad7c235206bede"},
-    {file = "uncompyle6-3.7.4-py3.7.egg", hash = "sha256:ec3b3cfd6c248b210faa0f09a83a6c5a1d7f77394a009675b4ea7cf8ab434f52"},
-    {file = "uncompyle6-3.7.4-py3.8.egg", hash = "sha256:313ff7aed35c7dadb51aa265a54101911046d32000bef1f3ed4c9b0c19f5d88b"},
     {file = "uncompyle6-3.7.4.tar.gz", hash = "sha256:af8330861bf940e7a3ae0f06d129b8e645191a36bf73ca15ff51997a837d41f8"},
 ]
 wcwidth = [
@@ -1061,18 +1328,6 @@ wrapt = [
     {file = "wrapt-1.12.1.tar.gz", hash = "sha256:b62ffa81fb85f4332a4f609cab4ac40709470da05643a082ec1eb88e6d9b97d7"},
 ]
 xdis = [
-    {file = "xdis-5.0.11-py2.4.egg", hash = "sha256:d084a2e5bf9ace5f0663142f29b48e87cbc3976280865bd69e1de2090e12c4a0"},
-    {file = "xdis-5.0.11-py2.5.egg", hash = "sha256:79d0c93651dff6ad953d39fa61eb11ff39f7864cf00cf54439db498ec7451ac3"},
-    {file = "xdis-5.0.11-py2.6.egg", hash = "sha256:4e3a0fd311d27c0d325b2d685556c2a22a3f3cbc6fa3cf82e10beb349db7aa61"},
-    {file = "xdis-5.0.11-py2.7.egg", hash = "sha256:4d7bbbbdb8c1d137c2ae247a55b020531c5e1f64ca99f011708650f2024e80ac"},
     {file = "xdis-5.0.11-py2.py3-none-any.whl", hash = "sha256:9d3fa5af192faac7af1ecaa12aa55f0ce80db612eb1915dfdabe5584f7b3efc1"},
-    {file = "xdis-5.0.11-py3.2.egg", hash = "sha256:a1799537dd455faef0c35d8790a0cdcbecde750dbec946048fb1f380550527cf"},
-    {file = "xdis-5.0.11-py3.3.egg", hash = "sha256:e3897395ba3c7f12894b4231f92d156d4cd53ba66a180035cdc926d0b6db4149"},
-    {file = "xdis-5.0.11-py3.4.egg", hash = "sha256:8211ef0abe35c53b171c74b16e0678098bfab35bb9474e4e7c52a362e841b307"},
-    {file = "xdis-5.0.11-py3.5.egg", hash = "sha256:917fad70139e36a3be6eeb5fac99a5e38af19ae32e2382124df8270bc00fc73b"},
-    {file = "xdis-5.0.11-py3.6.egg", hash = "sha256:9a8b180fd8d2f84157adc380b7a6ae5f4c3bab6b7b352b4b8019b33efd48c3cd"},
-    {file = "xdis-5.0.11-py3.7.egg", hash = "sha256:a10864ebf29664bd7aeeb72f343a33dcb881357c319c0218d885186f6f9f4501"},
-    {file = "xdis-5.0.11-py3.8.egg", hash = "sha256:053b833224818bc89a5ee6eb96deede12cbab2ef607d714adb9d8d0656d785c2"},
-    {file = "xdis-5.0.11-py3.9.egg", hash = "sha256:a00cd252ec75a8fd0441092db21a7bfa8dd8297471219e5b50e7de5a21983c9b"},
     {file = "xdis-5.0.11.tar.gz", hash = "sha256:089740d8c4878ed6373f88972fa421c49f14006cbcdfb3fc90398ad85b3c6664"},
 ]

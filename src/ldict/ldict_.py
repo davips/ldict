@@ -28,9 +28,9 @@ from functools import reduce
 from random import Random
 from typing import Dict, TypeVar, Union, Callable
 
-from orjson import dumps, OPT_SORT_KEYS
-
 from garoupa import ø40
+from orjson import dumps, OPT_SORT_KEYS, OPT_SERIALIZE_NUMPY
+
 from ldict.appearance import ldict2txt, decolorize, ldict2dic
 from ldict.apply import delete, application
 from ldict.config import GLOBAL
@@ -161,7 +161,16 @@ class Ldict(UserDict, Dict[str, VT]):
             else:
                 self.hoshes[key] = value.hosh
         else:
-            self.blobs[key] = dumps(value, option=OPT_SORT_KEYS)
+            def default(obj):
+                # TODO: pandas is being converted to numpy, so conversion to blob might be irreversible.
+                try:
+                    from pandas.core.frame import DataFrame, Series
+                    if isinstance(obj, (DataFrame, Series)):
+                        return obj.to_numpy().tolist()
+                except ImportError:
+                    print("Pandas may be missing.")
+                raise TypeError
+            self.blobs[key] = dumps(value, default=default, option=OPT_SORT_KEYS | OPT_SERIALIZE_NUMPY)
             self.hashes[key] = self.identity.h * self.blobs[key]
             self.hoshes[key] = self.hashes[key] ** key2id(key, self.digits)
 
