@@ -169,7 +169,7 @@ class Ldict(UserDict, Dict[str, VT]):
         self.data[key] = value
         self.data["id"] = self.hosh.id
         self.data["ids"][key] = self.hoshes[key].id
-        extend_history(self, self.hoshes[key])
+        self.last = extend_history(self.history, self.last, self.hoshes[key])
 
     def __getitem__(self, item):
         if not isinstance(item, str):
@@ -193,7 +193,7 @@ class Ldict(UserDict, Dict[str, VT]):
         del self.data[key]
         self.data["id"] = self.hosh.id
         del self.data["ids"][key]
-        rewrite_history(self, deleted)
+        self.last = rewrite_history(self.history, self.last, deleted, self.hoshes)
 
     def __repr__(self, all=False):
         return ldict2txt(self, all)

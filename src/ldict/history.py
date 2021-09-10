@@ -19,12 +19,13 @@
 #  works or verbatim, obfuscated, compiled or rewritten versions of any
 #  part of this work is illegal and unethical regarding the effort and
 #  time spent here.
+from ldict.config import GLOBAL
 
 
-def extend_history(d, hosh):
+def extend_history(history, last, hosh):
     """
     >>> from ldict import ldict
-    >>> d = ldict()
+    >>> d = ldict(history=True)
     >>> d.history
     {}
     >>> d["x"] = 5
@@ -37,31 +38,35 @@ def extend_history(d, hosh):
 
     Parameters
     ----------
-    d
+    history
+    last
     hosh
 
     Returns
     -------
 
     """
-    if not d.history or hosh.etype == "ordered" or d.last and "_" not in d.last.id[:3]:
-        d.last = hosh
-        d.history[d.last] = None
+    if not GLOBAL["history"]:
+        return last
+    if not history or hosh.etype == "ordered" or last and "_" not in last.id[:3]:
+        last = hosh
+        history[last] = None
     else:
-        many = d.history.pop(d.last)
-        previous_last = d.last
-        d.last *= hosh
+        many = history.pop(last)
+        previous_last = last
+        last *= hosh
         if many is None:
-            d.history[d.last] = {previous_last, hosh}
+            history[last] = {previous_last, hosh}
         else:
             many.add(hosh)
-            d.history[d.last] = many
+            history[last] = many
+    return last
 
 
-def rewrite_history(d, hosh):
+def rewrite_history(history, last, hosh, hoshes):
     """
     >>> from ldict import ldict
-    >>> d = ldict()
+    >>> d = ldict(history=True)
     >>> d["x"] = 5
     >>> del d["x"]
     >>> list(d.ids.keys()) == []
@@ -139,30 +144,33 @@ def rewrite_history(d, hosh):
     -------
 
     """
-    lastitem = d.last and d.history[d.last]
-    if d.last == hosh:
-        del d.history[d.last]
-        hist = list(d.history.keys())
-        d.last = hist[-1] if len(hist) > 0 else None
+    if not GLOBAL["history"]:
+        return last
+    lastitem = last and history[last]
+    if last == hosh:
+        del history[last]
+        hist = list(history.keys())
+        last = hist[-1] if len(hist) > 0 else None
     elif isinstance(lastitem, set) and hosh in lastitem:  # TODO: check inside list?
         lastitem.remove(hosh)
-        del d.history[d.last]
-        d.last /= hosh
-        d.history[d.last] = lastitem if len(lastitem) > 1 else None  # pragma: no cover
+        del history[last]
+        last /= hosh
+        history[last] = lastitem if len(lastitem) > 1 else None  # pragma: no cover
     else:
-        d.history = {}
-        hosh = d.identity.h
+        history.clear()
+        hosh = hosh.ø
         many = set()
-        for k, v in d.hoshes.items():
+        for k, v in hoshes.items():
             if v.etype == "ordered":
-                if hosh != d.identity.h:
-                    d.history[hosh] = None if len(many) == 1 else many
-                    hosh = d.identity.h
+                if hosh != hosh.ø:
+                    history[hosh] = None if len(many) == 1 else many
+                    hosh = hosh.ø
                     many = set()
-                d.history[v] = None
+                history[v] = None
             else:
                 hosh *= v
                 many.add(v)
-        if hosh != d.identity.h:
-            d.history[hosh] = None if len(many) == 1 else many
-        d.last = list(d.history.keys())[-1]
+        if hosh != hosh.ø:
+            history[hosh] = None if len(many) == 1 else many
+        last = list(history.keys())[-1]
+    return last

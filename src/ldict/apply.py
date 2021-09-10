@@ -323,5 +323,5 @@ def application(self, clone, other: Callable, config, rnd):
         if k not in clone.hoshes:
             clone.hoshes[k] = v
 
-    extend_history(clone, hosh)
+    clone.last = extend_history(clone.history, clone.last, hosh)
     return clone
