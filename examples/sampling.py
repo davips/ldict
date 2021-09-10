@@ -1,5 +1,6 @@
 # Parameterized functions and sampling
 from random import Random
+
 from ldict import ø
 from ldict.cfg import cfg
 
@@ -26,12 +27,12 @@ d.show(colored=False)
 
 # Parameter values are uniformly sampled.
 d1 = d >> fun
-d.show(colored=False)
+d1.show(colored=False)
 print(d1.z)
 # ...
 
 d2 = d >> fun
-d.show(colored=False)
+d2.show(colored=False)
 print(d2.z)
 # ...
 
