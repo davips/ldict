@@ -35,7 +35,7 @@ from ldict.appearance import ldict2txt, decolorize, ldict2dic
 from ldict.apply import delete, application
 from ldict.customjson import CustomJSONEncoder
 from ldict.data import key2id
-from ldict.exception import ReadOnlyLdict, WrongKeyType, WrongValueType, OverwriteException
+from ldict.exception import WrongKeyType, WrongValueType, OverwriteException, check
 from ldict.functionspace import FunctionSpace
 from ldict.history import extend_history, rewrite_history
 from ldict.lazy import islazy
@@ -138,15 +138,11 @@ class Ldict(UserDict, Dict[str, VT]):
     """
 
     def __init__(self, /, _dictionary=None, identity=ø40, readonly=False, **kwargs):
-        self.identity, self.readonly, self.digits, self.version = identity, readonly, identity.digits, identity.version
-        self.blobs = {}
-        self.hashes = {}
-        self.hoshes = {}
-        self.hosh = identity
-        self.rho = identity.rho
-        self.delete = identity.delete
-        self.history = {}
-        self.last = None
+        self.hosh = self.identity = identity
+        self.readonly, self.digits, self.version = readonly, identity.digits, identity.version
+        self.rho, self.delete = identity.rho, identity.delete
+        self.blobs, self.hashes, self.hoshes = {}, {}, {}
+        self.history, self.last = {}, None
         self.rnd = Random()
         super().__init__()
         self.data.update(id=identity.id, ids={})
@@ -154,19 +150,10 @@ class Ldict(UserDict, Dict[str, VT]):
         self.__name__ = self.id[:10]
 
     def __setitem__(self, key: str, value):
-        if self.readonly:
-            raise ReadOnlyLdict(f"Cannot change a readonly ldict ({self.id}).", key)
-        if not isinstance(key, str):
-            raise WrongKeyType(f"Key must be string, not {type(key)}.", key)
-        if callable(value):
-            raise WrongValueType(f"A value for the field [{key}] cannot have type {type(value)}. "
-                                 f"For (pseudo)inplace function application, use operator >>= instead")
-        if isinstance(value, Ldict):
-            value = value.clone(readonly=True)
-
+        check(self.id, self.readonly, key, value)
+        value = value.clone(readonly=True) if isinstance(value, Ldict) else value
         if key in self.data:
             del self[key]
-
         if hasattr(value, "hosh"):
             if isinstance(value, Ldict):
                 self.hashes[key] = value.hosh
@@ -195,10 +182,7 @@ class Ldict(UserDict, Dict[str, VT]):
         return self.data[item]
 
     def __delitem__(self, key):
-        if self.readonly:
-            raise ReadOnlyLdict(f"Cannot change a readonly ldict ({self.id}).", key)
-        if not isinstance(key, str):
-            raise WrongKeyType(f"Key must be string, not {type(key)}.", key)
+        check(self.id, self.readonly, key)
         if key in self.blobs:
             del self.blobs[key]
             del self.hashes[key]

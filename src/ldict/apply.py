@@ -134,22 +134,22 @@ def output_and_implicit_fields(f, parameters):
 
     https://stackoverflow.com/a/68753149/9681577
 
-    >>> output_fields(lambda x,y: {"z": x*y, "w": x+y})
-    ['z', 'w']
+    >>> output_and_implicit_fields(lambda x,y: {"z": x*y, "w": x+y}, {"a":5})
+    (['z', 'w'], [])
     >>> def f(x,y):
     ...     return {
     ...         "z": x*y,
     ...         "w": x+y
     ...     }
-    >>> output_fields(f)
-    ['z', 'w']
+    >>> output_and_implicit_fields(f, ["a"])
+    (['z', 'w'], [])
 
     Returns
     -------
 
     """
     if hasattr(f, "output_fields"):
-        return f.output_fields
+        return f.output_fields, []
     out = StringIO()
     decompile(bytecode_version=None, co=f.__code__, out=out)
     ret = "".join([line for line in out.getvalue().split("\n") if not line.startswith("#")])
@@ -162,15 +162,15 @@ def output_and_implicit_fields(f, parameters):
             dicts,
             ret,
         )
-    explicit = re.findall(r"(?:[\"'])([a-zA-Z]+[a-zA-Z0-9_]*)(?:[\"']): ", dicts[0])
-    implicit = re.findall(r"([a-zA-Z]+[a-zA-Z0-9_]*): ", dicts[0])
+    explicit = re.findall(r"(?:[\"'])([a-zA-Z]+[a-zA-Z0-9_]*)(?:[\"']):", dicts[0])
+    implicit = re.findall(r"([a-zA-Z]+[a-zA-Z0-9_]*):", dicts[0])
     explicit.extend(parameters[field] for field in implicit)
     if not explicit:
         pprint(dicts)
         pprint(ret)
         raise BadOutput("Cannot find output fields that are valid identifiers (or kwargs[...]):")
 
-    implicit_input = re.findall(r"(?:kwargs\[)([a-zA-Z]+[a-zA-Z0-9_]*)(?:\])[^: ]", dicts[0])
+    implicit_input = re.findall(r"(?:kwargs\[)([a-zA-Z]+[a-zA-Z0-9_]*)(?:\])[^:]", dicts[0])
     return explicit, implicit_input
 
 

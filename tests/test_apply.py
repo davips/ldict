@@ -26,7 +26,7 @@ import pytest
 
 from garoupa import ø40
 from ldict import ø
-from ldict.apply import input_fields, output_fields, application
+from ldict.apply import input_fields, output_and_implicit_fields, application
 from ldict.exception import NoInputException, NoReturnException, BadOutput, FunctionETypeException
 
 
@@ -40,19 +40,19 @@ class Test(TestCase):
             pass
 
         with pytest.raises(NoReturnException):
-            output_fields(f)
+            output_and_implicit_fields(f, {})
 
         def f(x):
             return {"x": 1}, {"y": 2}
 
         with pytest.raises(BadOutput):
-            output_fields(f)
+            output_and_implicit_fields(f, {})
 
         def f(x):
             return 0
 
         with pytest.raises(BadOutput):
-            output_fields(f)
+            output_and_implicit_fields(f, {})
 
     def test_application(self):
         def f(x):
