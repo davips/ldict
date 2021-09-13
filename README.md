@@ -222,9 +222,9 @@ d1.show(colored=False)
 print(d1.z)
 """
 {
-    "id": "OtpiClhsdMcDugtb-hb9bUtynSGmEnxYSn3tq7Hj",
+    "id": "83mj0d.tHNQPSoFRFz0SmUDczUVreXCl4aofmp2o",
     "ids": {
-        "z": "mJb2cg66d2EKVJcii7S2BTVb9HGmEnxYSn3tq7Hj",
+        "z": "cTT4lcJQFTAjfVoYZoHLMT3SkJVreXCl4aofmp2o",
         "x": "Tz_d158c49297834fad67e6de7cdba3ea368aae4",
         "y": "Rs_92162dea64a7462725cac7dcee71b67669f69"
     },
@@ -232,7 +232,7 @@ print(d1.z)
     "x": 5,
     "y": 7
 }
-699670.0
+540.0
 """
 ```
 
@@ -243,9 +243,9 @@ d2.show(colored=False)
 print(d2.z)
 """
 {
-    "id": "aYiQ.3WOifUwPW4v.pQb1FiK1aG1NdH0HvdQXDII",
+    "id": "AYOXghu.h1nvLHWb.dJiL.r67iqjolDnTLn7uzIk",
     "ids": {
-        "z": ".vyWPsRJmOApQrQBjfv5rEKnP-F1NdH0HvdQXDII",
+        "z": "T747O3N3YbHkFcGij3oc9.TLU6qjolDnTLn7uzIk",
         "x": "Tz_d158c49297834fad67e6de7cdba3ea368aae4",
         "y": "Rs_92162dea64a7462725cac7dcee71b67669f69"
     },
@@ -253,7 +253,7 @@ print(d2.z)
     "x": 5,
     "y": 7
 }
--239.993
+315.0007
 """
 ```
 
@@ -273,7 +273,7 @@ print(e.z)
 e = d >> cfg(a=5) >> fun
 print(e.z)
 """
-7025.0
+95.0
 """
 ```
 
@@ -283,7 +283,7 @@ print(e.z)
 e = e >> cfg(a=5) >> fun
 print(e.z)
 """
-25.007
+70025.0
 """
 ```
 
@@ -369,8 +369,8 @@ d = {"x": 5, "y": 7} >> fun
 print(d)
 """
 {
-    "id": "eqvHDdMVIvkMG-2nWCklDe6meQKfycl56rr.3DjY",
-    "ids": "JBGd0t0GXbxjntOtes.e1ey..EKfycl56rr.3DjY... +1 ...Rs_92162dea64a7462725cac7dcee71b67669f69",
+    "id": "T3BWcCB2IXJBTW4o-VFZQq8uUvtpQM19BU1F3nEZ",
+    "ids": "7GB2Ii39opwMrsQuiLkTeqA7GktpQM19BU1F3nEZ... +1 ...Rs_92162dea64a7462725cac7dcee71b67669f69",
     "z": "→(c z→(a b x y))",
     "x": 5,
     "y": 7
@@ -382,7 +382,7 @@ print(d)
 
 print(d.z)
 """
-1490.0
+45.021
 """
 ```
 
@@ -391,7 +391,7 @@ print(d.z)
 d = {"x": 5, "y": 7} >> fun
 print(d.z)
 """
-2100015.0
+14060.0
 """
 ```
 
