@@ -162,8 +162,8 @@ def output_and_implicit_fields(f, parameters):
             dicts,
             ret,
         )
-    explicit = re.findall(r"(?:[\"'])([a-zA-Z]+[a-zA-Z0-9_]*)(?:[\"']):", dicts[0])
-    implicit = re.findall(r"([a-zA-Z]+[a-zA-Z0-9_]*):", dicts[0])
+    explicit = re.findall(r"(?:[\"'])([a-zA-Z]+[a-zA-Z0-9]*)(?:[\"']):", dicts[0])
+    implicit = re.findall(r"([a-zA-Z]+[a-zA-Z0-9]*):", dicts[0])
     explicit.extend(parameters[field] for field in implicit)
     if not explicit:
         pprint(dicts)
@@ -262,6 +262,24 @@ def list2progression(lst):
 
 
 def application(self, clone, other: Callable, config, rnd):
+    """
+    >>> from ldict import ldict
+    >>> d = ldict(x=3,y=4,z=5)
+    >>> f = lambda x, y: {"w": x*y, "u": x/y, "y": x+y}
+    >>> d >> f
+
+    Parameters
+    ----------
+    self
+    clone
+    other
+    config
+    rnd
+
+    Returns
+    -------
+
+    """
     # Attach hosh to f if needed.
     hosh = other.hosh if hasattr(other, "hosh") else fhosh(other, version=self.version)
     if hosh.etype != "ordered":
@@ -294,7 +312,6 @@ def application(self, clone, other: Callable, config, rnd):
     # clone.hashes = {}    atualiza hashes e blobs?
     clone.hosh = uf
 
-    # TODO deduplicate code
     if len(output) == 1:
         field = output[0]
         clone.hoshes[field] = substitute(self.hoshes, [field], uf) if field in self.data else ufu_
