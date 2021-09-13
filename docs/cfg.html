@@ -63,6 +63,25 @@ class Ldict_cfg:
 
 
 class cfg:
+    &#34;&#34;&#34;
+    Set values or sampling intervals for parameterized functions
+
+    &gt;&gt;&gt; from ldict import Ø, ldict
+    &gt;&gt;&gt; f = lambda x,y, a=[-1,-0.9,-0.8,...,1]: {&#34;z&#34;: a*x + y}
+    &gt;&gt;&gt; FS = Ø &gt;&gt; cfg(a=0) &gt;&gt; f
+    &gt;&gt;&gt; print(FS)
+    «cfg{&#39;a&#39;: 0}»
+    &gt;&gt;&gt; d = ldict(x=5,y=7) &gt;&gt; FS
+    &gt;&gt;&gt; print(d)
+    {
+        &#34;id&#34;: &#34;n-F.3dYV-Yaxvl8ehv.49FaBoj59zERdiBP0bdKD&#34;,
+        &#34;ids&#34;: &#34;32wgpnPTM3eodSTkBkG-yECea859zERdiBP0bdKD... +1 ...Rs_92162dea64a7462725cac7dcee71b67669f69&#34;,
+        &#34;z&#34;: &#34;→(a x y)&#34;,
+        &#34;x&#34;: 5,
+        &#34;y&#34;: 7
+    }
+    &#34;&#34;&#34;
+
     def __init__(self, _f=None, **kwargs):
         self.config = kwargs
         self.f = _f
@@ -71,12 +90,16 @@ class cfg:
         return FunctionSpace(cfg(_f=other, **self.config))
 
     def __rrshift__(self, other):
-        from ldict import Ldict
-        if not isinstance(other, Dict):
-            return NotImplemented
-        if not isinstance(other, Ldict):
-            other = Ldict(other)
-        return other &gt;&gt; self</code></pre>
+        from ldict import Ldict, Empty
+        if isinstance(other, Empty):
+            return self
+        if isinstance(other, Dict):
+            return other &gt;&gt; self
+        return Ldict(other) &gt;&gt; self
+        # return NotImplemented
+
+    def __repr__(self):
+        return &#34;cfg&#34; + str(self.config)</code></pre>
 </details>
 </section>
 <section>
@@ -122,12 +145,46 @@ class cfg:
 <span>(</span><span>**kwargs)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Set values or sampling intervals for parameterized functions</p>
+<pre><code class="language-python-repl">&gt;&gt;&gt; from ldict import Ø, ldict
+&gt;&gt;&gt; f = lambda x,y, a=[-1,-0.9,-0.8,...,1]: {&quot;z&quot;: a*x + y}
+&gt;&gt;&gt; FS = Ø &gt;&gt; cfg(a=0) &gt;&gt; f
+&gt;&gt;&gt; print(FS)
+«cfg{'a': 0}»
+&gt;&gt;&gt; d = ldict(x=5,y=7) &gt;&gt; FS
+&gt;&gt;&gt; print(d)
+{
+    &quot;id&quot;: &quot;n-F.3dYV-Yaxvl8ehv.49FaBoj59zERdiBP0bdKD&quot;,
+    &quot;ids&quot;: &quot;32wgpnPTM3eodSTkBkG-yECea859zERdiBP0bdKD... +1 ...Rs_92162dea64a7462725cac7dcee71b67669f69&quot;,
+    &quot;z&quot;: &quot;→(a x y)&quot;,
+    &quot;x&quot;: 5,
+    &quot;y&quot;: 7
+}
+</code></pre></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class cfg:
+    &#34;&#34;&#34;
+    Set values or sampling intervals for parameterized functions
+
+    &gt;&gt;&gt; from ldict import Ø, ldict
+    &gt;&gt;&gt; f = lambda x,y, a=[-1,-0.9,-0.8,...,1]: {&#34;z&#34;: a*x + y}
+    &gt;&gt;&gt; FS = Ø &gt;&gt; cfg(a=0) &gt;&gt; f
+    &gt;&gt;&gt; print(FS)
+    «cfg{&#39;a&#39;: 0}»
+    &gt;&gt;&gt; d = ldict(x=5,y=7) &gt;&gt; FS
+    &gt;&gt;&gt; print(d)
+    {
+        &#34;id&#34;: &#34;n-F.3dYV-Yaxvl8ehv.49FaBoj59zERdiBP0bdKD&#34;,
+        &#34;ids&#34;: &#34;32wgpnPTM3eodSTkBkG-yECea859zERdiBP0bdKD... +1 ...Rs_92162dea64a7462725cac7dcee71b67669f69&#34;,
+        &#34;z&#34;: &#34;→(a x y)&#34;,
+        &#34;x&#34;: 5,
+        &#34;y&#34;: 7
+    }
+    &#34;&#34;&#34;
+
     def __init__(self, _f=None, **kwargs):
         self.config = kwargs
         self.f = _f
@@ -136,12 +193,16 @@ class cfg:
         return FunctionSpace(cfg(_f=other, **self.config))
 
     def __rrshift__(self, other):
-        from ldict import Ldict
-        if not isinstance(other, Dict):
-            return NotImplemented
-        if not isinstance(other, Ldict):
-            other = Ldict(other)
-        return other &gt;&gt; self</code></pre>
+        from ldict import Ldict, Empty
+        if isinstance(other, Empty):
+            return self
+        if isinstance(other, Dict):
+            return other &gt;&gt; self
+        return Ldict(other) &gt;&gt; self
+        # return NotImplemented
+
+    def __repr__(self):
+        return &#34;cfg&#34; + str(self.config)</code></pre>
 </details>
 </dd>
 </dl>

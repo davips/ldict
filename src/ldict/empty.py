@@ -30,8 +30,11 @@ class Empty(Ldict):
         super().__init__(readonly=True)
 
     def __rshift__(self, other: Union[Dict, Callable, FunctionSpace], config={}):
+        from ldict.cfg import cfg
         if callable(other):
             return FunctionSpace(other)
-        if isinstance(other,dict):
+        if isinstance(other, (cfg, Ldict)):
+            return other
+        if isinstance(other, dict):
             return Ldict(other)
         return NotImplemented

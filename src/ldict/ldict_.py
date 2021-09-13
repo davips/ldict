@@ -150,6 +150,26 @@ class Ldict(UserDict, Dict[str, VT]):
         self.__name__ = self.id[:10]
 
     def __setitem__(self, key: str, value):
+        """
+        >>> from pandas import DataFrame
+        >>> from ldict import Ø
+        >>> d = Ø >> {}
+        >>> d["x"] = DataFrame([[1,2]])
+        >>> print(d)
+        {
+            "id": "FL_b3b1f56eb657b9b9dacc6a625562c0b3dc0ce",
+            "ids": "FL_b3b1f56eb657b9b9dacc6a625562c0b3dc0ce",
+            "x": "[[1 2]]"
+        }
+
+        Parameters
+        ----------
+        obj
+
+        Returns
+        -------
+
+        """
         check(self.id, self.readonly, key, value)
         value = value.clone(readonly=True) if isinstance(value, Ldict) else value
         if key in self.data:
@@ -167,9 +187,9 @@ class Ldict(UserDict, Dict[str, VT]):
                     from pandas.core.frame import DataFrame, Series
                     if isinstance(obj, (DataFrame, Series)):
                         return obj.to_numpy().tolist()
-                except ImportError:
+                except ImportError:  # pragma: no cover
                     print("Pandas may be missing.")
-                raise TypeError
+                raise TypeError  # pragma: no cover
 
             self.blobs[key] = dumps(value, default=default, option=OPT_SORT_KEYS | OPT_SERIALIZE_NUMPY)
             self.hashes[key] = self.identity.h * self.blobs[key]
@@ -264,14 +284,37 @@ class Ldict(UserDict, Dict[str, VT]):
         return self.__repr__(all=True)
 
     def __rrshift__(self, other: Union[Dict, Callable, FunctionSpace]):
-        if isinstance(other, Dict) and not isinstance(other, Ldict):
+        """
+        >>> from ldict import ldict, Ø
+        >>> print({"x":5} >> ldict())
+        {
+            "id": "Tz_d158c49297834fad67e6de7cdba3ea368aae4",
+            "ids": "Tz_d158c49297834fad67e6de7cdba3ea368aae4",
+            "x": 5
+        }
+        >>> print({"x":5} >> Ø >> (lambda x: {"y": x**2}))
+        {
+            "id": "CY2WCsPnSAkwXoLXOFAY3Cl5oGiLRgUAfdP7HEp4",
+            "ids": "KXZKAhHcSArn2fw9R-0hx4HazI9LRgUAfdP7HEp4 Tz_d158c49297834fad67e6de7cdba3ea368aae4",
+            "y": "→(x)",
+            "x": 5
+        }
+
+        Parameters
+        ----------
+        other
+
+        Returns
+        -------
+
+        """
+        if isinstance(other, Dict):
             return Ldict(other) >> self
         if callable(other):
             return FunctionSpace(other, self)
         return NotImplemented
 
     def __rshift__(self, other: Union[Dict, Callable, FunctionSpace, Random], config={}):
-        from ldict.cfg import cfg
         if isinstance(other, Dict):
             # Insertion of dict-like.
             clone = self.clone()
@@ -287,7 +330,7 @@ class Ldict(UserDict, Dict[str, VT]):
             return clone
         if isinstance(other, FunctionSpace):
             return reduce(operator.rshift, (self,) + other.functions)
-        if isinstance(other, cfg):
+        if other.__class__.__name__ == "cfg":
             from ldict.cfg import Ldict_cfg
             d = Ldict_cfg(self, other.config)
             if other.f:

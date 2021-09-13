@@ -79,8 +79,14 @@ class FunctionSpace:
     def __repr__(self):
         txt = []
         for f in self.functions:
-            txt.append(&#34;^&#34; if isinstance(f, list) else f.__name__)
-        return &#34; × &#34;.join(txt)</code></pre>
+            if isinstance(f, list):
+                s = &#34;^&#34;
+            elif hasattr(f, &#34;__name__&#34;):
+                s = f.__name__
+            else:
+                s = str(f)
+            txt.append(s)
+        return &#34;«&#34; + &#34; × &#34;.join(txt) + &#34;»&#34;</code></pre>
 </details>
 </section>
 <section>
@@ -129,8 +135,14 @@ class FunctionSpace:
     def __repr__(self):
         txt = []
         for f in self.functions:
-            txt.append(&#34;^&#34; if isinstance(f, list) else f.__name__)
-        return &#34; × &#34;.join(txt)</code></pre>
+            if isinstance(f, list):
+                s = &#34;^&#34;
+            elif hasattr(f, &#34;__name__&#34;):
+                s = f.__name__
+            else:
+                s = str(f)
+            txt.append(s)
+        return &#34;«&#34; + &#34; × &#34;.join(txt) + &#34;»&#34;</code></pre>
 </details>
 </dd>
 </dl>

@@ -35,6 +35,25 @@ class Ldict_cfg:
 
 
 class cfg:
+    """
+    Set values or sampling intervals for parameterized functions
+
+    >>> from ldict import Ø, ldict
+    >>> f = lambda x,y, a=[-1,-0.9,-0.8,...,1]: {"z": a*x + y}
+    >>> FS = Ø >> cfg(a=0) >> f
+    >>> print(FS)
+    «cfg{'a': 0}»
+    >>> d = ldict(x=5,y=7) >> FS
+    >>> print(d)
+    {
+        "id": "n-F.3dYV-Yaxvl8ehv.49FaBoj59zERdiBP0bdKD",
+        "ids": "32wgpnPTM3eodSTkBkG-yECea859zERdiBP0bdKD... +1 ...Rs_92162dea64a7462725cac7dcee71b67669f69",
+        "z": "→(a x y)",
+        "x": 5,
+        "y": 7
+    }
+    """
+
     def __init__(self, _f=None, **kwargs):
         self.config = kwargs
         self.f = _f
@@ -43,9 +62,13 @@ class cfg:
         return FunctionSpace(cfg(_f=other, **self.config))
 
     def __rrshift__(self, other):
-        from ldict import Ldict
-        if not isinstance(other, Dict):
-            return NotImplemented
-        if not isinstance(other, Ldict):
-            other = Ldict(other)
-        return other >> self
+        from ldict import Ldict, Empty
+        if isinstance(other, Empty):
+            return self
+        if isinstance(other, Dict):
+            return other >> self
+        return Ldict(other) >> self
+        # return NotImplemented
+
+    def __repr__(self):
+        return "cfg" + str(self.config)

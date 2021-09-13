@@ -51,5 +51,11 @@ class FunctionSpace:
     def __repr__(self):
         txt = []
         for f in self.functions:
-            txt.append("^" if isinstance(f, list) else f.__name__)
-        return " × ".join(txt)
+            if isinstance(f, list):
+                s = "^"
+            elif hasattr(f, "__name__"):
+                s = f.__name__
+            else:
+                s = str(f)
+            txt.append(s)
+        return "«" + " × ".join(txt) + "»"

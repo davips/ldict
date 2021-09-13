@@ -178,6 +178,26 @@ class Ldict(UserDict, Dict[str, VT]):
         self.__name__ = self.id[:10]
 
     def __setitem__(self, key: str, value):
+        &#34;&#34;&#34;
+        &gt;&gt;&gt; from pandas import DataFrame
+        &gt;&gt;&gt; from ldict import Ø
+        &gt;&gt;&gt; d = Ø &gt;&gt; {}
+        &gt;&gt;&gt; d[&#34;x&#34;] = DataFrame([[1,2]])
+        &gt;&gt;&gt; print(d)
+        {
+            &#34;id&#34;: &#34;FL_b3b1f56eb657b9b9dacc6a625562c0b3dc0ce&#34;,
+            &#34;ids&#34;: &#34;FL_b3b1f56eb657b9b9dacc6a625562c0b3dc0ce&#34;,
+            &#34;x&#34;: &#34;[[1 2]]&#34;
+        }
+
+        Parameters
+        ----------
+        obj
+
+        Returns
+        -------
+
+        &#34;&#34;&#34;
         check(self.id, self.readonly, key, value)
         value = value.clone(readonly=True) if isinstance(value, Ldict) else value
         if key in self.data:
@@ -195,9 +215,9 @@ class Ldict(UserDict, Dict[str, VT]):
                     from pandas.core.frame import DataFrame, Series
                     if isinstance(obj, (DataFrame, Series)):
                         return obj.to_numpy().tolist()
-                except ImportError:
+                except ImportError:  # pragma: no cover
                     print(&#34;Pandas may be missing.&#34;)
-                raise TypeError
+                raise TypeError  # pragma: no cover
 
             self.blobs[key] = dumps(value, default=default, option=OPT_SORT_KEYS | OPT_SERIALIZE_NUMPY)
             self.hashes[key] = self.identity.h * self.blobs[key]
@@ -292,14 +312,37 @@ class Ldict(UserDict, Dict[str, VT]):
         return self.__repr__(all=True)
 
     def __rrshift__(self, other: Union[Dict, Callable, FunctionSpace]):
-        if isinstance(other, Dict) and not isinstance(other, Ldict):
+        &#34;&#34;&#34;
+        &gt;&gt;&gt; from ldict import ldict, Ø
+        &gt;&gt;&gt; print({&#34;x&#34;:5} &gt;&gt; ldict())
+        {
+            &#34;id&#34;: &#34;Tz_d158c49297834fad67e6de7cdba3ea368aae4&#34;,
+            &#34;ids&#34;: &#34;Tz_d158c49297834fad67e6de7cdba3ea368aae4&#34;,
+            &#34;x&#34;: 5
+        }
+        &gt;&gt;&gt; print({&#34;x&#34;:5} &gt;&gt; Ø &gt;&gt; (lambda x: {&#34;y&#34;: x**2}))
+        {
+            &#34;id&#34;: &#34;CY2WCsPnSAkwXoLXOFAY3Cl5oGiLRgUAfdP7HEp4&#34;,
+            &#34;ids&#34;: &#34;KXZKAhHcSArn2fw9R-0hx4HazI9LRgUAfdP7HEp4 Tz_d158c49297834fad67e6de7cdba3ea368aae4&#34;,
+            &#34;y&#34;: &#34;→(x)&#34;,
+            &#34;x&#34;: 5
+        }
+
+        Parameters
+        ----------
+        other
+
+        Returns
+        -------
+
+        &#34;&#34;&#34;
+        if isinstance(other, Dict):
             return Ldict(other) &gt;&gt; self
         if callable(other):
             return FunctionSpace(other, self)
         return NotImplemented
 
     def __rshift__(self, other: Union[Dict, Callable, FunctionSpace, Random], config={}):
-        from ldict.cfg import cfg
         if isinstance(other, Dict):
             # Insertion of dict-like.
             clone = self.clone()
@@ -315,7 +358,7 @@ class Ldict(UserDict, Dict[str, VT]):
             return clone
         if isinstance(other, FunctionSpace):
             return reduce(operator.rshift, (self,) + other.functions)
-        if isinstance(other, cfg):
+        if other.__class__.__name__ == &#34;cfg&#34;:
             from ldict.cfg import Ldict_cfg
             d = Ldict_cfg(self, other.config)
             if other.f:
@@ -644,6 +687,26 @@ nO_6d3d2d399495b6545837334176b6c49bfbc2d
         self.__name__ = self.id[:10]
 
     def __setitem__(self, key: str, value):
+        &#34;&#34;&#34;
+        &gt;&gt;&gt; from pandas import DataFrame
+        &gt;&gt;&gt; from ldict import Ø
+        &gt;&gt;&gt; d = Ø &gt;&gt; {}
+        &gt;&gt;&gt; d[&#34;x&#34;] = DataFrame([[1,2]])
+        &gt;&gt;&gt; print(d)
+        {
+            &#34;id&#34;: &#34;FL_b3b1f56eb657b9b9dacc6a625562c0b3dc0ce&#34;,
+            &#34;ids&#34;: &#34;FL_b3b1f56eb657b9b9dacc6a625562c0b3dc0ce&#34;,
+            &#34;x&#34;: &#34;[[1 2]]&#34;
+        }
+
+        Parameters
+        ----------
+        obj
+
+        Returns
+        -------
+
+        &#34;&#34;&#34;
         check(self.id, self.readonly, key, value)
         value = value.clone(readonly=True) if isinstance(value, Ldict) else value
         if key in self.data:
@@ -661,9 +724,9 @@ nO_6d3d2d399495b6545837334176b6c49bfbc2d
                     from pandas.core.frame import DataFrame, Series
                     if isinstance(obj, (DataFrame, Series)):
                         return obj.to_numpy().tolist()
-                except ImportError:
+                except ImportError:  # pragma: no cover
                     print(&#34;Pandas may be missing.&#34;)
-                raise TypeError
+                raise TypeError  # pragma: no cover
 
             self.blobs[key] = dumps(value, default=default, option=OPT_SORT_KEYS | OPT_SERIALIZE_NUMPY)
             self.hashes[key] = self.identity.h * self.blobs[key]
@@ -758,14 +821,37 @@ nO_6d3d2d399495b6545837334176b6c49bfbc2d
         return self.__repr__(all=True)
 
     def __rrshift__(self, other: Union[Dict, Callable, FunctionSpace]):
-        if isinstance(other, Dict) and not isinstance(other, Ldict):
+        &#34;&#34;&#34;
+        &gt;&gt;&gt; from ldict import ldict, Ø
+        &gt;&gt;&gt; print({&#34;x&#34;:5} &gt;&gt; ldict())
+        {
+            &#34;id&#34;: &#34;Tz_d158c49297834fad67e6de7cdba3ea368aae4&#34;,
+            &#34;ids&#34;: &#34;Tz_d158c49297834fad67e6de7cdba3ea368aae4&#34;,
+            &#34;x&#34;: 5
+        }
+        &gt;&gt;&gt; print({&#34;x&#34;:5} &gt;&gt; Ø &gt;&gt; (lambda x: {&#34;y&#34;: x**2}))
+        {
+            &#34;id&#34;: &#34;CY2WCsPnSAkwXoLXOFAY3Cl5oGiLRgUAfdP7HEp4&#34;,
+            &#34;ids&#34;: &#34;KXZKAhHcSArn2fw9R-0hx4HazI9LRgUAfdP7HEp4 Tz_d158c49297834fad67e6de7cdba3ea368aae4&#34;,
+            &#34;y&#34;: &#34;→(x)&#34;,
+            &#34;x&#34;: 5
+        }
+
+        Parameters
+        ----------
+        other
+
+        Returns
+        -------
+
+        &#34;&#34;&#34;
+        if isinstance(other, Dict):
             return Ldict(other) &gt;&gt; self
         if callable(other):
             return FunctionSpace(other, self)
         return NotImplemented
 
     def __rshift__(self, other: Union[Dict, Callable, FunctionSpace, Random], config={}):
-        from ldict.cfg import cfg
         if isinstance(other, Dict):
             # Insertion of dict-like.
             clone = self.clone()
@@ -781,7 +867,7 @@ nO_6d3d2d399495b6545837334176b6c49bfbc2d
             return clone
         if isinstance(other, FunctionSpace):
             return reduce(operator.rshift, (self,) + other.functions)
-        if isinstance(other, cfg):
+        if other.__class__.__name__ == &#34;cfg&#34;:
             from ldict.cfg import Ldict_cfg
             d = Ldict_cfg(self, other.config)
             if other.f:
@@ -1370,6 +1456,26 @@ nO_6d3d2d399495b6545837334176b6c49bfbc2d
         self.__name__ = self.id[:10]
 
     def __setitem__(self, key: str, value):
+        &#34;&#34;&#34;
+        &gt;&gt;&gt; from pandas import DataFrame
+        &gt;&gt;&gt; from ldict import Ø
+        &gt;&gt;&gt; d = Ø &gt;&gt; {}
+        &gt;&gt;&gt; d[&#34;x&#34;] = DataFrame([[1,2]])
+        &gt;&gt;&gt; print(d)
+        {
+            &#34;id&#34;: &#34;FL_b3b1f56eb657b9b9dacc6a625562c0b3dc0ce&#34;,
+            &#34;ids&#34;: &#34;FL_b3b1f56eb657b9b9dacc6a625562c0b3dc0ce&#34;,
+            &#34;x&#34;: &#34;[[1 2]]&#34;
+        }
+
+        Parameters
+        ----------
+        obj
+
+        Returns
+        -------
+
+        &#34;&#34;&#34;
         check(self.id, self.readonly, key, value)
         value = value.clone(readonly=True) if isinstance(value, Ldict) else value
         if key in self.data:
@@ -1387,9 +1493,9 @@ nO_6d3d2d399495b6545837334176b6c49bfbc2d
                     from pandas.core.frame import DataFrame, Series
                     if isinstance(obj, (DataFrame, Series)):
                         return obj.to_numpy().tolist()
-                except ImportError:
+                except ImportError:  # pragma: no cover
                     print(&#34;Pandas may be missing.&#34;)
-                raise TypeError
+                raise TypeError  # pragma: no cover
 
             self.blobs[key] = dumps(value, default=default, option=OPT_SORT_KEYS | OPT_SERIALIZE_NUMPY)
             self.hashes[key] = self.identity.h * self.blobs[key]
@@ -1484,14 +1590,37 @@ nO_6d3d2d399495b6545837334176b6c49bfbc2d
         return self.__repr__(all=True)
 
     def __rrshift__(self, other: Union[Dict, Callable, FunctionSpace]):
-        if isinstance(other, Dict) and not isinstance(other, Ldict):
+        &#34;&#34;&#34;
+        &gt;&gt;&gt; from ldict import ldict, Ø
+        &gt;&gt;&gt; print({&#34;x&#34;:5} &gt;&gt; ldict())
+        {
+            &#34;id&#34;: &#34;Tz_d158c49297834fad67e6de7cdba3ea368aae4&#34;,
+            &#34;ids&#34;: &#34;Tz_d158c49297834fad67e6de7cdba3ea368aae4&#34;,
+            &#34;x&#34;: 5
+        }
+        &gt;&gt;&gt; print({&#34;x&#34;:5} &gt;&gt; Ø &gt;&gt; (lambda x: {&#34;y&#34;: x**2}))
+        {
+            &#34;id&#34;: &#34;CY2WCsPnSAkwXoLXOFAY3Cl5oGiLRgUAfdP7HEp4&#34;,
+            &#34;ids&#34;: &#34;KXZKAhHcSArn2fw9R-0hx4HazI9LRgUAfdP7HEp4 Tz_d158c49297834fad67e6de7cdba3ea368aae4&#34;,
+            &#34;y&#34;: &#34;→(x)&#34;,
+            &#34;x&#34;: 5
+        }
+
+        Parameters
+        ----------
+        other
+
+        Returns
+        -------
+
+        &#34;&#34;&#34;
+        if isinstance(other, Dict):
             return Ldict(other) &gt;&gt; self
         if callable(other):
             return FunctionSpace(other, self)
         return NotImplemented
 
     def __rshift__(self, other: Union[Dict, Callable, FunctionSpace, Random], config={}):
-        from ldict.cfg import cfg
         if isinstance(other, Dict):
             # Insertion of dict-like.
             clone = self.clone()
@@ -1507,7 +1636,7 @@ nO_6d3d2d399495b6545837334176b6c49bfbc2d
             return clone
         if isinstance(other, FunctionSpace):
             return reduce(operator.rshift, (self,) + other.functions)
-        if isinstance(other, cfg):
+        if other.__class__.__name__ == &#34;cfg&#34;:
             from ldict.cfg import Ldict_cfg
             d = Ldict_cfg(self, other.config)
             if other.f:

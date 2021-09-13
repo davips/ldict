@@ -222,9 +222,9 @@ d1.show(colored=False)
 print(d1.z)
 """
 {
-    "id": "98vgn6jbwFcm0bCR3ALuvuodAL8Qz2ltcRP3gpRq",
+    "id": "evOQXrLFUEWo02HL0onLPYj3ZujS6bX-N.VV9uUj",
     "ids": {
-        "z": "O0e9-cqU0q2rPJlYnpqoVtQSlA8Qz2ltcRP3gpRq",
+        "z": "2u-P-IQl8iaBKTGSkd2FcYLIKjjS6bX-N.VV9uUj",
         "x": "Tz_d158c49297834fad67e6de7cdba3ea368aae4",
         "y": "Rs_92162dea64a7462725cac7dcee71b67669f69"
     },
@@ -232,7 +232,7 @@ print(d1.z)
     "x": 5,
     "y": 7
 }
--245.0
+7370.0
 """
 ```
 
@@ -243,9 +243,9 @@ d2.show(colored=False)
 print(d2.z)
 """
 {
-    "id": "t7SetsWR9wmYfub3V6kw.DYJMojwqhAL9dOG1xdF",
+    "id": "R2Zuxi.0id-dTMDEFJAQfTiINJH6n6XKwygN-ARL",
     "ids": {
-        "z": "sUp0QY1PpW5Rz0X9dY-ppDonydjwqhAL9dOG1xdF",
+        "z": "s-VLHjoTYCx3vjnLZyfKFSKlzyH6n6XKwygN-ARL",
         "x": "Tz_d158c49297834fad67e6de7cdba3ea368aae4",
         "y": "Rs_92162dea64a7462725cac7dcee71b67669f69"
     },
@@ -253,7 +253,7 @@ print(d2.z)
     "x": 5,
     "y": 7
 }
-6999890.0
+125.07
 """
 ```
 
@@ -273,7 +273,7 @@ print(e.z)
 e = d >> cfg(a=5) >> fun
 print(e.z)
 """
-25.07
+725.0
 """
 ```
 
@@ -283,7 +283,7 @@ print(e.z)
 e = e >> cfg(a=5) >> fun
 print(e.z)
 """
-25.7
+700025.0
 """
 ```
 
@@ -338,7 +338,6 @@ from ldict import Ø
 
 
 # A multistep process can be defined without applying its functions
-from ldict.cfg import cfg
 
 
 def g(x, y, a=[1, 2, 3, ..., 10], b=[0.00001, 0.0001, 0.001, ..., 100000]):
@@ -356,7 +355,7 @@ def h(z, c=[1, 2, 3]):
 fun = Ø * g * h  # ø enable the cartesian product of the subsequent sets of functions within the expression.
 print(fun)
 """
-g × h
+«g × h»
 """
 ```
 
@@ -370,8 +369,8 @@ d = {"x": 5, "y": 7} >> fun
 print(d)
 """
 {
-    "id": "pnAfNI2KfGQ-kzHr6J9rRg128gJz00eraV-nfFO6",
-    "ids": "XZDJLC776Heza3ryqyQkfgtHV4Jz00eraV-nfFO6... +1 ...Rs_92162dea64a7462725cac7dcee71b67669f69",
+    "id": "JeST70rdK5yDXesPgOJGcXK3PkA0ecsddU2P1c1I",
+    "ids": "YbHKPcnA2.dthJbWADoACWaJA9A0ecsddU2P1c1I... +1 ...Rs_92162dea64a7462725cac7dcee71b67669f69",
     "z": "→(c z→(a b x y))",
     "x": 5,
     "y": 7
@@ -383,7 +382,7 @@ print(d)
 
 print(d.z)
 """
-14030.0
+740.0
 """
 ```
 
@@ -392,7 +391,7 @@ print(d.z)
 d = {"x": 5, "y": 7} >> fun
 print(d.z)
 """
-7015.0
+51.4
 """
 ```
 
