@@ -79,7 +79,7 @@ def ldict2txt(d, all):
     &gt;&gt;&gt; from ldict import ldict
     &gt;&gt;&gt; d = ldict(x=1,y=2)
     &gt;&gt;&gt; decolorize(ldict2txt(d, False))
-    &#39;{\\n    &#34;id&#34;: &#34;Tb_334cc16924a8bdc38205599e516203f9054c4&#34;,\\n    &#34;ids&#34;: &#34;&lt;2 hidden ids&gt;&#34;,\\n    &#34;x&#34;: 1,\\n    &#34;y&#34;: 2\\n}&#39;
+    &#39;{\\n    &#34;id&#34;: &#34;Tb_334cc16924a8bdc38205599e516203f9054c4&#34;,\\n    &#34;ids&#34;: &#34;lv_56eec09cd869410b23dcb462b64fe26acc2a2 yI_a331070d4bcdde465f28ba37ba1310e928122&#34;,\\n    &#34;x&#34;: 1,\\n    &#34;y&#34;: 2\\n}&#39;
     &gt;&gt;&gt; decolorize(ldict2txt(d, True))
     &#39;{\\n    &#34;id&#34;: &#34;Tb_334cc16924a8bdc38205599e516203f9054c4&#34;,\\n    &#34;ids&#34;: {\\n        &#34;x&#34;: &#34;lv_56eec09cd869410b23dcb462b64fe26acc2a2&#34;,\\n        &#34;y&#34;: &#34;yI_a331070d4bcdde465f28ba37ba1310e928122&#34;\\n    },\\n    &#34;x&#34;: 1,\\n    &#34;y&#34;: 2\\n}&#39;
 
@@ -112,7 +112,11 @@ def ldict2dic(d, all):
         elif isinstance(v, ldict):
             dic[k] = ldict2dic(v, all)
         if not all:
-            dic[&#34;ids&#34;] = &#34;&lt;1 hidden id&gt;&#34; if len(dic[&#34;ids&#34;]) == 1 else f&#34;&lt;{len(d) - 2} hidden ids&gt;&#34;
+            if len(d.ids) &lt; 3:
+                dic[&#34;ids&#34;] = &#34; &#34;.join(d.ids.values())
+            else:
+                ids = list(d.ids.values())
+                dic[&#34;ids&#34;] = f&#34;{ids[0]}... +{len(d) - 4} ...{ids[-1]}&#34;
     return dic</code></pre>
 </details>
 </section>
@@ -175,7 +179,11 @@ def ldict2dic(d, all):
         elif isinstance(v, ldict):
             dic[k] = ldict2dic(v, all)
         if not all:
-            dic[&#34;ids&#34;] = &#34;&lt;1 hidden id&gt;&#34; if len(dic[&#34;ids&#34;]) == 1 else f&#34;&lt;{len(d) - 2} hidden ids&gt;&#34;
+            if len(d.ids) &lt; 3:
+                dic[&#34;ids&#34;] = &#34; &#34;.join(d.ids.values())
+            else:
+                ids = list(d.ids.values())
+                dic[&#34;ids&#34;] = f&#34;{ids[0]}... +{len(d) - 4} ...{ids[-1]}&#34;
     return dic</code></pre>
 </details>
 </dd>
@@ -187,7 +195,7 @@ def ldict2dic(d, all):
 <pre><code class="language-python-repl">&gt;&gt;&gt; from ldict import ldict
 &gt;&gt;&gt; d = ldict(x=1,y=2)
 &gt;&gt;&gt; decolorize(ldict2txt(d, False))
-'{\n    &quot;id&quot;: &quot;Tb_334cc16924a8bdc38205599e516203f9054c4&quot;,\n    &quot;ids&quot;: &quot;&lt;2 hidden ids&gt;&quot;,\n    &quot;x&quot;: 1,\n    &quot;y&quot;: 2\n}'
+'{\n    &quot;id&quot;: &quot;Tb_334cc16924a8bdc38205599e516203f9054c4&quot;,\n    &quot;ids&quot;: &quot;lv_56eec09cd869410b23dcb462b64fe26acc2a2 yI_a331070d4bcdde465f28ba37ba1310e928122&quot;,\n    &quot;x&quot;: 1,\n    &quot;y&quot;: 2\n}'
 &gt;&gt;&gt; decolorize(ldict2txt(d, True))
 '{\n    &quot;id&quot;: &quot;Tb_334cc16924a8bdc38205599e516203f9054c4&quot;,\n    &quot;ids&quot;: {\n        &quot;x&quot;: &quot;lv_56eec09cd869410b23dcb462b64fe26acc2a2&quot;,\n        &quot;y&quot;: &quot;yI_a331070d4bcdde465f28ba37ba1310e928122&quot;\n    },\n    &quot;x&quot;: 1,\n    &quot;y&quot;: 2\n}'
 </code></pre>
@@ -210,7 +218,7 @@ def ldict2dic(d, all):
     &gt;&gt;&gt; from ldict import ldict
     &gt;&gt;&gt; d = ldict(x=1,y=2)
     &gt;&gt;&gt; decolorize(ldict2txt(d, False))
-    &#39;{\\n    &#34;id&#34;: &#34;Tb_334cc16924a8bdc38205599e516203f9054c4&#34;,\\n    &#34;ids&#34;: &#34;&lt;2 hidden ids&gt;&#34;,\\n    &#34;x&#34;: 1,\\n    &#34;y&#34;: 2\\n}&#39;
+    &#39;{\\n    &#34;id&#34;: &#34;Tb_334cc16924a8bdc38205599e516203f9054c4&#34;,\\n    &#34;ids&#34;: &#34;lv_56eec09cd869410b23dcb462b64fe26acc2a2 yI_a331070d4bcdde465f28ba37ba1310e928122&#34;,\\n    &#34;x&#34;: 1,\\n    &#34;y&#34;: 2\\n}&#39;
     &gt;&gt;&gt; decolorize(ldict2txt(d, True))
     &#39;{\\n    &#34;id&#34;: &#34;Tb_334cc16924a8bdc38205599e516203f9054c4&#34;,\\n    &#34;ids&#34;: {\\n        &#34;x&#34;: &#34;lv_56eec09cd869410b23dcb462b64fe26acc2a2&#34;,\\n        &#34;y&#34;: &#34;yI_a331070d4bcdde465f28ba37ba1310e928122&#34;\\n    },\\n    &#34;x&#34;: 1,\\n    &#34;y&#34;: 2\\n}&#39;
 

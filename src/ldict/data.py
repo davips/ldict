@@ -41,10 +41,8 @@
 import dis
 from inspect import signature
 
-from orjson import dumps
-
 from garoupa import Hosh, UT40_4
-
+from orjson import dumps
 
 # def process(field, value, version):
 #     """
@@ -174,8 +172,8 @@ def key2id(key, digits):
 
 def removal_id(d, field):
     """
-    >>> from ldict import ø
-    >>> removal_id(ø, "myfield")
+    >>> from ldict import Ø
+    >>> removal_id(Ø, "myfield")
     '--------------------.............myfield'
 
     Parameters

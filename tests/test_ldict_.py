@@ -25,15 +25,15 @@ from unittest import TestCase
 import pytest
 from sys import maxsize
 
-from ldict import ldict, ø
+from ldict import ldict, Ø
 from ldict.exception import DependenceException, NoInputException, WrongKeyType, WrongValueType, ReadOnlyLdict, \
     OverwriteException
 
 
 class TestLdict(TestCase):
     def test_identity(self):
-        a = ø >> {"x": 1, "y": 2}
-        b = a >> ø
+        a = Ø >> {"x": 1, "y": 2}
+        b = a >> Ø
         self.assertEqual(a, b)
         self.assertFalse(a == 123)
         self.assertNotEqual(a, 123)
@@ -46,9 +46,9 @@ class TestLdict(TestCase):
 
     def test_illdefined_function(self):
         with pytest.raises(DependenceException):
-            ø >> {"x": 5} >> (lambda y: {"x": 5})
+            Ø >> {"x": 5} >> (lambda y: {"x": 5})
         with pytest.raises(NoInputException):
-            ø >> {"x": 5} >> (lambda: {"x": 5})
+            Ø >> {"x": 5} >> (lambda: {"x": 5})
 
     def test_setitem_value(self):
         d = ldict()
@@ -161,7 +161,7 @@ class TestLdict(TestCase):
         def f(x):
             return {"z": x + 2}
 
-        a = ø >> {"x": 1, "y": 2} >> f
+        a = Ø >> {"x": 1, "y": 2} >> f
         b = a >> (lambda x: {"z": x ** 2})
         self.assertNotEqual(a, b)
         self.assertNotEqual(a.ids["z"], b.ids["z"])
@@ -169,14 +169,14 @@ class TestLdict(TestCase):
         self.assertEqual(a.ids["y"], b.ids["y"])
 
     def test_getitem(self):
-        d = ø >> {"x": 0}
+        d = Ø >> {"x": 0}
         with pytest.raises(WrongKeyType):
             _ = d[1]
         with pytest.raises(KeyError):
             _ = d["1"]
 
     def test_delitem(self):
-        d = ø >> {"x": 0}
+        d = Ø >> {"x": 0}
         with pytest.raises(WrongKeyType):
             del d[1]
         with pytest.raises(KeyError):
@@ -186,13 +186,13 @@ class TestLdict(TestCase):
             del d.d["x"]
 
     def test_setitem(self):
-        d = ø >> {"x": 0}
+        d = Ø >> {"x": 0}
         with pytest.raises(WrongKeyType):
             d[1] = 1
         with pytest.raises(WrongValueType):
             d["x"] = lambda x: x
 
-        d = ø >> {"d": d}
+        d = Ø >> {"d": d}
         with pytest.raises(ReadOnlyLdict):
             d["d"]["x"] = 5
 

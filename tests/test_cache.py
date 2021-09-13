@@ -23,7 +23,7 @@
 
 from unittest import TestCase
 
-from ldict import ø
+from ldict import Ø
 from ldict.config import setcache
 
 
@@ -36,7 +36,7 @@ class Test(TestCase):
             return {"z": x + 2}
 
         setcache({})
-        a = ø >> {"x": 1, "y": 2} >> f ^ ø
+        a = Ø >> {"x": 1, "y": 2} >> f ^ Ø
         self.assertEqual(0, c[0])
         self.assertEqual(1, a.x)
         self.assertEqual(0, c[0])
@@ -48,11 +48,11 @@ class Test(TestCase):
         self.assertEqual(1, c[0])
 
         c = [0]
-        a = ø >> {"x": 1, "y": 2} >> f ^ ø
+        a = Ø >> {"x": 1, "y": 2} >> f ^ Ø
         self.assertEqual(0, c[0])
         self.assertEqual(3, a.z)
         self.assertEqual(0, c[0])
 
-        a = ø >> {"x": 1, "y": 2} >> f ^ ø
+        a = Ø >> {"x": 1, "y": 2} >> f ^ Ø
         a >>= lambda z: {"z": z ** 2}
         self.assertEqual(9, a.z)

@@ -85,3 +85,7 @@ class InconsistentLange(Exception):
 
 class EmptyNextToGlobalCache(Exception):
     pass
+
+
+class MultipleIdsForFunction(Exception):
+    pass

@@ -60,15 +60,15 @@ from uncompyle6.main import decompile
 
 from ldict.data import fhosh, removal_id
 from ldict.exception import NoInputException, DependenceException, FunctionETypeException, NoReturnException, \
-    BadOutput, InconsistentLange
+    BadOutput, InconsistentLange, MultipleIdsForFunction
 from ldict.history import extend_history
 from ldict.lazy import Lazy
 
 
 def delete(d, clone, k):
     &#34;&#34;&#34;
-    &gt;&gt;&gt; from ldict import ø
-    &gt;&gt;&gt; d = ø &gt;&gt; {&#34;x&#34;: 5, &#34;y&#34;: 7}
+    &gt;&gt;&gt; from ldict import Ø
+    &gt;&gt;&gt; d = Ø &gt;&gt; {&#34;x&#34;: 5, &#34;y&#34;: 7}
     &gt;&gt;&gt; d.show(colored=False)
     {
         &#34;id&#34;: &#34;I0_39c94b4dfbc7a8579ca1304eba25917204a5e&#34;,
@@ -190,8 +190,8 @@ def output_and_implicit_fields(f, parameters):
             dicts,
             ret,
         )
-    explicit = re.findall(r&#34;(?:[\&#34;&#39;])([a-zA-Z]+[a-zA-Z0-9_]*)(?:[\&#34;&#39;]):&#34;, dicts[0])
-    implicit = re.findall(r&#34;([a-zA-Z]+[a-zA-Z0-9_]*):&#34;, dicts[0])
+    explicit = re.findall(r&#34;(?:[\&#34;&#39;])([a-zA-Z]+[a-zA-Z0-9]*)(?:[\&#34;&#39;]):&#34;, dicts[0])
+    implicit = re.findall(r&#34;([a-zA-Z]+[a-zA-Z0-9]*):&#34;, dicts[0])
     explicit.extend(parameters[field] for field in implicit)
     if not explicit:
         pprint(dicts)
@@ -271,10 +271,40 @@ def substitute(hoshes, fields, uf):
 
 
 def expand(lst):
+    &#34;&#34;&#34;Evaluate list representing A. or G. progression
+
+    &gt;&gt;&gt; expand([1,2,3,...,9])
+    [1, 2, 3, 4, 5, 6, 7, 8, 9]
+    &gt;&gt;&gt; expand([1,2,4,...,20])
+    [1, 2, 4, 8, 16]
+
+    Parameters
+    ----------
+    lst
+
+    Returns
+    -------
+
+    &#34;&#34;&#34;
     return list(list2progression(lst))
 
 
 def list2progression(lst):
+    &#34;&#34;&#34;Convert list representing A. or G. progression to lange
+
+    &gt;&gt;&gt; list2progression([1,2,3,...,9])
+    [1 2 .+. 9]
+    &gt;&gt;&gt; list2progression([1,2,4,...,16])
+    [1 2 .*. 16]
+
+    Parameters
+    ----------
+    lst
+
+    Returns
+    -------
+
+    &#34;&#34;&#34;
     # TODO move this to lange package
     diff1 = lst[1] - lst[0]
     diff2 = lst[2] - lst[1]
@@ -290,6 +320,50 @@ def list2progression(lst):
 
 
 def application(self, clone, other: Callable, config, rnd):
+    &#34;&#34;&#34;
+    &gt;&gt;&gt; from ldict import ldict
+    &gt;&gt;&gt; from random import Random
+    &gt;&gt;&gt; d = ldict(x=3,y=4,z=5)
+    &gt;&gt;&gt; f = lambda x, y: {&#34;w&#34;: x*y, &#34;u&#34;: x/y, &#34;y&#34;: x+y}
+    &gt;&gt;&gt; print(d &gt;&gt; f)
+    {
+        &#34;id&#34;: &#34;m4PwBcUvfzsOmE6wwcKr-RU04aO1HYiMhE166Amm&#34;,
+        &#34;ids&#34;: &#34;jNfgTIKM6fniikhysPKB-zkmLDHKIYiMhA166Amn... +3 ...Vz_d467c65677734fad67e6de7cdba3ea368aae4&#34;,
+        &#34;w&#34;: &#34;→(x y)&#34;,
+        &#34;u&#34;: &#34;→(x y)&#34;,
+        &#34;y&#34;: &#34;→(x y)&#34;,
+        &#34;x&#34;: 3,
+        &#34;z&#34;: 5
+    }
+    &gt;&gt;&gt; f = lambda x, y, a=5, b=[1,2,3,...,10]: {&#34;w&#34;: x*y, &#34;u&#34;: x/y, &#34;y&#34;: x+y}
+    &gt;&gt;&gt; print(d &gt;&gt; Random(0) &gt;&gt; f)
+    {
+        &#34;id&#34;: &#34;kxALR4v9RaAegi1R84KycANvWV.OOVeiSbr-HD0i&#34;,
+        &#34;ids&#34;: &#34;lVSVzRr2mgCczqreGyt3tQViHZYvQVeiS7r-HD0j... +3 ...Vz_d467c65677734fad67e6de7cdba3ea368aae4&#34;,
+        &#34;w&#34;: &#34;→(a b x y)&#34;,
+        &#34;u&#34;: &#34;→(a b x y)&#34;,
+        &#34;y&#34;: &#34;→(a b x y)&#34;,
+        &#34;x&#34;: 3,
+        &#34;z&#34;: 5
+    }
+    &gt;&gt;&gt; from garoupa import ø
+    &gt;&gt;&gt; f = lambda x, y: {&#34;w&#34;: x*y, &#34;u&#34;: x/y, &#34;y&#34;: x+y}
+    &gt;&gt;&gt; f.hosh = ø * &#34;1234567890123456789012345678901234567890&#34;
+    &gt;&gt;&gt; (d &gt;&gt; f).id == (d.hosh * &#34;1234567890123456789012345678901234567890&#34;).id
+    True
+
+    Parameters
+    ----------
+    self
+    clone
+    other
+    config
+    rnd
+
+    Returns
+    -------
+
+    &#34;&#34;&#34;
     # Attach hosh to f if needed.
     hosh = other.hosh if hasattr(other, &#34;hosh&#34;) else fhosh(other, version=self.version)
     if hosh.etype != &#34;ordered&#34;:
@@ -299,6 +373,8 @@ def application(self, clone, other: Callable, config, rnd):
 
     # Handle parameterized function.
     if parameters:
+        if hasattr(other, &#34;hosh&#34;):
+            raise MultipleIdsForFunction(f&#34;Function cannot have both hosh {other.hosh} and parameters.&#34;, parameters)
         for k, v in parameters.items():
             if k in config:
                 parameters[k] = config[k]
@@ -322,7 +398,6 @@ def application(self, clone, other: Callable, config, rnd):
     # clone.hashes = {}    atualiza hashes e blobs?
     clone.hosh = uf
 
-    # TODO deduplicate code
     if len(output) == 1:
         field = output[0]
         clone.hoshes[field] = substitute(self.hoshes, [field], uf) if field in self.data else ufu_
@@ -366,12 +441,100 @@ def application(self, clone, other: Callable, config, rnd):
 <span>def <span class="ident">application</span></span>(<span>self, clone, other: Callable, config, rnd)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><pre><code class="language-python-repl">&gt;&gt;&gt; from ldict import ldict
+&gt;&gt;&gt; from random import Random
+&gt;&gt;&gt; d = ldict(x=3,y=4,z=5)
+&gt;&gt;&gt; f = lambda x, y: {&quot;w&quot;: x*y, &quot;u&quot;: x/y, &quot;y&quot;: x+y}
+&gt;&gt;&gt; print(d &gt;&gt; f)
+{
+    &quot;id&quot;: &quot;m4PwBcUvfzsOmE6wwcKr-RU04aO1HYiMhE166Amm&quot;,
+    &quot;ids&quot;: &quot;jNfgTIKM6fniikhysPKB-zkmLDHKIYiMhA166Amn... +3 ...Vz_d467c65677734fad67e6de7cdba3ea368aae4&quot;,
+    &quot;w&quot;: &quot;→(x y)&quot;,
+    &quot;u&quot;: &quot;→(x y)&quot;,
+    &quot;y&quot;: &quot;→(x y)&quot;,
+    &quot;x&quot;: 3,
+    &quot;z&quot;: 5
+}
+&gt;&gt;&gt; f = lambda x, y, a=5, b=[1,2,3,...,10]: {&quot;w&quot;: x*y, &quot;u&quot;: x/y, &quot;y&quot;: x+y}
+&gt;&gt;&gt; print(d &gt;&gt; Random(0) &gt;&gt; f)
+{
+    &quot;id&quot;: &quot;kxALR4v9RaAegi1R84KycANvWV.OOVeiSbr-HD0i&quot;,
+    &quot;ids&quot;: &quot;lVSVzRr2mgCczqreGyt3tQViHZYvQVeiS7r-HD0j... +3 ...Vz_d467c65677734fad67e6de7cdba3ea368aae4&quot;,
+    &quot;w&quot;: &quot;→(a b x y)&quot;,
+    &quot;u&quot;: &quot;→(a b x y)&quot;,
+    &quot;y&quot;: &quot;→(a b x y)&quot;,
+    &quot;x&quot;: 3,
+    &quot;z&quot;: 5
+}
+&gt;&gt;&gt; from garoupa import ø
+&gt;&gt;&gt; f = lambda x, y: {&quot;w&quot;: x*y, &quot;u&quot;: x/y, &quot;y&quot;: x+y}
+&gt;&gt;&gt; f.hosh = ø * &quot;1234567890123456789012345678901234567890&quot;
+&gt;&gt;&gt; (d &gt;&gt; f).id == (d.hosh * &quot;1234567890123456789012345678901234567890&quot;).id
+True
+</code></pre>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>self</code></strong></dt>
+<dd>&nbsp;</dd>
+<dt><strong><code>clone</code></strong></dt>
+<dd>&nbsp;</dd>
+<dt><strong><code>other</code></strong></dt>
+<dd>&nbsp;</dd>
+<dt><strong><code>config</code></strong></dt>
+<dd>&nbsp;</dd>
+<dt><strong><code>rnd</code></strong></dt>
+<dd>&nbsp;</dd>
+</dl>
+<h2 id="returns">Returns</h2></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def application(self, clone, other: Callable, config, rnd):
+    &#34;&#34;&#34;
+    &gt;&gt;&gt; from ldict import ldict
+    &gt;&gt;&gt; from random import Random
+    &gt;&gt;&gt; d = ldict(x=3,y=4,z=5)
+    &gt;&gt;&gt; f = lambda x, y: {&#34;w&#34;: x*y, &#34;u&#34;: x/y, &#34;y&#34;: x+y}
+    &gt;&gt;&gt; print(d &gt;&gt; f)
+    {
+        &#34;id&#34;: &#34;m4PwBcUvfzsOmE6wwcKr-RU04aO1HYiMhE166Amm&#34;,
+        &#34;ids&#34;: &#34;jNfgTIKM6fniikhysPKB-zkmLDHKIYiMhA166Amn... +3 ...Vz_d467c65677734fad67e6de7cdba3ea368aae4&#34;,
+        &#34;w&#34;: &#34;→(x y)&#34;,
+        &#34;u&#34;: &#34;→(x y)&#34;,
+        &#34;y&#34;: &#34;→(x y)&#34;,
+        &#34;x&#34;: 3,
+        &#34;z&#34;: 5
+    }
+    &gt;&gt;&gt; f = lambda x, y, a=5, b=[1,2,3,...,10]: {&#34;w&#34;: x*y, &#34;u&#34;: x/y, &#34;y&#34;: x+y}
+    &gt;&gt;&gt; print(d &gt;&gt; Random(0) &gt;&gt; f)
+    {
+        &#34;id&#34;: &#34;kxALR4v9RaAegi1R84KycANvWV.OOVeiSbr-HD0i&#34;,
+        &#34;ids&#34;: &#34;lVSVzRr2mgCczqreGyt3tQViHZYvQVeiS7r-HD0j... +3 ...Vz_d467c65677734fad67e6de7cdba3ea368aae4&#34;,
+        &#34;w&#34;: &#34;→(a b x y)&#34;,
+        &#34;u&#34;: &#34;→(a b x y)&#34;,
+        &#34;y&#34;: &#34;→(a b x y)&#34;,
+        &#34;x&#34;: 3,
+        &#34;z&#34;: 5
+    }
+    &gt;&gt;&gt; from garoupa import ø
+    &gt;&gt;&gt; f = lambda x, y: {&#34;w&#34;: x*y, &#34;u&#34;: x/y, &#34;y&#34;: x+y}
+    &gt;&gt;&gt; f.hosh = ø * &#34;1234567890123456789012345678901234567890&#34;
+    &gt;&gt;&gt; (d &gt;&gt; f).id == (d.hosh * &#34;1234567890123456789012345678901234567890&#34;).id
+    True
+
+    Parameters
+    ----------
+    self
+    clone
+    other
+    config
+    rnd
+
+    Returns
+    -------
+
+    &#34;&#34;&#34;
     # Attach hosh to f if needed.
     hosh = other.hosh if hasattr(other, &#34;hosh&#34;) else fhosh(other, version=self.version)
     if hosh.etype != &#34;ordered&#34;:
@@ -381,6 +544,8 @@ def application(self, clone, other: Callable, config, rnd):
 
     # Handle parameterized function.
     if parameters:
+        if hasattr(other, &#34;hosh&#34;):
+            raise MultipleIdsForFunction(f&#34;Function cannot have both hosh {other.hosh} and parameters.&#34;, parameters)
         for k, v in parameters.items():
             if k in config:
                 parameters[k] = config[k]
@@ -404,7 +569,6 @@ def application(self, clone, other: Callable, config, rnd):
     # clone.hashes = {}    atualiza hashes e blobs?
     clone.hosh = uf
 
-    # TODO deduplicate code
     if len(output) == 1:
         field = output[0]
         clone.hoshes[field] = substitute(self.hoshes, [field], uf) if field in self.data else ufu_
@@ -441,8 +605,8 @@ def application(self, clone, other: Callable, config, rnd):
 <span>def <span class="ident">delete</span></span>(<span>d, clone, k)</span>
 </code></dt>
 <dd>
-<div class="desc"><pre><code class="language-python-repl">&gt;&gt;&gt; from ldict import ø
-&gt;&gt;&gt; d = ø &gt;&gt; {&quot;x&quot;: 5, &quot;y&quot;: 7}
+<div class="desc"><pre><code class="language-python-repl">&gt;&gt;&gt; from ldict import Ø
+&gt;&gt;&gt; d = Ø &gt;&gt; {&quot;x&quot;: 5, &quot;y&quot;: 7}
 &gt;&gt;&gt; d.show(colored=False)
 {
     &quot;id&quot;: &quot;I0_39c94b4dfbc7a8579ca1304eba25917204a5e&quot;,
@@ -484,8 +648,8 @@ True
 </summary>
 <pre><code class="python">def delete(d, clone, k):
     &#34;&#34;&#34;
-    &gt;&gt;&gt; from ldict import ø
-    &gt;&gt;&gt; d = ø &gt;&gt; {&#34;x&#34;: 5, &#34;y&#34;: 7}
+    &gt;&gt;&gt; from ldict import Ø
+    &gt;&gt;&gt; d = Ø &gt;&gt; {&#34;x&#34;: 5, &#34;y&#34;: 7}
     &gt;&gt;&gt; d.show(colored=False)
     {
         &#34;id&#34;: &#34;I0_39c94b4dfbc7a8579ca1304eba25917204a5e&#34;,
@@ -535,12 +699,38 @@ True
 <span>def <span class="ident">expand</span></span>(<span>lst)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Evaluate list representing A. or G. progression</p>
+<pre><code class="language-python-repl">&gt;&gt;&gt; expand([1,2,3,...,9])
+[1, 2, 3, 4, 5, 6, 7, 8, 9]
+&gt;&gt;&gt; expand([1,2,4,...,20])
+[1, 2, 4, 8, 16]
+</code></pre>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>lst</code></strong></dt>
+<dd>&nbsp;</dd>
+</dl>
+<h2 id="returns">Returns</h2></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def expand(lst):
+    &#34;&#34;&#34;Evaluate list representing A. or G. progression
+
+    &gt;&gt;&gt; expand([1,2,3,...,9])
+    [1, 2, 3, 4, 5, 6, 7, 8, 9]
+    &gt;&gt;&gt; expand([1,2,4,...,20])
+    [1, 2, 4, 8, 16]
+
+    Parameters
+    ----------
+    lst
+
+    Returns
+    -------
+
+    &#34;&#34;&#34;
     return list(list2progression(lst))</code></pre>
 </details>
 </dd>
@@ -611,12 +801,38 @@ True
 <span>def <span class="ident">list2progression</span></span>(<span>lst)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Convert list representing A. or G. progression to lange</p>
+<pre><code class="language-python-repl">&gt;&gt;&gt; list2progression([1,2,3,...,9])
+[1 2 .+. 9]
+&gt;&gt;&gt; list2progression([1,2,4,...,16])
+[1 2 .*. 16]
+</code></pre>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>lst</code></strong></dt>
+<dd>&nbsp;</dd>
+</dl>
+<h2 id="returns">Returns</h2></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def list2progression(lst):
+    &#34;&#34;&#34;Convert list representing A. or G. progression to lange
+
+    &gt;&gt;&gt; list2progression([1,2,3,...,9])
+    [1 2 .+. 9]
+    &gt;&gt;&gt; list2progression([1,2,4,...,16])
+    [1 2 .*. 16]
+
+    Parameters
+    ----------
+    lst
+
+    Returns
+    -------
+
+    &#34;&#34;&#34;
     # TODO move this to lange package
     diff1 = lst[1] - lst[0]
     diff2 = lst[2] - lst[1]
@@ -685,8 +901,8 @@ True
             dicts,
             ret,
         )
-    explicit = re.findall(r&#34;(?:[\&#34;&#39;])([a-zA-Z]+[a-zA-Z0-9_]*)(?:[\&#34;&#39;]):&#34;, dicts[0])
-    implicit = re.findall(r&#34;([a-zA-Z]+[a-zA-Z0-9_]*):&#34;, dicts[0])
+    explicit = re.findall(r&#34;(?:[\&#34;&#39;])([a-zA-Z]+[a-zA-Z0-9]*)(?:[\&#34;&#39;]):&#34;, dicts[0])
+    implicit = re.findall(r&#34;([a-zA-Z]+[a-zA-Z0-9]*):&#34;, dicts[0])
     explicit.extend(parameters[field] for field in implicit)
     if not explicit:
         pprint(dicts)

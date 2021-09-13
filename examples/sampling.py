@@ -1,7 +1,7 @@
 # Parameterized functions and sampling
 from random import Random
 
-from ldict import ø
+from ldict import Ø
 from ldict.cfg import cfg
 
 
@@ -15,7 +15,7 @@ def fun(x, y, a=[-100, -99, -98, ..., 100], b=[0.0001, 0.001, 0.01, ..., 1000000
 
 
 # Creating an empty ldict. Alternatively: d = ldict().
-d = ø >> {}
+d = Ø >> {}
 d.show(colored=False)
 # ...
 

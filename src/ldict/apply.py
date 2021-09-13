@@ -32,15 +32,15 @@ from uncompyle6.main import decompile
 
 from ldict.data import fhosh, removal_id
 from ldict.exception import NoInputException, DependenceException, FunctionETypeException, NoReturnException, \
-    BadOutput, InconsistentLange
+    BadOutput, InconsistentLange, MultipleIdsForFunction
 from ldict.history import extend_history
 from ldict.lazy import Lazy
 
 
 def delete(d, clone, k):
     """
-    >>> from ldict import ø
-    >>> d = ø >> {"x": 5, "y": 7}
+    >>> from ldict import Ø
+    >>> d = Ø >> {"x": 5, "y": 7}
     >>> d.show(colored=False)
     {
         "id": "I0_39c94b4dfbc7a8579ca1304eba25917204a5e",
@@ -243,10 +243,40 @@ def substitute(hoshes, fields, uf):
 
 
 def expand(lst):
+    """Evaluate list representing A. or G. progression
+
+    >>> expand([1,2,3,...,9])
+    [1, 2, 3, 4, 5, 6, 7, 8, 9]
+    >>> expand([1,2,4,...,20])
+    [1, 2, 4, 8, 16]
+
+    Parameters
+    ----------
+    lst
+
+    Returns
+    -------
+
+    """
     return list(list2progression(lst))
 
 
 def list2progression(lst):
+    """Convert list representing A. or G. progression to lange
+
+    >>> list2progression([1,2,3,...,9])
+    [1 2 .+. 9]
+    >>> list2progression([1,2,4,...,16])
+    [1 2 .*. 16]
+
+    Parameters
+    ----------
+    lst
+
+    Returns
+    -------
+
+    """
     # TODO move this to lange package
     diff1 = lst[1] - lst[0]
     diff2 = lst[2] - lst[1]
@@ -264,9 +294,35 @@ def list2progression(lst):
 def application(self, clone, other: Callable, config, rnd):
     """
     >>> from ldict import ldict
+    >>> from random import Random
     >>> d = ldict(x=3,y=4,z=5)
     >>> f = lambda x, y: {"w": x*y, "u": x/y, "y": x+y}
-    >>> d >> f
+    >>> print(d >> f)
+    {
+        "id": "m4PwBcUvfzsOmE6wwcKr-RU04aO1HYiMhE166Amm",
+        "ids": "jNfgTIKM6fniikhysPKB-zkmLDHKIYiMhA166Amn... +3 ...Vz_d467c65677734fad67e6de7cdba3ea368aae4",
+        "w": "→(x y)",
+        "u": "→(x y)",
+        "y": "→(x y)",
+        "x": 3,
+        "z": 5
+    }
+    >>> f = lambda x, y, a=5, b=[1,2,3,...,10]: {"w": x*y, "u": x/y, "y": x+y}
+    >>> print(d >> Random(0) >> f)
+    {
+        "id": "kxALR4v9RaAegi1R84KycANvWV.OOVeiSbr-HD0i",
+        "ids": "lVSVzRr2mgCczqreGyt3tQViHZYvQVeiS7r-HD0j... +3 ...Vz_d467c65677734fad67e6de7cdba3ea368aae4",
+        "w": "→(a b x y)",
+        "u": "→(a b x y)",
+        "y": "→(a b x y)",
+        "x": 3,
+        "z": 5
+    }
+    >>> from garoupa import ø
+    >>> f = lambda x, y: {"w": x*y, "u": x/y, "y": x+y}
+    >>> f.hosh = ø * "1234567890123456789012345678901234567890"
+    >>> (d >> f).id == (d.hosh * "1234567890123456789012345678901234567890").id
+    True
 
     Parameters
     ----------
@@ -289,6 +345,8 @@ def application(self, clone, other: Callable, config, rnd):
 
     # Handle parameterized function.
     if parameters:
+        if hasattr(other, "hosh"):
+            raise MultipleIdsForFunction(f"Function cannot have both hosh {other.hosh} and parameters.", parameters)
         for k, v in parameters.items():
             if k in config:
                 parameters[k] = config[k]

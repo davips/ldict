@@ -112,6 +112,10 @@ class InconsistentLange(Exception):
 
 
 class EmptyNextToGlobalCache(Exception):
+    pass
+
+
+class MultipleIdsForFunction(Exception):
     pass</code></pre>
 </details>
 </section>
@@ -298,6 +302,25 @@ class EmptyNextToGlobalCache(Exception):
 <li>builtins.BaseException</li>
 </ul>
 </dd>
+<dt id="ldict.exception.MultipleIdsForFunction"><code class="flex name class">
+<span>class <span class="ident">MultipleIdsForFunction</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Common base class for all non-exit exceptions.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class MultipleIdsForFunction(Exception):
+    pass</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>builtins.Exception</li>
+<li>builtins.BaseException</li>
+</ul>
+</dd>
 <dt id="ldict.exception.NoInputException"><code class="flex name class">
 <span>class <span class="ident">NoInputException</span></span>
 <span>(</span><span>*args, **kwargs)</span>
@@ -456,6 +479,9 @@ class EmptyNextToGlobalCache(Exception):
 </li>
 <li>
 <h4><code><a title="ldict.exception.MissingField" href="#ldict.exception.MissingField">MissingField</a></code></h4>
+</li>
+<li>
+<h4><code><a title="ldict.exception.MultipleIdsForFunction" href="#ldict.exception.MultipleIdsForFunction">MultipleIdsForFunction</a></code></h4>
 </li>
 <li>
 <h4><code><a title="ldict.exception.NoInputException" href="#ldict.exception.NoInputException">NoInputException</a></code></h4>

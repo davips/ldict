@@ -51,7 +51,7 @@ def ldict2txt(d, all):
     >>> from ldict import ldict
     >>> d = ldict(x=1,y=2)
     >>> decolorize(ldict2txt(d, False))
-    '{\\n    "id": "Tb_334cc16924a8bdc38205599e516203f9054c4",\\n    "ids": "<2 hidden ids>",\\n    "x": 1,\\n    "y": 2\\n}'
+    '{\\n    "id": "Tb_334cc16924a8bdc38205599e516203f9054c4",\\n    "ids": "lv_56eec09cd869410b23dcb462b64fe26acc2a2 yI_a331070d4bcdde465f28ba37ba1310e928122",\\n    "x": 1,\\n    "y": 2\\n}'
     >>> decolorize(ldict2txt(d, True))
     '{\\n    "id": "Tb_334cc16924a8bdc38205599e516203f9054c4",\\n    "ids": {\\n        "x": "lv_56eec09cd869410b23dcb462b64fe26acc2a2",\\n        "y": "yI_a331070d4bcdde465f28ba37ba1310e928122"\\n    },\\n    "x": 1,\\n    "y": 2\\n}'
 
@@ -84,5 +84,9 @@ def ldict2dic(d, all):
         elif isinstance(v, ldict):
             dic[k] = ldict2dic(v, all)
         if not all:
-            dic["ids"] = "<1 hidden id>" if len(dic["ids"]) == 1 else f"<{len(d) - 2} hidden ids>"
+            if len(d.ids) < 3:
+                dic["ids"] = " ".join(d.ids.values())
+            else:
+                ids = list(d.ids.values())
+                dic["ids"] = f"{ids[0]}... +{len(d) - 4} ...{ids[-1]}"
     return dic

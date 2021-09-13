@@ -1,11 +1,10 @@
 # Composition of sets of functions
 from random import Random
 
-from ldict import ø
+from ldict import Ø
 
 
 # A multistep process can be defined without applying its functions
-from ldict.cfg import cfg
 
 
 def g(x, y, a=[1, 2, 3, ..., 10], b=[0.00001, 0.0001, 0.001, ..., 100000]):
@@ -20,7 +19,7 @@ def h(z, c=[1, 2, 3]):
 # so the alias ø represents the 'empty data object' and the 'reflexive function' at the same time.
 # In other words: 'inserting nothing' has the same effect as 'doing nothing'.
 # The operator '*' is an alias for '>>', used just to make the context clearer.
-fun = ø * g * h  # ø enable the cartesian product of the subsequent sets of functions within the expression.
+fun = Ø * g * h  # ø enable the cartesian product of the subsequent sets of functions within the expression.
 print(fun)
 # ...
 

@@ -171,7 +171,7 @@ print(a)
 ```python3
 from random import Random
 
-from ldict import ø
+from ldict import Ø
 from ldict.cfg import cfg
 
 
@@ -185,7 +185,7 @@ def fun(x, y, a=[-100, -99, -98, ..., 100], b=[0.0001, 0.001, 0.01, ..., 1000000
 
 
 # Creating an empty ldict. Alternatively: d = ldict().
-d = ø >> {}
+d = Ø >> {}
 d.show(colored=False)
 """
 {
@@ -222,9 +222,9 @@ d1.show(colored=False)
 print(d1.z)
 """
 {
-    "id": "8V.-4QNz1yTYTvaqyYsidl5MAb3XonMswn-DHJOF",
+    "id": "98vgn6jbwFcm0bCR3ALuvuodAL8Qz2ltcRP3gpRq",
     "ids": {
-        "z": "Cm4WMKnbrGxdn3WwSN7cDkxpm03XonMswn-DHJOF",
+        "z": "O0e9-cqU0q2rPJlYnpqoVtQSlA8Qz2ltcRP3gpRq",
         "x": "Tz_d158c49297834fad67e6de7cdba3ea368aae4",
         "y": "Rs_92162dea64a7462725cac7dcee71b67669f69"
     },
@@ -232,7 +232,7 @@ print(d1.z)
     "x": 5,
     "y": 7
 }
-699999540.0
+-245.0
 """
 ```
 
@@ -243,9 +243,9 @@ d2.show(colored=False)
 print(d2.z)
 """
 {
-    "id": "dd7Rd7FG1mEkeQ2IgglhbWXE39l6U0QgJoO0pl4j",
+    "id": "t7SetsWR9wmYfub3V6kw.DYJMojwqhAL9dOG1xdF",
     "ids": {
-        "z": "kHX10i5llhZWXnOOA50bBVniRZk6U0QgJoO0pl4j",
+        "z": "sUp0QY1PpW5Rz0X9dY-ppDonydjwqhAL9dOG1xdF",
         "x": "Tz_d158c49297834fad67e6de7cdba3ea368aae4",
         "y": "Rs_92162dea64a7462725cac7dcee71b67669f69"
     },
@@ -253,7 +253,7 @@ print(d2.z)
     "x": 5,
     "y": 7
 }
-70000250.0
+6999890.0
 """
 ```
 
@@ -273,7 +273,7 @@ print(e.z)
 e = d >> cfg(a=5) >> fun
 print(e.z)
 """
-700000025.0
+25.07
 """
 ```
 
@@ -283,7 +283,7 @@ print(e.z)
 e = e >> cfg(a=5) >> fun
 print(e.z)
 """
-725.0
+25.7
 """
 ```
 
@@ -334,7 +334,7 @@ print(e.z)
 ```python3
 from random import Random
 
-from ldict import ø
+from ldict import Ø
 
 
 # A multistep process can be defined without applying its functions
@@ -353,7 +353,7 @@ def h(z, c=[1, 2, 3]):
 # so the alias ø represents the 'empty data object' and the 'reflexive function' at the same time.
 # In other words: 'inserting nothing' has the same effect as 'doing nothing'.
 # The operator '*' is an alias for '>>', used just to make the context clearer.
-fun = ø * g * h  # ø enable the cartesian product of the subsequent sets of functions within the expression.
+fun = Ø * g * h  # ø enable the cartesian product of the subsequent sets of functions within the expression.
 print(fun)
 """
 g × h
@@ -370,8 +370,8 @@ d = {"x": 5, "y": 7} >> fun
 print(d)
 """
 {
-    "id": "2ZAAn49L2ODpxYHaVL.4GuWpuSLHbHstjVFR5KsJ",
-    "ids": "Gs-3jOosu8ARTrrhdBG-3um3gHLHbHstjVFR5KsJ... +1 ...Rs_92162dea64a7462725cac7dcee71b67669f69",
+    "id": "pnAfNI2KfGQ-kzHr6J9rRg128gJz00eraV-nfFO6",
+    "ids": "XZDJLC776Heza3ryqyQkfgtHV4Jz00eraV-nfFO6... +1 ...Rs_92162dea64a7462725cac7dcee71b67669f69",
     "z": "→(c z→(a b x y))",
     "x": 5,
     "y": 7
@@ -383,7 +383,7 @@ print(d)
 
 print(d.z)
 """
-21150.0
+14030.0
 """
 ```
 
@@ -392,7 +392,7 @@ print(d.z)
 d = {"x": 5, "y": 7} >> fun
 print(d.z)
 """
-190.0
+7015.0
 """
 ```
 
@@ -449,7 +449,7 @@ import shelve
 from collections import namedtuple
 from pprint import pprint
 
-from ldict import ldict, ø
+from ldict import ldict, Ø
 # The cache can be set globally.
 # It is as simple as a dict, or any dict-like implementation mapping str to serializable content.
 # Implementations can, e.g., store data on disk or in a remote computer.
@@ -473,7 +473,7 @@ def fun(x, y):
 # The list may contain many different caches, e.g.: [RAM, local, remote].
 mycache = {}
 remote = {}
-d = ø >> {"x": 3, "y": 2} >> fun >> [mycache, remote]
+d = Ø >> {"x": 3, "y": 2} >> fun >> [mycache, remote]
 print(d)
 print(d.z, d.id)
 """
@@ -503,7 +503,7 @@ print(d.z, d.id)
 
 # The caching operator can appear in multiple places in the expression, if intermediate values are of interest.
 # The ø is used as ldict-inducer when needed.
-d = ldict(y=2, x=3) >> fun ^ ø >> (lambda x: {"x": x ** 2}) >> ø >> {"w": 5, "k": 5} >> ø >> [mycache]
+d = ldict(y=2, x=3) >> fun ^ Ø >> (lambda x: {"x": x ** 2}) >> Ø >> {"w": 5, "k": 5} >> Ø >> [mycache]
 print(d.z, d.id)
 """
 9 QaRWaaqyTLRqBDzvIff.HdTGQVDeSMDamXXwaYMA
@@ -540,7 +540,7 @@ with shelve.open("/tmp/my-cache-file.db") as db:
             >> measure_distance
             >> {"other_distance": d.distance}
             >> mean
-            ^ ø
+            ^ Ø
             ^ cfg(source="m", target="m0")
             >> copy
             >> (lambda m: {"m": m ** 2})

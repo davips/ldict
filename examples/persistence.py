@@ -3,7 +3,7 @@ import shelve
 from collections import namedtuple
 from pprint import pprint
 
-from ldict import ldict, ø
+from ldict import ldict, Ø
 # The cache can be set globally.
 # It is as simple as a dict, or any dict-like implementation mapping str to serializable content.
 # Implementations can, e.g., store data on disk or in a remote computer.
@@ -27,7 +27,7 @@ def fun(x, y):
 # The list may contain many different caches, e.g.: [RAM, local, remote].
 mycache = {}
 remote = {}
-d = ø >> {"x": 3, "y": 2} >> fun >> [mycache, remote]
+d = Ø >> {"x": 3, "y": 2} >> fun >> [mycache, remote]
 print(d)
 print(d.z, d.id)
 # ...
@@ -39,7 +39,7 @@ print(d.z, d.id)
 
 # The caching operator can appear in multiple places in the expression, if intermediate values are of interest.
 # The ø is used as ldict-inducer when needed.
-d = ldict(y=2, x=3) >> fun ^ ø >> (lambda x: {"x": x ** 2}) >> ø >> {"w": 5, "k": 5} >> ø >> [mycache]
+d = ldict(y=2, x=3) >> fun ^ Ø >> (lambda x: {"x": x ** 2}) >> Ø >> {"w": 5, "k": 5} >> Ø >> [mycache]
 print(d.z, d.id)
 # ...
 
@@ -71,7 +71,7 @@ with shelve.open("/tmp/my-cache-file.db") as db:
             >> measure_distance
             >> {"other_distance": d.distance}
             >> mean
-            ^ ø
+            ^ Ø
             ^ cfg(source="m", target="m0")
             >> copy
             >> (lambda m: {"m": m ** 2})

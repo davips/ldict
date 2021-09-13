@@ -23,17 +23,26 @@ from random import Random
 from unittest import TestCase
 
 import pytest
-
 from garoupa import ø40
-from ldict import ø
-from ldict.apply import input_fields, output_and_implicit_fields, application
-from ldict.exception import NoInputException, NoReturnException, BadOutput, FunctionETypeException
+
+from ldict import Ø
+from ldict.apply import input_fields, output_and_implicit_fields, application, list2progression
+from ldict.exception import NoInputException, NoReturnException, BadOutput, FunctionETypeException, InconsistentLange, \
+    MultipleIdsForFunction
 
 
 class Test(TestCase):
     def test_input_fields(self):
         with pytest.raises(NoInputException):
             input_fields(lambda: 3, {})
+        f = lambda x: {"x": 3}
+        f.parameters = {}
+        f.input_fields = {}
+        with pytest.raises(NoInputException):
+            input_fields(f, {})
+        f = lambda **kwargs: {"x": 3}
+        with pytest.raises(NoInputException):
+            input_fields(f, {})
 
     def test_output_fields(self):
         def f(x):
@@ -60,8 +69,20 @@ class Test(TestCase):
 
         f.hosh = ø40 * 2 ** 65
         with pytest.raises(FunctionETypeException):
-            application(ø, ø, f, {}, Random())
+            application(Ø, Ø, f, {}, Random())
+
+        def f(x, a=None):
+            return {"x³": x ** 3}
+
+        f.hosh = ø40 * 2 ** 195
+
+        with pytest.raises(MultipleIdsForFunction):
+            _ = Ø >> {"x": 2} >> f
 
         delattr(f, "hosh")
         with pytest.raises(BadOutput):
-            _ = ø >> {"x": 2} >> f
+            _ = Ø >> {"x": 2} >> f
+
+    def test_list2progression(self):
+        with pytest.raises(InconsistentLange):
+            list2progression([1, 2, 5, ..., 9])

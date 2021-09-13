@@ -129,8 +129,8 @@ class Ldict(UserDict, Dict[str, VT]):
     >>> a != b  # Calculated values are order-sensitive.
     True
     >>> value = "some content"
-    >>> from ldict import ø
-    >>> d = ø >> {"x": value}
+    >>> from ldict import Ø
+    >>> d = Ø >> {"x": value}
     >>> d.ids["x"]  # id (hosh) of the pair x→blob
     'UM_b2511f438c2c34d658372d3666b6c4411cc2d'
     >>> print(d.hoshes["x"] // "x-_0000000000000000000000000000000000000")  # id (hosh) of the value
@@ -170,6 +170,7 @@ class Ldict(UserDict, Dict[str, VT]):
                 except ImportError:
                     print("Pandas may be missing.")
                 raise TypeError
+
             self.blobs[key] = dumps(value, default=default, option=OPT_SORT_KEYS | OPT_SERIALIZE_NUMPY)
             self.hashes[key] = self.identity.h * self.blobs[key]
             self.hoshes[key] = self.hashes[key] ** key2id(key, self.digits)
@@ -269,7 +270,7 @@ class Ldict(UserDict, Dict[str, VT]):
             return FunctionSpace(other, self)
         return NotImplemented
 
-    def __rshift__(self, other: Union[Dict, Callable, FunctionSpace], config={}):
+    def __rshift__(self, other: Union[Dict, Callable, FunctionSpace, Random], config={}):
         from ldict.cfg import cfg
         if isinstance(other, Dict):
             # Insertion of dict-like.
@@ -392,17 +393,7 @@ class Ldict(UserDict, Dict[str, VT]):
         return self.data["ids"]
 
     def __str__(self, all=False):
-        dic = self.data.copy()
-        for k, v in self.data.items():
-            if islazy(v):
-                dic[k] = str(v)
-        if not all:
-            if len(self.ids) < 3:
-                dic["ids"] = " ".join(self.ids.values())
-            else:
-                ids = list(self.ids.values())
-                dic["ids"] = f"{ids[0]}... +{len(self) - 4} ...{ids[-1]}"
-        return json.dumps(dic, indent=4, ensure_ascii=False, cls=CustomJSONEncoder)
+        return json.dumps(ldict2dic(self, all), indent=4, ensure_ascii=False, cls=CustomJSONEncoder)
 
     @property
     def asdict(self):
