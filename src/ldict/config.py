@@ -26,7 +26,7 @@ VT = TypeVar("VT")
 
 GLOBAL = {
     "cache": f"{Path.home()}/{'.ldict/shelve.db'}",
-    "history": True
+    "history": False
 }
 
 

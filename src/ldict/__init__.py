@@ -1,4 +1,5 @@
 from .appearance import decolorize
+from .config import sethistory
 from .empty import Empty
 from .functionspace import FunctionSpace
 from .ldict_ import Ldict

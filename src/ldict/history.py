@@ -24,7 +24,8 @@ from ldict.config import GLOBAL
 
 def extend_history(history, last, hosh):
     """
-    >>> from ldict import ldict
+    >>> from ldict import ldict, sethistory
+    >>> sethistory(True)  # Keep history of ids of all applied functions.
     >>> d = ldict()
     >>> d.history
     {}

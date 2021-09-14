@@ -39,7 +39,8 @@ from ldict.lazy import Lazy
 
 def delete(d, clone, k):
     """
-    >>> from ldict import Ø
+    >>> from ldict import Ø, sethistory
+    >>> sethistory(True)  # Keep history of ids of all applied functions.
     >>> d = Ø >> {"x": 5, "y": 7}
     >>> d.show(colored=False)
     {
