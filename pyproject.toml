@@ -14,7 +14,7 @@ packages = [
 full = ["sqlalchemy", "pandas"]
 
 [tool.poetry.dependencies]
-python = ">=3.8,<3.9"
+python = ">=3.8,<3.10"
 orjson = "^3.5.0"
 pdoc3 = "^0.10.0"
 uncompyle6 = "^3.7.4"
