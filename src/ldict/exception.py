@@ -89,3 +89,11 @@ class EmptyNextToGlobalCache(Exception):
 
 class MultipleIdsForFunction(Exception):
     pass
+
+
+class MissingIds(Exception):
+    pass
+
+
+class WrongId(Exception):
+    pass

@@ -89,4 +89,6 @@ def ldict2dic(d, all):
             else:
                 ids = list(d.ids.values())
                 dic["ids"] = f"{ids[0]}... +{len(d) - 4} ...{ids[-1]}"
+        elif k == "ids":
+            dic["ids"] = d.ids.copy()
     return dic

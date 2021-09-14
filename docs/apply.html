@@ -67,7 +67,8 @@ from ldict.lazy import Lazy
 
 def delete(d, clone, k):
     &#34;&#34;&#34;
-    &gt;&gt;&gt; from ldict import Ø
+    &gt;&gt;&gt; from ldict import Ø, sethistory
+    &gt;&gt;&gt; sethistory(True)  # Keep history of ids of all applied functions.
     &gt;&gt;&gt; d = Ø &gt;&gt; {&#34;x&#34;: 5, &#34;y&#34;: 7}
     &gt;&gt;&gt; d.show(colored=False)
     {
@@ -605,7 +606,8 @@ True
 <span>def <span class="ident">delete</span></span>(<span>d, clone, k)</span>
 </code></dt>
 <dd>
-<div class="desc"><pre><code class="language-python-repl">&gt;&gt;&gt; from ldict import Ø
+<div class="desc"><pre><code class="language-python-repl">&gt;&gt;&gt; from ldict import Ø, sethistory
+&gt;&gt;&gt; sethistory(True)  # Keep history of ids of all applied functions.
 &gt;&gt;&gt; d = Ø &gt;&gt; {&quot;x&quot;: 5, &quot;y&quot;: 7}
 &gt;&gt;&gt; d.show(colored=False)
 {
@@ -648,7 +650,8 @@ True
 </summary>
 <pre><code class="python">def delete(d, clone, k):
     &#34;&#34;&#34;
-    &gt;&gt;&gt; from ldict import Ø
+    &gt;&gt;&gt; from ldict import Ø, sethistory
+    &gt;&gt;&gt; sethistory(True)  # Keep history of ids of all applied functions.
     &gt;&gt;&gt; d = Ø &gt;&gt; {&#34;x&#34;: 5, &#34;y&#34;: 7}
     &gt;&gt;&gt; d.show(colored=False)
     {

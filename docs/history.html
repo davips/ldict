@@ -52,7 +52,8 @@ from ldict.config import GLOBAL
 
 def extend_history(history, last, hosh):
     &#34;&#34;&#34;
-    &gt;&gt;&gt; from ldict import ldict
+    &gt;&gt;&gt; from ldict import ldict, sethistory
+    &gt;&gt;&gt; sethistory(True)  # Keep history of ids of all applied functions.
     &gt;&gt;&gt; d = ldict()
     &gt;&gt;&gt; d.history
     {}
@@ -215,7 +216,8 @@ def rewrite_history(history, last, hosh, hoshes):
 <span>def <span class="ident">extend_history</span></span>(<span>history, last, hosh)</span>
 </code></dt>
 <dd>
-<div class="desc"><pre><code class="language-python-repl">&gt;&gt;&gt; from ldict import ldict
+<div class="desc"><pre><code class="language-python-repl">&gt;&gt;&gt; from ldict import ldict, sethistory
+&gt;&gt;&gt; sethistory(True)  # Keep history of ids of all applied functions.
 &gt;&gt;&gt; d = ldict()
 &gt;&gt;&gt; d.history
 {}
@@ -243,7 +245,8 @@ True
 </summary>
 <pre><code class="python">def extend_history(history, last, hosh):
     &#34;&#34;&#34;
-    &gt;&gt;&gt; from ldict import ldict
+    &gt;&gt;&gt; from ldict import ldict, sethistory
+    &gt;&gt;&gt; sethistory(True)  # Keep history of ids of all applied functions.
     &gt;&gt;&gt; d = ldict()
     &gt;&gt;&gt; d.history
     {}

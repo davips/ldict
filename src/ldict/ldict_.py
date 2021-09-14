@@ -36,7 +36,7 @@ from ldict.apply import delete, application
 from ldict.config import GLOBAL
 from ldict.customjson import CustomJSONEncoder
 from ldict.data import key2id
-from ldict.exception import WrongKeyType, WrongValueType, OverwriteException, check
+from ldict.exception import WrongKeyType, WrongValueType, OverwriteException, check, MissingIds, WrongId
 from ldict.functionspace import FunctionSpace
 from ldict.history import extend_history, rewrite_history
 from ldict.lazy import islazy
@@ -132,6 +132,21 @@ class Ldict(UserDict, Dict[str, VT]):
     True
     >>> value = "some content"
     >>> from ldict import Ø
+    >>> dic = d.asdict  # Converting to dict
+    >>> dic
+    {'id': 'pp_009c55d4892401fa84d49936456d31c4e48fe', 'ids': {'x': 'a6_b90a521176a857d695e8404b5b7634d494da2', 'y': 'fj_7f5403c313a0a914feeb59fae9e60def40b4c'}, 'x': 123123, 'y': 88}
+    >>> d2 = ldict(dic)  # Reconstructing from a dict
+    >>> print(d2)
+    {
+        "id": "pp_009c55d4892401fa84d49936456d31c4e48fe",
+        "x": 123123,
+        "y": 88,
+        "ids": "a6_b90a521176a857d695e8404b5b7634d494da2 fj_7f5403c313a0a914feeb59fae9e60def40b4c"
+    }
+    >>> decolorize(str(d.history))
+    '{pp_009c55d4892401fa84d49936456d31c4e48fe: {fj_7f5403c313a0a914feeb59fae9e60def40b4c, a6_b90a521176a857d695e8404b5b7634d494da2}}'
+    >>> d2.history
+    {}
     >>> d = Ø >> {"x": value}
     >>> d.ids["x"]  # id (hosh) of the pair x→blob
     'UM_b2511f438c2c34d658372d3666b6c4411cc2d'
@@ -140,16 +155,28 @@ class Ldict(UserDict, Dict[str, VT]):
     """
 
     def __init__(self, /, _dictionary=None, identity=ø40, readonly=False, **kwargs):
-        self.hosh = self.identity = identity
+        dic = _dictionary or {}
         self.readonly, self.digits, self.version = readonly, identity.digits, identity.version
         self.rho, self.delete = identity.rho, identity.delete
+        self.hosh = self.identity = identity
         self.blobs, self.hashes, self.hoshes = {}, {}, {}
         self.history, self.last = {}, None
         self.rnd = Random()
+        dic.update(kwargs)
         super().__init__()
-        self.data.update(id=identity.id, ids={})
-        self.update(**(_dictionary or {}), **kwargs)
-        self.__name__ = self.id[:10]
+        if id := self.data.get("id", False) or dic.get("id", False):
+            if not (ids := self.data.pop("ids", False) or dic.pop("ids", False)):
+                raise MissingIds(f"id {id} provided but ids missing while importing dict-like")
+            if not isinstance(id, str):
+                raise WrongId(f"id {id} provided should be str, not {type(id)}")
+            self.hosh *= id
+            self.hoshes.update(ids)
+            self.data.update(dic)
+            self.data["ids"] = ids.copy()
+        else:
+            self.data.update(id=identity.id, ids={})
+            self.update(dic)
+        self.__name__ = self.id[:10]  # TODO: useful?
 
     def __setitem__(self, key: str, value):
         """
@@ -442,6 +469,15 @@ class Ldict(UserDict, Dict[str, VT]):
 
     @property
     def asdict(self):
+        """
+        >>> from ldict import ldict
+        >>> ldict(x=3, y=5).asdict
+        {'id': 'c._2b0434ca422114262680df425b85cac028be6', 'ids': {'x': 'kr_4aee5c3bcac2c478be9901d57fd1ef8a9d002', 'y': 'Uz_0af6d78f77734fad67e6de7cdba3ea368aae4'}, 'x': 3, 'y': 5}
+
+        Returns
+        -------
+
+        """
         return ldict2dic(self, all=True)
 
     def __mul__(self, other):

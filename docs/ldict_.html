@@ -64,7 +64,7 @@ from ldict.apply import delete, application
 from ldict.config import GLOBAL
 from ldict.customjson import CustomJSONEncoder
 from ldict.data import key2id
-from ldict.exception import WrongKeyType, WrongValueType, OverwriteException, check
+from ldict.exception import WrongKeyType, WrongValueType, OverwriteException, check, MissingIds, WrongId
 from ldict.functionspace import FunctionSpace
 from ldict.history import extend_history, rewrite_history
 from ldict.lazy import islazy
@@ -80,6 +80,8 @@ class Ldict(UserDict, Dict[str, VT]):
 
     Usage:
 
+    &gt;&gt;&gt; from ldict import sethistory
+    &gt;&gt;&gt; sethistory(True)  # Keep history of ids of all applied functions.
     &gt;&gt;&gt; ldict(y=88, x=123123) != ldict(x=88, y=123123)  # Ids of original values embbed the keys.
     True
     &gt;&gt;&gt; ldict().show(colored=False)
@@ -158,6 +160,21 @@ class Ldict(UserDict, Dict[str, VT]):
     True
     &gt;&gt;&gt; value = &#34;some content&#34;
     &gt;&gt;&gt; from ldict import Ø
+    &gt;&gt;&gt; dic = d.asdict  # Converting to dict
+    &gt;&gt;&gt; dic
+    {&#39;id&#39;: &#39;pp_009c55d4892401fa84d49936456d31c4e48fe&#39;, &#39;ids&#39;: {&#39;x&#39;: &#39;a6_b90a521176a857d695e8404b5b7634d494da2&#39;, &#39;y&#39;: &#39;fj_7f5403c313a0a914feeb59fae9e60def40b4c&#39;}, &#39;x&#39;: 123123, &#39;y&#39;: 88}
+    &gt;&gt;&gt; d2 = ldict(dic)  # Reconstructing from a dict
+    &gt;&gt;&gt; print(d2)
+    {
+        &#34;id&#34;: &#34;pp_009c55d4892401fa84d49936456d31c4e48fe&#34;,
+        &#34;x&#34;: 123123,
+        &#34;y&#34;: 88,
+        &#34;ids&#34;: &#34;a6_b90a521176a857d695e8404b5b7634d494da2 fj_7f5403c313a0a914feeb59fae9e60def40b4c&#34;
+    }
+    &gt;&gt;&gt; decolorize(str(d.history))
+    &#39;{pp_009c55d4892401fa84d49936456d31c4e48fe: {fj_7f5403c313a0a914feeb59fae9e60def40b4c, a6_b90a521176a857d695e8404b5b7634d494da2}}&#39;
+    &gt;&gt;&gt; d2.history
+    {}
     &gt;&gt;&gt; d = Ø &gt;&gt; {&#34;x&#34;: value}
     &gt;&gt;&gt; d.ids[&#34;x&#34;]  # id (hosh) of the pair x→blob
     &#39;UM_b2511f438c2c34d658372d3666b6c4411cc2d&#39;
@@ -166,16 +183,28 @@ class Ldict(UserDict, Dict[str, VT]):
     &#34;&#34;&#34;
 
     def __init__(self, /, _dictionary=None, identity=ø40, readonly=False, **kwargs):
-        self.hosh = self.identity = identity
+        dic = _dictionary or {}
         self.readonly, self.digits, self.version = readonly, identity.digits, identity.version
         self.rho, self.delete = identity.rho, identity.delete
+        self.hosh = self.identity = identity
         self.blobs, self.hashes, self.hoshes = {}, {}, {}
         self.history, self.last = {}, None
         self.rnd = Random()
+        dic.update(kwargs)
         super().__init__()
-        self.data.update(id=identity.id, ids={})
-        self.update(**(_dictionary or {}), **kwargs)
-        self.__name__ = self.id[:10]
+        if id := self.data.get(&#34;id&#34;, False) or dic.get(&#34;id&#34;, False):
+            if not (ids := self.data.pop(&#34;ids&#34;, False) or dic.pop(&#34;ids&#34;, False)):
+                raise MissingIds(f&#34;id {id} provided but ids missing while importing dict-like&#34;)
+            if not isinstance(id, str):
+                raise WrongId(f&#34;id {id} provided should be str, not {type(id)}&#34;)
+            self.hosh *= id
+            self.hoshes.update(ids)
+            self.data.update(dic)
+            self.data[&#34;ids&#34;] = ids.copy()
+        else:
+            self.data.update(id=identity.id, ids={})
+            self.update(dic)
+        self.__name__ = self.id[:10]  # TODO: useful?
 
     def __setitem__(self, key: str, value):
         &#34;&#34;&#34;
@@ -468,6 +497,15 @@ class Ldict(UserDict, Dict[str, VT]):
 
     @property
     def asdict(self):
+        &#34;&#34;&#34;
+        &gt;&gt;&gt; from ldict import ldict
+        &gt;&gt;&gt; ldict(x=3, y=5).asdict
+        {&#39;id&#39;: &#39;c._2b0434ca422114262680df425b85cac028be6&#39;, &#39;ids&#39;: {&#39;x&#39;: &#39;kr_4aee5c3bcac2c478be9901d57fd1ef8a9d002&#39;, &#39;y&#39;: &#39;Uz_0af6d78f77734fad67e6de7cdba3ea368aae4&#39;}, &#39;x&#39;: 3, &#39;y&#39;: 5}
+
+        Returns
+        -------
+
+        &#34;&#34;&#34;
         return ldict2dic(self, all=True)
 
     def __mul__(self, other):
@@ -494,7 +532,9 @@ ldict = Ldict</code></pre>
 <div class="desc"><p>Uniquely identified lazy dict for serializable pairs str-&gt;value</p>
 <p>(serializable in the 'orjson' sense)</p>
 <p>Usage:</p>
-<pre><code class="language-python-repl">&gt;&gt;&gt; ldict(y=88, x=123123) != ldict(x=88, y=123123)  # Ids of original values embbed the keys.
+<pre><code class="language-python-repl">&gt;&gt;&gt; from ldict import sethistory
+&gt;&gt;&gt; sethistory(True)  # Keep history of ids of all applied functions.
+&gt;&gt;&gt; ldict(y=88, x=123123) != ldict(x=88, y=123123)  # Ids of original values embbed the keys.
 True
 &gt;&gt;&gt; ldict().show(colored=False)
 {
@@ -572,6 +612,21 @@ True
 True
 &gt;&gt;&gt; value = &quot;some content&quot;
 &gt;&gt;&gt; from ldict import Ø
+&gt;&gt;&gt; dic = d.asdict  # Converting to dict
+&gt;&gt;&gt; dic
+{'id': 'pp_009c55d4892401fa84d49936456d31c4e48fe', 'ids': {'x': 'a6_b90a521176a857d695e8404b5b7634d494da2', 'y': 'fj_7f5403c313a0a914feeb59fae9e60def40b4c'}, 'x': 123123, 'y': 88}
+&gt;&gt;&gt; d2 = ldict(dic)  # Reconstructing from a dict
+&gt;&gt;&gt; print(d2)
+{
+    &quot;id&quot;: &quot;pp_009c55d4892401fa84d49936456d31c4e48fe&quot;,
+    &quot;x&quot;: 123123,
+    &quot;y&quot;: 88,
+    &quot;ids&quot;: &quot;a6_b90a521176a857d695e8404b5b7634d494da2 fj_7f5403c313a0a914feeb59fae9e60def40b4c&quot;
+}
+&gt;&gt;&gt; decolorize(str(d.history))
+'{pp_009c55d4892401fa84d49936456d31c4e48fe: {fj_7f5403c313a0a914feeb59fae9e60def40b4c, a6_b90a521176a857d695e8404b5b7634d494da2}}'
+&gt;&gt;&gt; d2.history
+{}
 &gt;&gt;&gt; d = Ø &gt;&gt; {&quot;x&quot;: value}
 &gt;&gt;&gt; d.ids[&quot;x&quot;]  # id (hosh) of the pair x→blob
 'UM_b2511f438c2c34d658372d3666b6c4411cc2d'
@@ -589,6 +644,8 @@ nO_6d3d2d399495b6545837334176b6c49bfbc2d
 
     Usage:
 
+    &gt;&gt;&gt; from ldict import sethistory
+    &gt;&gt;&gt; sethistory(True)  # Keep history of ids of all applied functions.
     &gt;&gt;&gt; ldict(y=88, x=123123) != ldict(x=88, y=123123)  # Ids of original values embbed the keys.
     True
     &gt;&gt;&gt; ldict().show(colored=False)
@@ -667,6 +724,21 @@ nO_6d3d2d399495b6545837334176b6c49bfbc2d
     True
     &gt;&gt;&gt; value = &#34;some content&#34;
     &gt;&gt;&gt; from ldict import Ø
+    &gt;&gt;&gt; dic = d.asdict  # Converting to dict
+    &gt;&gt;&gt; dic
+    {&#39;id&#39;: &#39;pp_009c55d4892401fa84d49936456d31c4e48fe&#39;, &#39;ids&#39;: {&#39;x&#39;: &#39;a6_b90a521176a857d695e8404b5b7634d494da2&#39;, &#39;y&#39;: &#39;fj_7f5403c313a0a914feeb59fae9e60def40b4c&#39;}, &#39;x&#39;: 123123, &#39;y&#39;: 88}
+    &gt;&gt;&gt; d2 = ldict(dic)  # Reconstructing from a dict
+    &gt;&gt;&gt; print(d2)
+    {
+        &#34;id&#34;: &#34;pp_009c55d4892401fa84d49936456d31c4e48fe&#34;,
+        &#34;x&#34;: 123123,
+        &#34;y&#34;: 88,
+        &#34;ids&#34;: &#34;a6_b90a521176a857d695e8404b5b7634d494da2 fj_7f5403c313a0a914feeb59fae9e60def40b4c&#34;
+    }
+    &gt;&gt;&gt; decolorize(str(d.history))
+    &#39;{pp_009c55d4892401fa84d49936456d31c4e48fe: {fj_7f5403c313a0a914feeb59fae9e60def40b4c, a6_b90a521176a857d695e8404b5b7634d494da2}}&#39;
+    &gt;&gt;&gt; d2.history
+    {}
     &gt;&gt;&gt; d = Ø &gt;&gt; {&#34;x&#34;: value}
     &gt;&gt;&gt; d.ids[&#34;x&#34;]  # id (hosh) of the pair x→blob
     &#39;UM_b2511f438c2c34d658372d3666b6c4411cc2d&#39;
@@ -675,16 +747,28 @@ nO_6d3d2d399495b6545837334176b6c49bfbc2d
     &#34;&#34;&#34;
 
     def __init__(self, /, _dictionary=None, identity=ø40, readonly=False, **kwargs):
-        self.hosh = self.identity = identity
+        dic = _dictionary or {}
         self.readonly, self.digits, self.version = readonly, identity.digits, identity.version
         self.rho, self.delete = identity.rho, identity.delete
+        self.hosh = self.identity = identity
         self.blobs, self.hashes, self.hoshes = {}, {}, {}
         self.history, self.last = {}, None
         self.rnd = Random()
+        dic.update(kwargs)
         super().__init__()
-        self.data.update(id=identity.id, ids={})
-        self.update(**(_dictionary or {}), **kwargs)
-        self.__name__ = self.id[:10]
+        if id := self.data.get(&#34;id&#34;, False) or dic.get(&#34;id&#34;, False):
+            if not (ids := self.data.pop(&#34;ids&#34;, False) or dic.pop(&#34;ids&#34;, False)):
+                raise MissingIds(f&#34;id {id} provided but ids missing while importing dict-like&#34;)
+            if not isinstance(id, str):
+                raise WrongId(f&#34;id {id} provided should be str, not {type(id)}&#34;)
+            self.hosh *= id
+            self.hoshes.update(ids)
+            self.data.update(dic)
+            self.data[&#34;ids&#34;] = ids.copy()
+        else:
+            self.data.update(id=identity.id, ids={})
+            self.update(dic)
+        self.__name__ = self.id[:10]  # TODO: useful?
 
     def __setitem__(self, key: str, value):
         &#34;&#34;&#34;
@@ -977,6 +1061,15 @@ nO_6d3d2d399495b6545837334176b6c49bfbc2d
 
     @property
     def asdict(self):
+        &#34;&#34;&#34;
+        &gt;&gt;&gt; from ldict import ldict
+        &gt;&gt;&gt; ldict(x=3, y=5).asdict
+        {&#39;id&#39;: &#39;c._2b0434ca422114262680df425b85cac028be6&#39;, &#39;ids&#39;: {&#39;x&#39;: &#39;kr_4aee5c3bcac2c478be9901d57fd1ef8a9d002&#39;, &#39;y&#39;: &#39;Uz_0af6d78f77734fad67e6de7cdba3ea368aae4&#39;}, &#39;x&#39;: 3, &#39;y&#39;: 5}
+
+        Returns
+        -------
+
+        &#34;&#34;&#34;
         return ldict2dic(self, all=True)
 
     def __mul__(self, other):
@@ -1029,13 +1122,26 @@ def all(self):
 </dd>
 <dt id="ldict.ldict_.Ldict.asdict"><code class="name">var <span class="ident">asdict</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><pre><code class="language-python-repl">&gt;&gt;&gt; from ldict import ldict
+&gt;&gt;&gt; ldict(x=3, y=5).asdict
+{'id': 'c._2b0434ca422114262680df425b85cac028be6', 'ids': {'x': 'kr_4aee5c3bcac2c478be9901d57fd1ef8a9d002', 'y': 'Uz_0af6d78f77734fad67e6de7cdba3ea368aae4'}, 'x': 3, 'y': 5}
+</code></pre>
+<h2 id="returns">Returns</h2></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@property
 def asdict(self):
+    &#34;&#34;&#34;
+    &gt;&gt;&gt; from ldict import ldict
+    &gt;&gt;&gt; ldict(x=3, y=5).asdict
+    {&#39;id&#39;: &#39;c._2b0434ca422114262680df425b85cac028be6&#39;, &#39;ids&#39;: {&#39;x&#39;: &#39;kr_4aee5c3bcac2c478be9901d57fd1ef8a9d002&#39;, &#39;y&#39;: &#39;Uz_0af6d78f77734fad67e6de7cdba3ea368aae4&#39;}, &#39;x&#39;: 3, &#39;y&#39;: 5}
+
+    Returns
+    -------
+
+    &#34;&#34;&#34;
     return ldict2dic(self, all=True)</code></pre>
 </details>
 </dd>
@@ -1263,7 +1369,9 @@ True
 <div class="desc"><p>Uniquely identified lazy dict for serializable pairs str-&gt;value</p>
 <p>(serializable in the 'orjson' sense)</p>
 <p>Usage:</p>
-<pre><code class="language-python-repl">&gt;&gt;&gt; ldict(y=88, x=123123) != ldict(x=88, y=123123)  # Ids of original values embbed the keys.
+<pre><code class="language-python-repl">&gt;&gt;&gt; from ldict import sethistory
+&gt;&gt;&gt; sethistory(True)  # Keep history of ids of all applied functions.
+&gt;&gt;&gt; ldict(y=88, x=123123) != ldict(x=88, y=123123)  # Ids of original values embbed the keys.
 True
 &gt;&gt;&gt; ldict().show(colored=False)
 {
@@ -1341,6 +1449,21 @@ True
 True
 &gt;&gt;&gt; value = &quot;some content&quot;
 &gt;&gt;&gt; from ldict import Ø
+&gt;&gt;&gt; dic = d.asdict  # Converting to dict
+&gt;&gt;&gt; dic
+{'id': 'pp_009c55d4892401fa84d49936456d31c4e48fe', 'ids': {'x': 'a6_b90a521176a857d695e8404b5b7634d494da2', 'y': 'fj_7f5403c313a0a914feeb59fae9e60def40b4c'}, 'x': 123123, 'y': 88}
+&gt;&gt;&gt; d2 = ldict(dic)  # Reconstructing from a dict
+&gt;&gt;&gt; print(d2)
+{
+    &quot;id&quot;: &quot;pp_009c55d4892401fa84d49936456d31c4e48fe&quot;,
+    &quot;x&quot;: 123123,
+    &quot;y&quot;: 88,
+    &quot;ids&quot;: &quot;a6_b90a521176a857d695e8404b5b7634d494da2 fj_7f5403c313a0a914feeb59fae9e60def40b4c&quot;
+}
+&gt;&gt;&gt; decolorize(str(d.history))
+'{pp_009c55d4892401fa84d49936456d31c4e48fe: {fj_7f5403c313a0a914feeb59fae9e60def40b4c, a6_b90a521176a857d695e8404b5b7634d494da2}}'
+&gt;&gt;&gt; d2.history
+{}
 &gt;&gt;&gt; d = Ø &gt;&gt; {&quot;x&quot;: value}
 &gt;&gt;&gt; d.ids[&quot;x&quot;]  # id (hosh) of the pair x→blob
 'UM_b2511f438c2c34d658372d3666b6c4411cc2d'
@@ -1358,6 +1481,8 @@ nO_6d3d2d399495b6545837334176b6c49bfbc2d
 
     Usage:
 
+    &gt;&gt;&gt; from ldict import sethistory
+    &gt;&gt;&gt; sethistory(True)  # Keep history of ids of all applied functions.
     &gt;&gt;&gt; ldict(y=88, x=123123) != ldict(x=88, y=123123)  # Ids of original values embbed the keys.
     True
     &gt;&gt;&gt; ldict().show(colored=False)
@@ -1436,6 +1561,21 @@ nO_6d3d2d399495b6545837334176b6c49bfbc2d
     True
     &gt;&gt;&gt; value = &#34;some content&#34;
     &gt;&gt;&gt; from ldict import Ø
+    &gt;&gt;&gt; dic = d.asdict  # Converting to dict
+    &gt;&gt;&gt; dic
+    {&#39;id&#39;: &#39;pp_009c55d4892401fa84d49936456d31c4e48fe&#39;, &#39;ids&#39;: {&#39;x&#39;: &#39;a6_b90a521176a857d695e8404b5b7634d494da2&#39;, &#39;y&#39;: &#39;fj_7f5403c313a0a914feeb59fae9e60def40b4c&#39;}, &#39;x&#39;: 123123, &#39;y&#39;: 88}
+    &gt;&gt;&gt; d2 = ldict(dic)  # Reconstructing from a dict
+    &gt;&gt;&gt; print(d2)
+    {
+        &#34;id&#34;: &#34;pp_009c55d4892401fa84d49936456d31c4e48fe&#34;,
+        &#34;x&#34;: 123123,
+        &#34;y&#34;: 88,
+        &#34;ids&#34;: &#34;a6_b90a521176a857d695e8404b5b7634d494da2 fj_7f5403c313a0a914feeb59fae9e60def40b4c&#34;
+    }
+    &gt;&gt;&gt; decolorize(str(d.history))
+    &#39;{pp_009c55d4892401fa84d49936456d31c4e48fe: {fj_7f5403c313a0a914feeb59fae9e60def40b4c, a6_b90a521176a857d695e8404b5b7634d494da2}}&#39;
+    &gt;&gt;&gt; d2.history
+    {}
     &gt;&gt;&gt; d = Ø &gt;&gt; {&#34;x&#34;: value}
     &gt;&gt;&gt; d.ids[&#34;x&#34;]  # id (hosh) of the pair x→blob
     &#39;UM_b2511f438c2c34d658372d3666b6c4411cc2d&#39;
@@ -1444,16 +1584,28 @@ nO_6d3d2d399495b6545837334176b6c49bfbc2d
     &#34;&#34;&#34;
 
     def __init__(self, /, _dictionary=None, identity=ø40, readonly=False, **kwargs):
-        self.hosh = self.identity = identity
+        dic = _dictionary or {}
         self.readonly, self.digits, self.version = readonly, identity.digits, identity.version
         self.rho, self.delete = identity.rho, identity.delete
+        self.hosh = self.identity = identity
         self.blobs, self.hashes, self.hoshes = {}, {}, {}
         self.history, self.last = {}, None
         self.rnd = Random()
+        dic.update(kwargs)
         super().__init__()
-        self.data.update(id=identity.id, ids={})
-        self.update(**(_dictionary or {}), **kwargs)
-        self.__name__ = self.id[:10]
+        if id := self.data.get(&#34;id&#34;, False) or dic.get(&#34;id&#34;, False):
+            if not (ids := self.data.pop(&#34;ids&#34;, False) or dic.pop(&#34;ids&#34;, False)):
+                raise MissingIds(f&#34;id {id} provided but ids missing while importing dict-like&#34;)
+            if not isinstance(id, str):
+                raise WrongId(f&#34;id {id} provided should be str, not {type(id)}&#34;)
+            self.hosh *= id
+            self.hoshes.update(ids)
+            self.data.update(dic)
+            self.data[&#34;ids&#34;] = ids.copy()
+        else:
+            self.data.update(id=identity.id, ids={})
+            self.update(dic)
+        self.__name__ = self.id[:10]  # TODO: useful?
 
     def __setitem__(self, key: str, value):
         &#34;&#34;&#34;
@@ -1746,6 +1898,15 @@ nO_6d3d2d399495b6545837334176b6c49bfbc2d
 
     @property
     def asdict(self):
+        &#34;&#34;&#34;
+        &gt;&gt;&gt; from ldict import ldict
+        &gt;&gt;&gt; ldict(x=3, y=5).asdict
+        {&#39;id&#39;: &#39;c._2b0434ca422114262680df425b85cac028be6&#39;, &#39;ids&#39;: {&#39;x&#39;: &#39;kr_4aee5c3bcac2c478be9901d57fd1ef8a9d002&#39;, &#39;y&#39;: &#39;Uz_0af6d78f77734fad67e6de7cdba3ea368aae4&#39;}, &#39;x&#39;: 3, &#39;y&#39;: 5}
+
+        Returns
+        -------
+
+        &#34;&#34;&#34;
         return ldict2dic(self, all=True)
 
     def __mul__(self, other):
@@ -1798,13 +1959,26 @@ def all(self):
 </dd>
 <dt id="ldict.ldict_.Ldict.asdict"><code class="name">var <span class="ident">asdict</span></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><pre><code class="language-python-repl">&gt;&gt;&gt; from ldict import ldict
+&gt;&gt;&gt; ldict(x=3, y=5).asdict
+{'id': 'c._2b0434ca422114262680df425b85cac028be6', 'ids': {'x': 'kr_4aee5c3bcac2c478be9901d57fd1ef8a9d002', 'y': 'Uz_0af6d78f77734fad67e6de7cdba3ea368aae4'}, 'x': 3, 'y': 5}
+</code></pre>
+<h2 id="returns">Returns</h2></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@property
 def asdict(self):
+    &#34;&#34;&#34;
+    &gt;&gt;&gt; from ldict import ldict
+    &gt;&gt;&gt; ldict(x=3, y=5).asdict
+    {&#39;id&#39;: &#39;c._2b0434ca422114262680df425b85cac028be6&#39;, &#39;ids&#39;: {&#39;x&#39;: &#39;kr_4aee5c3bcac2c478be9901d57fd1ef8a9d002&#39;, &#39;y&#39;: &#39;Uz_0af6d78f77734fad67e6de7cdba3ea368aae4&#39;}, &#39;x&#39;: 3, &#39;y&#39;: 5}
+
+    Returns
+    -------
+
+    &#34;&#34;&#34;
     return ldict2dic(self, all=True)</code></pre>
 </details>
 </dd>
