@@ -52,8 +52,8 @@ class Ldict(UserDict, Dict[str, VT]):
 
     Usage:
 
-    >>> from ldict import sethistory
-    >>> sethistory(True)  # Keep history of ids of all applied functions.
+    >>> from ldict import setup
+    >>> setup(history=True)  # Keep history of ids of all applied functions.
     >>> ldict(y=88, x=123123) != ldict(x=88, y=123123)  # Ids of original values embbed the keys.
     True
     >>> ldict().show(colored=False)
@@ -193,7 +193,8 @@ class Ldict(UserDict, Dict[str, VT]):
 
         Parameters
         ----------
-        obj
+        key
+        value
 
         Returns
         -------

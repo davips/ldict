@@ -34,6 +34,9 @@ GLOBAL = {
 
 
 def setup(ids: bool = None, history: bool = None, cache: Union[Disk, Dict[str, VT]] = None):
-    GLOBAL["ids"] = ids or GLOBAL["ids"]
-    GLOBAL["history"] = history or GLOBAL["history"]
-    GLOBAL["cache"] = cache or GLOBAL["cache"]
+    if ids is not None:
+        GLOBAL["cache"] = ids
+    if history is not None:
+        GLOBAL["history"] = history
+    if cache is not None:
+        GLOBAL["cache"] = cache

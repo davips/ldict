@@ -238,9 +238,9 @@ d1.show(colored=False)
 print(d1.z)
 """
 {
-    "id": "ZOA1.AhP5dnVxNQkBbsmKsh5A5vIOoe4TMd8Tpey",
+    "id": "rSk5vd83xK7l6HtUbLu2-6WHXsp-OFp-utJr0kou",
     "ids": {
-        "z": "pU8YpYH42qqs3jArV07g8sJKlWuIOoe4TMd8Tpey",
+        "z": "EKWEiO5KsxyDpcd.vA9Yn6mlJhp-OFp-utJr0kou",
         "x": "Tz_d158c49297834fad67e6de7cdba3ea368aae4",
         "y": "Rs_92162dea64a7462725cac7dcee71b67669f69"
     },
@@ -248,7 +248,7 @@ print(d1.z)
     "x": 5,
     "y": 7
 }
-825.0
+1140.0
 """
 ```
 
@@ -259,9 +259,9 @@ d2.show(colored=False)
 print(d2.z)
 """
 {
-    "id": "bdavIfHmAge9eJiXgunBapdBg2Ne.nHmBDFXT3Ng",
+    "id": "B4DCggOgemGKNA6zztfbNkMihLF1SGQyjTCxjxCx",
     "ids": {
-        "z": "3sSuolw00SsRpd22Bj2vAoFe2TMe.nHmBDFXT3Ng",
+        "z": "Qi0VZ16v61VKF7SFTiW4bkcY2AF1SGQyjTCxjxCx",
         "x": "Tz_d158c49297834fad67e6de7cdba3ea368aae4",
         "y": "Rs_92162dea64a7462725cac7dcee71b67669f69"
     },
@@ -269,7 +269,7 @@ print(d2.z)
     "x": 5,
     "y": 7
 }
--384.993
+699999710.0
 """
 ```
 
@@ -289,7 +289,7 @@ print(e.z)
 e = d >> cfg(a=5) >> fun
 print(e.z)
 """
-25.007
+25.0007
 """
 ```
 
@@ -385,8 +385,8 @@ d = {"x": 5, "y": 7} >> fun
 print(d)
 """
 {
-    "id": "SrArvs3szdg7PAn7IsMqLY-fOMzwYljQ7uVbKcRD",
-    "ids": "9kB1R4bXQhuOh67e0irk9YqVzBzwYljQ7uVbKcRD... +1 ...Rs_92162dea64a7462725cac7dcee71b67669f69",
+    "id": "hoj768k4DwRA47mUH9OzlPwUMYTfLD0aE.a9t4ff",
+    "ids": "7ug9PCQyL3l03C5..-stLOYxyNTfLD0aE.a9t4ff... +1 ...Rs_92162dea64a7462725cac7dcee71b67669f69",
     "z": "→(c z→(a b x y))",
     "x": 5,
     "y": 7
@@ -398,7 +398,7 @@ print(d)
 
 print(d.z)
 """
-135.21
+140050.0
 """
 ```
 
@@ -407,7 +407,7 @@ print(d.z)
 d = {"x": 5, "y": 7} >> fun
 print(d.z)
 """
-15.00007
+81.0
 """
 ```
 
@@ -471,7 +471,7 @@ from ldict import ldict, Ø
 from ldict.cfg import cfg
 from ldict.config import setup
 
-setup({})
+setup(cache={})
 
 
 def fun(x, y):

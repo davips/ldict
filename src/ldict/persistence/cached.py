@@ -32,12 +32,15 @@ def cached(d, cache):
                 return {output_field: cache[id]}
 
             # Process and save (all fields, to avoid a parcial ldict being stored).
+            result = None
             for field, fid in ids.items():
                 if islazy(data[field]):
                     data[field] = data[field]()
                 cache[ids[field]] = data[field]
                 if field == output_field:
                     result = data[field]
+            if result is None:
+                raise Exception(f"{output_field=} not in fields: {ids.items}")
 
             # Return requested value.
             return {output_field: result}
