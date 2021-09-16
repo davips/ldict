@@ -337,7 +337,6 @@ def application(self, clone, other: Callable, config, rnd):
     -------
 
     """
-    # Attach hosh to f if needed.
     hosh = other.hosh if hasattr(other, "hosh") else fhosh(other, version=self.version)
     if hosh.etype != "ordered":
         raise FunctionETypeException(f"Functions are not allowed to have etype {hosh.etype}.")

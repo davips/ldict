@@ -24,7 +24,7 @@
 from unittest import TestCase
 
 from ldict import Ø
-from ldict.config import setcache
+from ldict.config import setup
 
 
 class Test(TestCase):
@@ -35,7 +35,7 @@ class Test(TestCase):
             c[0] += 1
             return {"z": x + 2}
 
-        setcache({})
+        setup({})
         a = Ø >> {"x": 1, "y": 2} >> f ^ Ø
         self.assertEqual(0, c[0])
         self.assertEqual(1, a.x)

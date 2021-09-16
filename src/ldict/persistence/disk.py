@@ -19,43 +19,70 @@
 #  works or verbatim, obfuscated, compiled or rewritten versions of any
 #  part of this work is illegal and unethical regarding the effort and
 #  time spent here.
-
-from abc import ABC, abstractmethod
+import shelve
+from copy import copy
 from typing import TypeVar
+
+from ldict.persistence.cache import Cache
 
 VT = TypeVar("VT")
 
 
-class Cache(ABC):  # pragma: no cover
+class Disk(Cache):  # pragma:  cover
+    """Save to/retrieve from disk.
 
-    @abstractmethod
+    Based on built-in module shelve. Open and close at every transaction.
+    To keep open, please use shelve context manager itself.
+
+    >>> d = Disk("/tmp/test.db")
+    >>> d["x"] = 5
+    >>> d["x"]
+    5
+    >>> for k,v in d.items():
+    ...     print(k, v)
+    x 5
+    """
+
+    def __init__(self, file):
+        super().__init__()
+        self.file = file
+
     def __contains__(self, item):
-        raise NotImplementedError
+        with shelve.open(self.file) as db:
+            return item in db
 
-    @abstractmethod
     def __setitem__(self, key, value):
-        raise NotImplementedError
+        with shelve.open(self.file) as db:
+            db[key] = value
 
-    @abstractmethod
     def __getitem__(self, key):
-        raise NotImplementedError
+        with shelve.open(self.file) as db:
+            return db[key]
 
-    @abstractmethod
     def __delitem__(self, key):
-        raise NotImplementedError
+        with shelve.open(self.file) as db:
+            del db[key]
 
-    @abstractmethod
     def __len__(self):
-        raise NotImplementedError
+        with shelve.open(self.file) as db:
+            return len(db)
 
-    @abstractmethod
     def __iter__(self):
-        raise NotImplementedError
+        with shelve.open(self.file) as db:
+            keys = list(db.keys())
+        return iter(keys)
 
-    @abstractmethod
     def __repr__(self):
-        raise NotImplementedError
+        with shelve.open(self.file) as db:
+            return "Disk→" + repr(db)
 
-    @abstractmethod
     def copy(self):
-        raise NotImplementedError
+        with shelve.open(self.file) as db:
+            return copy(self)
+
+    def keys(self):
+        return iter(self)
+
+    def items(self):
+        for k in self.keys():
+            yield k, self[k]

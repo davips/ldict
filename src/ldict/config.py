@@ -20,19 +20,20 @@
 #  part of this work is illegal and unethical regarding the effort and
 #  time spent here.
 from pathlib import Path
-from typing import TypeVar, Dict
+from typing import TypeVar, Dict, Union
+
+from ldict.persistence.disk import Disk
 
 VT = TypeVar("VT")
 
 GLOBAL = {
-    "cache": f"{Path.home()}/{'.ldict/shelve.db'}",
-    "history": False
+    "ids": True,
+    "history": False,
+    "cache": Disk(f"{Path.home()}/{'.ldict/shelve.db'}")
 }
 
 
-def setcache(cache: Dict[str, VT]):
-    GLOBAL["cache"] = cache
-
-
-def sethistory(state: bool):
-    GLOBAL["history"] = state
+def setup(ids: bool = None, history: bool = None, cache: Union[Disk, Dict[str, VT]] = None):
+    GLOBAL["ids"] = ids or GLOBAL["ids"]
+    GLOBAL["history"] = history or GLOBAL["history"]
+    GLOBAL["cache"] = cache or GLOBAL["cache"]

@@ -469,9 +469,9 @@ from ldict import ldict, Ø
 # It is as simple as a dict, or any dict-like implementation mapping str to serializable content.
 # Implementations can, e.g., store data on disk or in a remote computer.
 from ldict.cfg import cfg
-from ldict.config import setcache
+from ldict.config import setup
 
-setcache({})
+setup({})
 
 
 def fun(x, y):
