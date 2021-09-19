@@ -29,7 +29,7 @@ from ldict.config import GLOBAL
 
 def pack(obj):
     r"""
-    >>> setup(compression_cachelimit_MB=0.000_100)
+    >>> setup(True, True, {}, compression_cachelimit_MB=0.000_100)
     >>> memo = GLOBAL["compression_cache"]
     >>> memo
     {}
