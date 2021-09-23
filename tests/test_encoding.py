@@ -19,22 +19,17 @@
 #  works or verbatim, obfuscated, compiled or rewritten versions of any
 #  part of this work is illegal and unethical regarding the effort and
 #  time spent here.
-from typing import Callable, Dict, Union
+from unittest import TestCase
 
-from ldict.core.ldict_ import Ldict
-from ldict.parameter.functionspace import FunctionSpace
+import numpy as np
+
+from ldict.serialization import value2blob
 
 
-class Empty(Ldict):
-    def __init__(self):
-        super().__init__(readonly=True)
-
-    def __rshift__(self, other: Union[Dict, Callable, FunctionSpace], config={}):
-        from ldict.parameter.let import Let
-        if callable(other):
-            return FunctionSpace(other)
-        if isinstance(other, (Let, Ldict)):
-            return other
-        if isinstance(other, dict):
-            return Ldict(other)
-        return NotImplemented
+class Test(TestCase):
+    def test_encode(self):
+        self.assertEqual(
+            b'{"_type":"<class \'numpy.ndarray\'>","dtype":"<U32","obj":[["0.33333333333'
+            b'33333","1.25"],["19605347.64307615","text"]],"repr":"list"}',
+            value2blob(np.array([[1 / 3, 5 / 4], [1.3 ** 64, "text"]]))
+        )

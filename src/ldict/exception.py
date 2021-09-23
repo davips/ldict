@@ -20,15 +20,25 @@
 #  part of this work is illegal and unethical regarding the effort and
 #  time spent here.
 #
+import importlib
 
-def check(id, readonly, key, value=None):
+
+def check_access(id, readonly, key):
     if readonly:
         raise ReadOnlyLdict(f"Cannot change a readonly ldict ({id}).", key)
     if not isinstance(key, str):
         raise WrongKeyType(f"Key must be string, not {type(key)}.", key)
-    if callable(value):
-        raise WrongValueType(f"A value for the field [{key}] cannot have type {type(value)}. "
-                             f"For (pseudo)inplace function application, use operator >>= instead")
+
+
+def check_package(module_name, obj=None):
+    if obj is not None and not obj.__class__.__module__.startswith(module_name):
+        return None
+    try:
+        return importlib.import_module(module_name)
+    except ImportError:
+        package = module_name.split(".")[0]
+        raise MissingLibraryDependence(
+            f"Package {package} should be installed to be able to handle objects of type {type(obj)}.")
 
 
 class OverwriteException(Exception):
@@ -96,4 +106,24 @@ class MissingIds(Exception):
 
 
 class WrongId(Exception):
+    pass
+
+
+class MissingLibraryDependence(Exception):
+    pass
+
+
+class DTypeCannotBeObject(Exception):
+    pass
+
+
+class UnderscoreInField(Exception):
+    pass
+
+
+class MultipleDicts(Exception):
+    pass
+
+
+class InconsistentIds(Exception):
     pass

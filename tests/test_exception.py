@@ -19,22 +19,19 @@
 #  works or verbatim, obfuscated, compiled or rewritten versions of any
 #  part of this work is illegal and unethical regarding the effort and
 #  time spent here.
-from typing import Callable, Dict, Union
+from unittest import TestCase
 
-from ldict.core.ldict_ import Ldict
-from ldict.parameter.functionspace import FunctionSpace
+import pytest
+from garoupa import ø
+
+from ldict.exception import check_package, MissingLibraryDependence
 
 
-class Empty(Ldict):
-    def __init__(self):
-        super().__init__(readonly=True)
-
-    def __rshift__(self, other: Union[Dict, Callable, FunctionSpace], config={}):
-        from ldict.parameter.let import Let
-        if callable(other):
-            return FunctionSpace(other)
-        if isinstance(other, (Let, Ldict)):
-            return other
-        if isinstance(other, dict):
-            return Ldict(other)
-        return NotImplemented
+class Test(TestCase):
+    def test_check_package(self):
+        obj = ø
+        obj.__class__.__module__ = "0000000000"
+        self.assertEqual(check_package("asdasdasd.asdasd", 856), None)
+        obj.__class__.__module__ = "asdasdasd.asdasd.asdf"
+        with pytest.raises(MissingLibraryDependence):
+            check_package("asdasdasd.asdasd", obj)

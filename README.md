@@ -188,7 +188,7 @@ print(a)
 from random import Random
 
 from ldict import Ø
-from ldict.cfg import cfg
+from ldict.parameter import Let
 
 
 # A function provide input fields and, optionally, parameters.
@@ -468,7 +468,7 @@ from ldict import ldict, Ø
 # The cache can be set globally.
 # It is as simple as a dict, or any dict-like implementation mapping str to serializable content.
 # Implementations can, e.g., store data on disk or in a remote computer.
-from ldict.cfg import cfg
+from ldict.parameter import Let
 from ldict.config import setup
 
 setup(cache={})
@@ -589,17 +589,16 @@ Extra dependencies can be installed to support saving data to disk or to a serve
 --->
 
 ## Concept
-A ldict is like a common Python dict, with extra functionality and lazy.
-It is a mapping between string keys, called fields, and any serializable object.
-The ldict `id` (identifier) and the field `ids` are also part of the mapping.  
+
+A ldict is like a common Python dict, with extra functionality and lazy. It is a mapping between string keys, called
+fields, and any serializable (pickable) object. The ldict `id` (identifier) and the field `ids` are also part of the
+mapping.
 
 The user can provide a unique identifier ([hosh](https://pypi.org/project/garoupa))
-for each function or value object.
-Otherwise, they will be calculated through blake3 hashing of the content of data or bytecode of function.
-For this reason, such functions should be simple, i.e.,
-with minimal external dependencies, to avoid the unfortunate situation where two
-functions with identical local code actually perform different calculations through
-calls to external code that implement different algorithms with the same name.
+for each function or value object. Otherwise, they will be calculated through blake3 hashing of the content of data or
+bytecode of function. For this reason, such functions should be simple, i.e., with minimal external dependencies, to
+avoid the unfortunate situation where two functions with identical local code actually perform different calculations
+through calls to external code that implement different algorithms with the same name.
 <!--- Alternatively, a Hosh object can be passed inside the dict that is returned by the function, under the key "_id". ---/>
 
 ## Grants

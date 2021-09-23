@@ -23,6 +23,7 @@
 import json
 import re
 
+from ldict.config import GLOBAL
 from ldict.customjson import CustomJSONEncoder
 from ldict.lazy import islazy
 
@@ -45,15 +46,15 @@ def decolorize(txt):
 
 
 def ldict2txt(d, all):
-    """
+    r"""
     Textual representation of a ldict object
 
     >>> from ldict import ldict
     >>> d = ldict(x=1,y=2)
     >>> decolorize(ldict2txt(d, False))
-    '{\\n    "id": "Tb_334cc16924a8bdc38205599e516203f9054c4",\\n    "ids": "lv_56eec09cd869410b23dcb462b64fe26acc2a2 yI_a331070d4bcdde465f28ba37ba1310e928122",\\n    "x": 1,\\n    "y": 2\\n}'
+    '{\n    "id": "Tc_fb3057e399a385aaa6ebade51ef1f31c5f7e4",\n    "ids": "tY_a0e4015c066c1a73e43c6e7c4777abdeadb9f pg_7d1eecc7838558a4c1bf9584d68a487791c45",\n    "x": 1,\n    "y": 2\n}'
     >>> decolorize(ldict2txt(d, True))
-    '{\\n    "id": "Tb_334cc16924a8bdc38205599e516203f9054c4",\\n    "ids": {\\n        "x": "lv_56eec09cd869410b23dcb462b64fe26acc2a2",\\n        "y": "yI_a331070d4bcdde465f28ba37ba1310e928122"\\n    },\\n    "x": 1,\\n    "y": 2\\n}'
+    '{\n    "id": "Tc_fb3057e399a385aaa6ebade51ef1f31c5f7e4",\n    "ids": {\n        "x": "tY_a0e4015c066c1a73e43c6e7c4777abdeadb9f",\n        "y": "pg_7d1eecc7838558a4c1bf9584d68a487791c45"\n    },\n    "x": 1,\n    "y": 2\n}'
 
     Parameters
     ----------
@@ -64,7 +65,7 @@ def ldict2txt(d, all):
     -------
 
     """
-    dic = ldict2dic(d, all)
+    dic = ldict2dict(d, all)
     txt = json.dumps(dic, indent=4, ensure_ascii=False, cls=CustomJSONEncoder)
     for k, v in dic.items():
         if k == "id":
@@ -75,14 +76,14 @@ def ldict2txt(d, all):
     return txt
 
 
-def ldict2dic(d, all):
-    from ldict.ldict_ import ldict
+def ldict2dict(d, all):
+    from ldict.core.ldict_ import Ldict
     dic = d.data.copy()
     for k, v in d.data.items():
         if islazy(v):
             dic[k] = str(v)
-        elif isinstance(v, ldict):
-            dic[k] = ldict2dic(v, all)
+        elif isinstance(v, Ldict):
+            dic[k] = ldict2dict(v, all)
         if not all:
             if len(d.ids) < 3:
                 dic["ids"] = " ".join(d.ids.values())
@@ -91,4 +92,8 @@ def ldict2dic(d, all):
                 dic["ids"] = f"{ids[0]}... +{len(d) - 4} ...{ids[-1]}"
         elif k == "ids":
             dic["ids"] = d.ids.copy()
+    if not GLOBAL["ids"]:
+        # TODO: Effectively disable ids (instead of just hidding it) if there is demand for that.
+        del dic["id"]
+        del dic["ids"]
     return dic

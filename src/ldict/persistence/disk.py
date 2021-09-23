@@ -20,7 +20,6 @@
 #  part of this work is illegal and unethical regarding the effort and
 #  time spent here.
 import shelve
-from copy import copy
 from typing import TypeVar
 
 from ldict.persistence.cache import Cache
@@ -41,6 +40,18 @@ class Disk(Cache):  # pragma:  cover
     >>> for k,v in d.items():
     ...     print(k, v)
     x 5
+    >>> "x" in d
+    True
+    >>> len(d)
+    1
+    >>> d2 = d.copy()
+    >>> del d["x"]
+    >>> "x" in d
+    False
+    >>> d
+    Disk→<class 'shelve.DbfilenameShelf'>
+    >>> list(d2.keys())
+    ['x']
     """
 
     def __init__(self, file):
@@ -74,11 +85,12 @@ class Disk(Cache):  # pragma:  cover
 
     def __repr__(self):
         with shelve.open(self.file, "c") as db:
-            return "Disk→" + repr(db)
+            return "Disk→" + str(type(db))
 
     def copy(self):
         with shelve.open(self.file, "c") as db:
-            return copy(self)
+            dic = dict(db)
+            return dic
 
     def keys(self):
         return iter(self)

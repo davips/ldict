@@ -170,19 +170,10 @@ def key2id(key, digits):
     return prefix + rest[:digits - 3]
 
 
-def removal_id(d, field):
+def removal_id(template, field):
     """
-    >>> from ldict import Ø
-    >>> removal_id(Ø, "myfield")
+    >>> from garoupa import ø
+    >>> removal_id(ø.delete, "myfield")
     '--------------------.............myfield'
-
-    Parameters
-    ----------
-    d
-    field
-
-    Returns
-    -------
-
     """
-    return d.delete[:-len(field)] + field
+    return template[:-len(field)] + field
