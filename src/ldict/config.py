@@ -29,14 +29,34 @@ VT = TypeVar("VT")
 GLOBAL = {
     "ids": True,
     "history": False,
-    "cache": Disk(f"{Path.home()}/{'.ldict/shelve.db'}")
+    "cache": Disk(f"{Path.home()}/{'.ldict/shelve.db'}"),
+    "compression_cache": {},
+    "compression_cachesize": 0,
+    "compression_cachelimit": 1_000_000_000
 }
 
 
-def setup(ids: bool = None, history: bool = None, cache: Union[Disk, Dict[str, VT]] = None):
+def setup(ids: bool = None, history: bool = None, cache: Union[Disk, Dict[str, VT]] = None,
+          compression_cachelimit_MB: float = None):
+    """
+    Global behavior of ldict
+
+    Parameters
+    ----------
+    ids
+    history
+        Whether every transformation should be kept in a "list" in memory.
+    cache
+        Dict-like storage accessed through '^' operator.
+    compression_cachelimit_MB
+        Amount of MBs reserved for keeping compressed values in memory.
+        Higher values accelerate persisting original values as compression is already done at hashing.
+    """
     if ids is not None:
-        GLOBAL["cache"] = ids
+        GLOBAL["ids"] = ids
     if history is not None:
         GLOBAL["history"] = history
     if cache is not None:
         GLOBAL["cache"] = cache
+    if compression_cachelimit_MB is not None:
+        GLOBAL["compression_cachelimit"] = int(compression_cachelimit_MB * 1_000_000)
