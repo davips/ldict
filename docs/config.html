@@ -48,22 +48,26 @@
 #  part of this work is illegal and unethical regarding the effort and
 #  time spent here.
 from pathlib import Path
-from typing import TypeVar, Dict
+from typing import TypeVar, Dict, Union
+
+from ldict.persistence.disk import Disk
 
 VT = TypeVar(&#34;VT&#34;)
 
 GLOBAL = {
-    &#34;cache&#34;: f&#34;{Path.home()}/{&#39;.ldict/shelve.db&#39;}&#34;,
-    &#34;history&#34;: False
+    &#34;ids&#34;: True,
+    &#34;history&#34;: False,
+    &#34;cache&#34;: Disk(f&#34;{Path.home()}/{&#39;.ldict/shelve.db&#39;}&#34;)
 }
 
 
-def setcache(cache: Dict[str, VT]):
-    GLOBAL[&#34;cache&#34;] = cache
-
-
-def sethistory(state: bool):
-    GLOBAL[&#34;history&#34;] = state</code></pre>
+def setup(ids: bool = None, history: bool = None, cache: Union[Disk, Dict[str, VT]] = None):
+    if ids is not None:
+        GLOBAL[&#34;cache&#34;] = ids
+    if history is not None:
+        GLOBAL[&#34;history&#34;] = history
+    if cache is not None:
+        GLOBAL[&#34;cache&#34;] = cache</code></pre>
 </details>
 </section>
 <section>
@@ -73,8 +77,8 @@ def sethistory(state: bool):
 <section>
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
-<dt id="ldict.config.setcache"><code class="name flex">
-<span>def <span class="ident">setcache</span></span>(<span>cache: Dict[str, ~VT])</span>
+<dt id="ldict.config.setup"><code class="name flex">
+<span>def <span class="ident">setup</span></span>(<span>ids: bool = None, history: bool = None, cache: Union[<a title="ldict.persistence.disk.Disk" href="persistence/disk.html#ldict.persistence.disk.Disk">Disk</a>, Dict[str, ~VT]] = None)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -82,21 +86,13 @@ def sethistory(state: bool):
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def setcache(cache: Dict[str, VT]):
-    GLOBAL[&#34;cache&#34;] = cache</code></pre>
-</details>
-</dd>
-<dt id="ldict.config.sethistory"><code class="name flex">
-<span>def <span class="ident">sethistory</span></span>(<span>state: bool)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def sethistory(state: bool):
-    GLOBAL[&#34;history&#34;] = state</code></pre>
+<pre><code class="python">def setup(ids: bool = None, history: bool = None, cache: Union[Disk, Dict[str, VT]] = None):
+    if ids is not None:
+        GLOBAL[&#34;cache&#34;] = ids
+    if history is not None:
+        GLOBAL[&#34;history&#34;] = history
+    if cache is not None:
+        GLOBAL[&#34;cache&#34;] = cache</code></pre>
 </details>
 </dd>
 </dl>
@@ -117,8 +113,7 @@ def sethistory(state: bool):
 </li>
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="">
-<li><code><a title="ldict.config.setcache" href="#ldict.config.setcache">setcache</a></code></li>
-<li><code><a title="ldict.config.sethistory" href="#ldict.config.sethistory">sethistory</a></code></li>
+<li><code><a title="ldict.config.setup" href="#ldict.config.setup">setup</a></code></li>
 </ul>
 </li>
 </ul>

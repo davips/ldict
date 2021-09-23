@@ -80,8 +80,8 @@ class Ldict(UserDict, Dict[str, VT]):
 
     Usage:
 
-    &gt;&gt;&gt; from ldict import sethistory
-    &gt;&gt;&gt; sethistory(True)  # Keep history of ids of all applied functions.
+    &gt;&gt;&gt; from ldict import setup
+    &gt;&gt;&gt; setup(history=True)  # Keep history of ids of all applied functions.
     &gt;&gt;&gt; ldict(y=88, x=123123) != ldict(x=88, y=123123)  # Ids of original values embbed the keys.
     True
     &gt;&gt;&gt; ldict().show(colored=False)
@@ -221,7 +221,8 @@ class Ldict(UserDict, Dict[str, VT]):
 
         Parameters
         ----------
-        obj
+        key
+        value
 
         Returns
         -------
@@ -532,8 +533,8 @@ ldict = Ldict</code></pre>
 <div class="desc"><p>Uniquely identified lazy dict for serializable pairs str-&gt;value</p>
 <p>(serializable in the 'orjson' sense)</p>
 <p>Usage:</p>
-<pre><code class="language-python-repl">&gt;&gt;&gt; from ldict import sethistory
-&gt;&gt;&gt; sethistory(True)  # Keep history of ids of all applied functions.
+<pre><code class="language-python-repl">&gt;&gt;&gt; from ldict import setup
+&gt;&gt;&gt; setup(history=True)  # Keep history of ids of all applied functions.
 &gt;&gt;&gt; ldict(y=88, x=123123) != ldict(x=88, y=123123)  # Ids of original values embbed the keys.
 True
 &gt;&gt;&gt; ldict().show(colored=False)
@@ -644,8 +645,8 @@ nO_6d3d2d399495b6545837334176b6c49bfbc2d
 
     Usage:
 
-    &gt;&gt;&gt; from ldict import sethistory
-    &gt;&gt;&gt; sethistory(True)  # Keep history of ids of all applied functions.
+    &gt;&gt;&gt; from ldict import setup
+    &gt;&gt;&gt; setup(history=True)  # Keep history of ids of all applied functions.
     &gt;&gt;&gt; ldict(y=88, x=123123) != ldict(x=88, y=123123)  # Ids of original values embbed the keys.
     True
     &gt;&gt;&gt; ldict().show(colored=False)
@@ -785,7 +786,8 @@ nO_6d3d2d399495b6545837334176b6c49bfbc2d
 
         Parameters
         ----------
-        obj
+        key
+        value
 
         Returns
         -------
@@ -1369,8 +1371,8 @@ True
 <div class="desc"><p>Uniquely identified lazy dict for serializable pairs str-&gt;value</p>
 <p>(serializable in the 'orjson' sense)</p>
 <p>Usage:</p>
-<pre><code class="language-python-repl">&gt;&gt;&gt; from ldict import sethistory
-&gt;&gt;&gt; sethistory(True)  # Keep history of ids of all applied functions.
+<pre><code class="language-python-repl">&gt;&gt;&gt; from ldict import setup
+&gt;&gt;&gt; setup(history=True)  # Keep history of ids of all applied functions.
 &gt;&gt;&gt; ldict(y=88, x=123123) != ldict(x=88, y=123123)  # Ids of original values embbed the keys.
 True
 &gt;&gt;&gt; ldict().show(colored=False)
@@ -1481,8 +1483,8 @@ nO_6d3d2d399495b6545837334176b6c49bfbc2d
 
     Usage:
 
-    &gt;&gt;&gt; from ldict import sethistory
-    &gt;&gt;&gt; sethistory(True)  # Keep history of ids of all applied functions.
+    &gt;&gt;&gt; from ldict import setup
+    &gt;&gt;&gt; setup(history=True)  # Keep history of ids of all applied functions.
     &gt;&gt;&gt; ldict(y=88, x=123123) != ldict(x=88, y=123123)  # Ids of original values embbed the keys.
     True
     &gt;&gt;&gt; ldict().show(colored=False)
@@ -1622,7 +1624,8 @@ nO_6d3d2d399495b6545837334176b6c49bfbc2d
 
         Parameters
         ----------
-        obj
+        key
+        value
 
         Returns
         -------

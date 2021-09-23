@@ -49,12 +49,17 @@
 #  time spent here.
 
 from abc import ABC, abstractmethod
-from typing import Dict, TypeVar
+from typing import TypeVar
 
 VT = TypeVar(&#34;VT&#34;)
 
 
-class Cache(Dict[str, VT], ABC):
+class Cache(ABC):  # pragma: no cover
+
+    @abstractmethod
+    def __contains__(self, item):
+        raise NotImplementedError
+
     @abstractmethod
     def __setitem__(self, key, value):
         raise NotImplementedError
@@ -65,6 +70,22 @@ class Cache(Dict[str, VT], ABC):
 
     @abstractmethod
     def __delitem__(self, key):
+        raise NotImplementedError
+
+    @abstractmethod
+    def __len__(self):
+        raise NotImplementedError
+
+    @abstractmethod
+    def __iter__(self):
+        raise NotImplementedError
+
+    @abstractmethod
+    def __repr__(self):
+        raise NotImplementedError
+
+    @abstractmethod
+    def copy(self):
         raise NotImplementedError</code></pre>
 </details>
 </section>
@@ -79,25 +100,20 @@ class Cache(Dict[str, VT], ABC):
 <dl>
 <dt id="ldict.persistence.cache.Cache"><code class="flex name class">
 <span>class <span class="ident">Cache</span></span>
-<span>(</span><span>*args, **kwargs)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>dict() -&gt; new empty dictionary
-dict(mapping) -&gt; new dictionary initialized from a mapping object's
-(key, value) pairs
-dict(iterable) -&gt; new dictionary initialized as if via:
-d = {}
-for k, v in iterable:
-d[k] = v
-dict(**kwargs) -&gt; new dictionary initialized with the name=value pairs
-in the keyword argument list.
-For example:
-dict(one=1, two=2)</p></div>
+<div class="desc"><p>Helper class that provides a standard way to create an ABC using
+inheritance.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class Cache(Dict[str, VT], ABC):
+<pre><code class="python">class Cache(ABC):  # pragma: no cover
+
+    @abstractmethod
+    def __contains__(self, item):
+        raise NotImplementedError
+
     @abstractmethod
     def __setitem__(self, key, value):
         raise NotImplementedError
@@ -108,14 +124,49 @@ dict(one=1, two=2)</p></div>
 
     @abstractmethod
     def __delitem__(self, key):
+        raise NotImplementedError
+
+    @abstractmethod
+    def __len__(self):
+        raise NotImplementedError
+
+    @abstractmethod
+    def __iter__(self):
+        raise NotImplementedError
+
+    @abstractmethod
+    def __repr__(self):
+        raise NotImplementedError
+
+    @abstractmethod
+    def copy(self):
         raise NotImplementedError</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
-<li>builtins.dict</li>
-<li>typing.Generic</li>
 <li>abc.ABC</li>
 </ul>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="ldict.persistence.disk.Disk" href="disk.html#ldict.persistence.disk.Disk">Disk</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="ldict.persistence.cache.Cache.copy"><code class="name flex">
+<span>def <span class="ident">copy</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@abstractmethod
+def copy(self):
+    raise NotImplementedError</code></pre>
+</details>
+</dd>
+</dl>
 </dd>
 </dl>
 </section>
@@ -135,6 +186,9 @@ dict(one=1, two=2)</p></div>
 <ul>
 <li>
 <h4><code><a title="ldict.persistence.cache.Cache" href="#ldict.persistence.cache.Cache">Cache</a></code></h4>
+<ul class="">
+<li><code><a title="ldict.persistence.cache.Cache.copy" href="#ldict.persistence.cache.Cache.copy">copy</a></code></li>
+</ul>
 </li>
 </ul>
 </li>

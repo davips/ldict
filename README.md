@@ -238,9 +238,9 @@ d1.show(colored=False)
 print(d1.z)
 """
 {
-    "id": "rSk5vd83xK7l6HtUbLu2-6WHXsp-OFp-utJr0kou",
+    "id": "Mp1yr9noHt9SvXiI1f1bZEijYbMBL0mALAyZNEWy",
     "ids": {
-        "z": "EKWEiO5KsxyDpcd.vA9Yn6mlJhp-OFp-utJr0kou",
+        "z": "GtlAp2MdvSSR6p2Pl4I4nEKYJ0MBL0mALAyZNEWy",
         "x": "Tz_d158c49297834fad67e6de7cdba3ea368aae4",
         "y": "Rs_92162dea64a7462725cac7dcee71b67669f69"
     },
@@ -248,7 +248,7 @@ print(d1.z)
     "x": 5,
     "y": 7
 }
-1140.0
+69999575.0
 """
 ```
 
@@ -259,9 +259,9 @@ d2.show(colored=False)
 print(d2.z)
 """
 {
-    "id": "B4DCggOgemGKNA6zztfbNkMihLF1SGQyjTCxjxCx",
+    "id": "WjV.14N7ZlvtNZg11VO2iNBDMxpTjr8ndG.oMHQh",
     "ids": {
-        "z": "Qi0VZ16v61VKF7SFTiW4bkcY2AF1SGQyjTCxjxCx",
+        "z": "sndxQOXZv6q2Bv08lKtYHM1hympTjr8ndG.oMHQh",
         "x": "Tz_d158c49297834fad67e6de7cdba3ea368aae4",
         "y": "Rs_92162dea64a7462725cac7dcee71b67669f69"
     },
@@ -269,7 +269,7 @@ print(d2.z)
     "x": 5,
     "y": 7
 }
-699999710.0
+6999725.0
 """
 ```
 
@@ -289,7 +289,7 @@ print(e.z)
 e = d >> cfg(a=5) >> fun
 print(e.z)
 """
-25.0007
+25.7
 """
 ```
 
@@ -299,7 +299,7 @@ print(e.z)
 e = e >> cfg(a=5) >> fun
 print(e.z)
 """
-32.0
+25.0007
 """
 ```
 
@@ -385,8 +385,8 @@ d = {"x": 5, "y": 7} >> fun
 print(d)
 """
 {
-    "id": "hoj768k4DwRA47mUH9OzlPwUMYTfLD0aE.a9t4ff",
-    "ids": "7ug9PCQyL3l03C5..-stLOYxyNTfLD0aE.a9t4ff... +1 ...Rs_92162dea64a7462725cac7dcee71b67669f69",
+    "id": "H120ZR1TfMaO7IZpNddKpp7c1hBXAr3ofA9xxcfE",
+    "ids": "39J9hxiBgjZnheJw53UDPozRO5BXAr3ofA9xxcfE... +1 ...Rs_92162dea64a7462725cac7dcee71b67669f69",
     "z": "→(c z→(a b x y))",
     "x": 5,
     "y": 7
@@ -398,7 +398,7 @@ print(d)
 
 print(d.z)
 """
-140050.0
+2160.0
 """
 ```
 
@@ -407,7 +407,7 @@ print(d.z)
 d = {"x": 5, "y": 7} >> fun
 print(d.z)
 """
-81.0
+41.4
 """
 ```
 
@@ -563,15 +563,16 @@ with shelve.open("/tmp/my-cache-file.db") as db:
     print(e.m0, e.m)
 
 """
-{'3Q_85403c3464883af128dc24eef54294173d8ef': [1, 4],
- 'E0_45bf7de0dcdfc012da8a0f556492e8880b09d': [3, 2],
- 'KBQMiN2gHLwCewlu6HC67I1R2-m8hIbZ8IXI2c0c': 2.8284271247461903,
- 'uSytg7O3BaGIggOzqYSBO3ees4KQw0Bf1SouJQht': 2.8284271247461903}
+{'ZK_daeadc42296aa9a548b4f40a0911e9113dda6': [1, 4],
+ 'nAKKyEJQ.unjd8SFCGPcevcxfjf8hIbZ8IXI2c0c': 2.8284271247461903,
+ 'uD_be8e2b9128cd165438ae0efe887dff0a992d1': [3, 2]}
 2.8284271247461903
 {'3Q_85403c3464883af128dc24eef54294173d8ef': [1, 4],
  'E0_45bf7de0dcdfc012da8a0f556492e8880b09d': [3, 2],
  'KBQMiN2gHLwCewlu6HC67I1R2-m8hIbZ8IXI2c0c': 2.8284271247461903,
- 'uSytg7O3BaGIggOzqYSBO3ees4KQw0Bf1SouJQht': 2.8284271247461903}
+ 'ZK_daeadc42296aa9a548b4f40a0911e9113dda6': [1, 4],
+ 'nAKKyEJQ.unjd8SFCGPcevcxfjf8hIbZ8IXI2c0c': 2.8284271247461903,
+ 'uD_be8e2b9128cd165438ae0efe887dff0a992d1': [3, 2]}
 3.2169892001050897 10.349019513592784
 """
 ```
