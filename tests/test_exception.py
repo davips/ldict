@@ -19,27 +19,19 @@
 #  works or verbatim, obfuscated, compiled or rewritten versions of any
 #  part of this work is illegal and unethical regarding the effort and
 #  time spent here.
+from unittest import TestCase
 
-class Lazy:
-    def __init__(self, field, f, deps, multi_output=False):
-        self.field = field
-        self.f = f
-        self.deps = deps
-        self.multi_output = multi_output
+import pytest
+from garoupa import ø
 
-    def __call__(self, *args, **kwargs):
-        for k, v in self.deps.items():
-            if islazy(v):
-                self.deps[k] = v()
-        result = self.f(**self.deps)
-        return result[self.field] if self.multi_output else result
-
-    def __repr__(self):
-        dic = {}
-        for k, v in self.deps.items():
-            dic[k] = v if islazy(v) else ""
-        return f"→({' '.join([f'{k}{v}' for k, v in dic.items()])})"
+from ldict.exception import check_package, MissingLibraryDependence
 
 
-def islazy(obj):
-    return obj.__class__.__name__ == "Lazy"
+class Test(TestCase):
+    def test_check_package(self):
+        obj = ø
+        obj.__class__.__module__ = "0000000000"
+        self.assertEqual(check_package("asdasdasd.asdasd", 856), None)
+        obj.__class__.__module__ = "asdasdasd.asdasd.asdf"
+        with pytest.raises(MissingLibraryDependence):
+            check_package("asdasdasd.asdasd", obj)

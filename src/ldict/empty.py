@@ -21,8 +21,8 @@
 #  time spent here.
 from typing import Callable, Dict, Union
 
-from ldict.functionspace import FunctionSpace
-from ldict.ldict_ import Ldict
+from ldict.core.ldict_ import Ldict
+from ldict.parameter.functionspace import FunctionSpace
 
 
 class Empty(Ldict):
@@ -30,10 +30,10 @@ class Empty(Ldict):
         super().__init__(readonly=True)
 
     def __rshift__(self, other: Union[Dict, Callable, FunctionSpace], config={}):
-        from ldict.cfg import cfg
+        from ldict.parameter.let import Let
         if callable(other):
             return FunctionSpace(other)
-        if isinstance(other, (cfg, Ldict)):
+        if isinstance(other, (Let, Ldict)):
             return other
         if isinstance(other, dict):
             return Ldict(other)

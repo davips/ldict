@@ -28,14 +28,28 @@ from ldict.exception import check_package
 
 def default_orjson_encoder(obj):
     r"""
+    WARNING: orjson does not work for integer keys
+
     >>> import numpy as np
     >>> default_orjson_encoder(np.array([[1/3,5/4],[1.3**64, -1]]))
     {'_type': "<class 'numpy.ndarray'>", 'repr': 'str', 'dtype': 'float64', 'obj': '[[0.3333333333333333,1.25],[19605347.64307615,-1.0]]'}
+    >>> import pandas as pd
+    >>> df = pd.DataFrame(
+    ...     [[1/3, 5/4], [1.3**54, "text"]],
+    ...     index=["row 1", "row 2"],
+    ...     columns=["col 1", "col 2"],
+    ... )
+    >>> default_orjson_encoder(df)
+    {'_type': "<class 'pandas.core.frame.DataFrame'>", 'col 1': [('row 1', 0.3333333333333333), ('row 2', 1422135.6537506874)], 'col 2': [('row 1', 1.25), ('row 2', 'text')]}
     """
     if m := check_package("pandas.core", obj):
         if isinstance(obj, (m.frame.DataFrame, m.series.Series)):
-            dic = obj.to_dict()
-            dic["_type"] = str(type(obj))
+            dic = {"_type": str(type(obj))}
+            for k, v in obj.to_dict().items():
+                if isinstance(v, dict):
+                    dic[k] = list(v.items())
+                else:
+                    dic[k] = v
             return dic
     elif m := check_package("numpy", obj):
         if isinstance(obj, m.ndarray):
@@ -48,7 +62,7 @@ def default_orjson_encoder(obj):
     raise TypeError  # pragma: no cover
 
 
-def encode(obj):
+def value2blob(obj):
     r"""
     >>> import pandas as pd
     >>> df = pd.DataFrame(
@@ -60,8 +74,8 @@ def encode(obj):
                   col 1 col 2
     row 1  3.333333e-01  1.25
     row 2  1.422136e+06  text
-    >>> encode(df)
-    b'{"_type":"<class \'pandas.core.frame.DataFrame\'>","col 1":{"row 1":0.3333333333333333,"row 2":1422135.6537506874},"col 2":{"row 1":1.25,"row 2":"text"}}'
+    >>> value2blob(df)
+    b'{"_type":"<class \'pandas.core.frame.DataFrame\'>","col 1":[["row 1",0.3333333333333333],["row 2",1422135.6537506874]],"col 2":[["row 1",1.25],["row 2","text"]]}'
     >>> s = pd.Series(
     ...     [1/3, 5/4, (1.3)**54, "text"],
     ...     index=["row 1", "row 2", "row 3", "row 4"],
@@ -72,10 +86,10 @@ def encode(obj):
     row 3    1422135.653751
     row 4              text
     dtype: object
-    >>> encode(s)
+    >>> value2blob(s)
     b'{"_type":"<class \'pandas.core.series.Series\'>","row 1":0.3333333333333333,"row 2":1.25,"row 3":1422135.6537506874,"row 4":"text"}'
     >>> import numpy as np
-    >>> encode(np.array([[1/3,5/4],[1.3**64, "text"]]))
+    >>> value2blob(np.array([[1/3,5/4],[1.3**64, "text"]]))
     b'{"_type":"<class \'numpy.ndarray\'>","dtype":"<U32","obj":[["0.3333333333333333","1.25"],["19605347.64307615","text"]],"repr":"list"}'
     """
     return dumps(obj, default=default_orjson_encoder, option=OPT_SORT_KEYS)
@@ -84,6 +98,7 @@ def encode(obj):
 def json_object_hook_decoder(dic):
     if '_type' in dic:
         if "pandas" in (typ := dic.pop("_type")):
+            # TODO: rebuild internal dicts before converting to pandas
             m = check_package("pandas.core")
             if "DataFrame" in typ:
                 return m.frame.DataFrame.from_dict(dic)
@@ -96,22 +111,22 @@ def json_object_hook_decoder(dic):
     return dic
 
 
-def decode(blob):
+def blob2value(blob):
     r"""
     >>> df = b'{"_type":"<class \'pandas.core.frame.DataFrame\'>","col 1":{"row 1":0.3333333333333333,"row 2":1422135.6537506874},"col 2":{"row 1":1.25,"row 2":"text"}}'
-    >>> decode(df)
+    >>> blob2value(df)
                   col 1 col 2
     row 1  3.333333e-01  1.25
     row 2  1.422136e+06  text
     >>> s = b'{"_type":"<class \'pandas.core.series.Series\'>","row 1":0.3333333333333333,"row 2":1.25,"row 3":1422135.6537506874,"row 4":"text"}'
-    >>> decode(s)
+    >>> blob2value(s)
     row 1          0.333333
     row 2              1.25
     row 3    1422135.653751
     row 4              text
     dtype: object
     >>> n = {'_type': "<class 'numpy.ndarray'>", 'repr': 'str', 'dtype': 'float64', 'obj': '[[0.3333333333333333,1.25],[19605347.64307615,-1.0]]'}
-    >>> decode(encode(n))
+    >>> blob2value(value2blob(n))
     array([[ 3.33333333e-01,  1.25000000e+00],
            [ 1.96053476e+07, -1.00000000e+00]])
     """

@@ -26,7 +26,7 @@ import pytest
 from sys import maxsize
 
 from ldict import ldict, Ø
-from ldict.exception import DependenceException, NoInputException, WrongKeyType, WrongValueType, ReadOnlyLdict, \
+from ldict.exception import DependenceException, NoInputException, WrongKeyType, ReadOnlyLdict, \
     OverwriteException
 
 
@@ -38,8 +38,8 @@ class TestLdict(TestCase):
         self.assertFalse(a == 123)
         self.assertNotEqual(a, 123)
         self.assertEqual(a.hosh.n % maxsize, hash(a))
-        d = {'id': 'Tb_334cc16924a8bdc38205599e516203f9054c4',
-             'ids': {'x': 'lv_56eec09cd869410b23dcb462b64fe26acc2a2', 'y': 'yI_a331070d4bcdde465f28ba37ba1310e928122'},
+        d = {'id': 'Tc_fb3057e399a385aaa6ebade51ef1f31c5f7e4',
+             'ids': {'x': 'tY_a0e4015c066c1a73e43c6e7c4777abdeadb9f', 'y': 'pg_7d1eecc7838558a4c1bf9584d68a487791c45'},
              'x': 1,
              'y': 2}
         self.assertEqual(a.asdict, d)
@@ -57,8 +57,8 @@ class TestLdict(TestCase):
         d["z"] = 5
         self.assertEqual(
             """{
-    "id": "Eh_00710612d0ed177a866b2cf5e6fbdbc5b9bff",
-    "ids": "kr_4aee5c3bcac2c478be9901d57fd1ef8a9d002... +1 ...Vz_d467c65677734fad67e6de7cdba3ea368aae4",
+    "id": "Pd_7f559308b2f3bf28c9dfd54cf6ba43b636504",
+    "ids": "WB_e55a47230d67db81bcc1aecde8f1b950282cd... +1 ...1U_fdd682399a475d5365aeb336044f7b4270977",
     "x": 3,
     "y": 4,
     "z": 5
@@ -74,8 +74,8 @@ class TestLdict(TestCase):
 
         self.assertEqual(
             """{
-    "id": "Yh6activ2aPNEtjkAeFtbIXZiZoadBnjS7VNt6Mg",
-    "ids": "i9o-7w8EyntJ45qTLHzOyu33capadBnjS7VNt6Mg... +1 ...Uz_0af6d78f77734fad67e6de7cdba3ea368aae4",
+    "id": "dq32pdZalIcM-fc5ZX1PZjUhNSpadBnjS7VNt6Mg",
+    "ids": "m3S-qN-WiH188lwxKIguTF.2YniadBnjS7VNt6Mg... +1 ...0U_e2a86ff72e226d5365aea336044f7b4270977",
     "z": "→(x y)",
     "x": 3,
     "y": 5
@@ -89,18 +89,22 @@ class TestLdict(TestCase):
         d["x"] = 3
         d["y"] = 5
         d >>= lambda x, y: {"z": x * y}
+        id = d.id
+        self.assertEqual(id, d.id)
 
         # Overwrite same value.
+        d.show()
         d["y"] = 5
-        self.assertEqual("Yh6activ2aPNEtjkAeFtbIXZiZoadBnjS7VNt6Mg", d.id)
+        d.show()
+        self.assertEqual(id, d.id)
 
         # Repeate same overwrite.
         d["y"] = 5
-        self.assertEqual("Yh6activ2aPNEtjkAeFtbIXZiZoadBnjS7VNt6Mg", d.id)
+        self.assertEqual(id, d.id)
 
         # Overwrite other value.
         d["y"] = 6
-        self.assertEqual("qb0KHIpi2b06ikRW.fzJr5V1.rsadBnjS7VNt6Mg", d.id)
+        self.assertNotEqual(id, d.id)
 
     def test_rshift(self):
         d = ldict()
@@ -109,8 +113,8 @@ class TestLdict(TestCase):
         d >>= lambda x, y: {"z": x * y}
         self.assertEqual(
             """{
-    "id": "Yh6activ2aPNEtjkAeFtbIXZiZoadBnjS7VNt6Mg",
-    "ids": "i9o-7w8EyntJ45qTLHzOyu33capadBnjS7VNt6Mg... +1 ...Uz_0af6d78f77734fad67e6de7cdba3ea368aae4",
+    "id": "dq32pdZalIcM-fc5ZX1PZjUhNSpadBnjS7VNt6Mg",
+    "ids": "m3S-qN-WiH188lwxKIguTF.2YniadBnjS7VNt6Mg... +1 ...0U_e2a86ff72e226d5365aea336044f7b4270977",
     "z": "→(x y)",
     "x": 3,
     "y": 5
@@ -118,12 +122,8 @@ class TestLdict(TestCase):
             str(d),
         )
         self.assertEqual(15, d.z)
-        with pytest.raises(WrongValueType):
-            d >>= {"z": lambda: None}
         with pytest.raises(OverwriteException):
             d >>= {"z": 5}
-        with pytest.raises(WrongValueType):
-            d >>= None
 
     def test_overwrite(self):
         a = ldict(x=3)
@@ -189,8 +189,6 @@ class TestLdict(TestCase):
         d = Ø >> {"x": 0}
         with pytest.raises(WrongKeyType):
             d[1] = 1
-        with pytest.raises(WrongValueType):
-            d["x"] = lambda x: x
 
         d = Ø >> {"d": d}
         with pytest.raises(ReadOnlyLdict):

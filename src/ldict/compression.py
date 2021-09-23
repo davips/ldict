@@ -23,16 +23,14 @@ import pickle
 
 import lz4.frame as lz4
 
-from ldict import setup
-from ldict.config import GLOBAL
+from ldict.config import setup, GLOBAL
 
 
 def pack(obj):
     r"""
     >>> setup(True, True, {}, compression_cachelimit_MB=0.000_100)
-    >>> memo = GLOBAL["compression_cache"]
-    >>> memo
-    {}
+    >>> memo = GLOBAL["compression_cache"] = {}
+    >>> GLOBAL["compression_cachesize"] = 0
     >>> b = b"000011"
     >>> pack(b)
     b'\x04"M\x18h@\x15\x00\x00\x00\x00\x00\x00\x006\x13\x00\x00\x00R\x80\x05\x95\n\x00\x01\x00\xa0C\x06000011\x94.\x00\x00\x00\x00'

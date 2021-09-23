@@ -19,27 +19,17 @@
 #  works or verbatim, obfuscated, compiled or rewritten versions of any
 #  part of this work is illegal and unethical regarding the effort and
 #  time spent here.
+from unittest import TestCase
 
-class Lazy:
-    def __init__(self, field, f, deps, multi_output=False):
-        self.field = field
-        self.f = f
-        self.deps = deps
-        self.multi_output = multi_output
+import numpy as np
 
-    def __call__(self, *args, **kwargs):
-        for k, v in self.deps.items():
-            if islazy(v):
-                self.deps[k] = v()
-        result = self.f(**self.deps)
-        return result[self.field] if self.multi_output else result
-
-    def __repr__(self):
-        dic = {}
-        for k, v in self.deps.items():
-            dic[k] = v if islazy(v) else ""
-        return f"→({' '.join([f'{k}{v}' for k, v in dic.items()])})"
+from ldict.serialization import value2blob
 
 
-def islazy(obj):
-    return obj.__class__.__name__ == "Lazy"
+class Test(TestCase):
+    def test_encode(self):
+        self.assertEqual(
+            b'{"_type":"<class \'numpy.ndarray\'>","dtype":"<U32","obj":[["0.33333333333'
+            b'33333","1.25"],["19605347.64307615","text"]],"repr":"list"}',
+            value2blob(np.array([[1 / 3, 5 / 4], [1.3 ** 64, "text"]]))
+        )

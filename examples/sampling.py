@@ -1,8 +1,7 @@
 # Parameterized functions and sampling
 from random import Random
 
-from ldict import Ø
-from ldict.cfg import cfg
+from ldict import Ø, let
 
 
 # A function provide input fields and, optionally, parameters.
@@ -37,36 +36,36 @@ print(d2.z)
 # ...
 
 # Parameter values can also be manually set.
-e = d >> cfg(a=5, b=10) >> fun
+e = d >> let(a=5, b=10) >> fun
 print(e.z)
 # ...
 
 # Not all parameters need to be set.
-e = d >> cfg(a=5) >> fun
+e = d >> let(a=5) >> fun
 print(e.z)
 # ...
 
 # Each run will be a different sample for the missing parameters.
-e = e >> cfg(a=5) >> fun
+e = e >> let(a=5) >> fun
 print(e.z)
 # ...
 
 # We can define the initial state of the random sampler.
 # It will be in effect from its location place onwards in the expression.
-e = d >> cfg(a=5) >> Random(0) >> fun
+e = d >> let(a=5) >> Random(0) >> fun
 print(e.z)
 # ...
 
 # All runs will yield the same result,
 # if starting from the same random number generator seed.
-e = e >> cfg(a=5) >> Random(0) >> fun
+e = e >> let(a=5) >> Random(0) >> fun
 print(e.z)
 # ...
 
 # Reproducible different runs are achievable by using a single random number generator.
 rnd = Random(0)
-e = d >> cfg(a=5) >> rnd >> fun
+e = d >> let(a=5) >> rnd >> fun
 print(e.z)
-e = d >> cfg(a=5) >> rnd >> fun  # Alternative syntax.
+e = d >> let(a=5) >> rnd >> fun  # Alternative syntax.
 print(e.z)
 # ...

@@ -3,12 +3,11 @@ import shelve
 from collections import namedtuple
 from pprint import pprint
 
-from ldict import ldict, Ø
+from ldict import ldict, Ø, setup, let
+
 # The cache can be set globally.
-# It is as simple as a dict, or any dict-like implementation mapping str to serializable content.
+# It is as simple as a dict, or any dict-like implementation mapping str to serializable (pickable) content.
 # Implementations can, e.g., store data on disk or in a remote computer.
-from ldict.cfg import cfg
-from ldict.config import setup
 
 setup(cache={})
 
@@ -72,8 +71,9 @@ with shelve.open("/tmp/my-cache-file.db") as db:
             >> {"other_distance": d.distance}
             >> mean
             ^ Ø
-            ^ cfg(source="m", target="m0")
+            ^ let(source="m", target="m0")
             >> copy
             >> (lambda m: {"m": m ** 2})
     )
+    e.show()
     print(e.m0, e.m)
