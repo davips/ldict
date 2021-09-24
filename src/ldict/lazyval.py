@@ -21,16 +21,18 @@
 #  time spent here.
 
 class LazyVal:
-    def __init__(self, field, f, deps):
+    def __init__(self, field, f, deps, multi_output):
         self.field = field
         self.f = f
         self.deps = deps
+        self.multi_output = multi_output
 
     def __call__(self, *args, **kwargs):
         for k, v in self.deps.items():
             if islazy(v):
                 self.deps[k] = v()
-        return self.f(**self.deps)[self.field]
+        result = self.f(**self.deps)
+        return result[self.field] if self.multi_output else result
 
     def __repr__(self):
         dic = {}

@@ -19,6 +19,24 @@
 #  works or verbatim, obfuscated, compiled or rewritten versions of any
 #  part of this work is illegal and unethical regarding the effort and
 #  time spent here.
+#
+#  ldict is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  ldict is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with ldict.  If not, see <http://www.gnu.org/licenses/>.
+#
+#  (*) Removing authorship by any means, e.g. by distribution of derived
+#  works or verbatim, obfuscated, compiled or rewritten versions of any
+#  part of this work is illegal and unethical regarding the effort and
+#  time spent here.
 from ldict.config import GLOBAL
 
 
@@ -31,10 +49,11 @@ def extend_history(history, last, hosh):
     {}
     >>> d["x"] = 5
     >>> from ldict import decolorize
-    >>> decolorize(str(d.history)) == '{Tz_d158c49297834fad67e6de7cdba3ea368aae4: None}'
+    >>> from garoupa import ø40
+    >>> d.history == {ø40*".T_f0bb8da3062cc75365ae0446044f7b3270977": None}
     True
     >>> d["y"] = 7
-    >>> decolorize(str(d.history)) == '{I0_39c94b4dfbc7a8579ca1304eba25917204a5e: {Tz_d158c49297834fad67e6de7cdba3ea368aae4, Rs_92162dea64a7462725cac7dcee71b67669f69}}'
+    >>> d.history == {ø40*"mP_2d615fd34f97ac906e162c6fc6aedadc4d140": {ø40*"mX_dc5a686049ceb1caf8778e34d26f5fd4cc8c8", ø40*".T_f0bb8da3062cc75365ae0446044f7b3270977"}}
     True
 
     Parameters
@@ -75,10 +94,11 @@ def rewrite_history(history, last, hosh, hoshes):
     >>> d["x"] = 5
     >>> d["y"] = 7
     >>> from ldict import decolorize
-    >>> decolorize(str(d.history)) == '{I0_39c94b4dfbc7a8579ca1304eba25917204a5e: {Tz_d158c49297834fad67e6de7cdba3ea368aae4, Rs_92162dea64a7462725cac7dcee71b67669f69}}'
+    >>> from garoupa import ø40
+    >>> d.history == {ø40*"mP_2d615fd34f97ac906e162c6fc6aedadc4d140": {ø40*"mX_dc5a686049ceb1caf8778e34d26f5fd4cc8c8", ø40*".T_f0bb8da3062cc75365ae0446044f7b3270977"}}
     True
     >>> d["z"] = 8
-    >>> decolorize(str(d.history)) == '{-H_b4adb0fb38e343cfe5984eec6d1c92907539b: {hH_2713d4ae3c47207859e6cd9ea2f6013e6193d, Tz_d158c49297834fad67e6de7cdba3ea368aae4, Rs_92162dea64a7462725cac7dcee71b67669f69}}'
+    >>> d.history == {ø40*"td_36054eee402a39b19bc9c3162df3424f8ec1f": {ø40*"7q_3c95f44b01eb0f9e2da3bda1665567bc21bde", ø40*"mX_dc5a686049ceb1caf8778e34d26f5fd4cc8c8", ø40*".T_f0bb8da3062cc75365ae0446044f7b3270977"}}
     True
     >>> list(d.ids.keys()) == ["x", "y", "z"]
     True
@@ -86,41 +106,48 @@ def rewrite_history(history, last, hosh, hoshes):
     >>> list(d.ids.keys()) == ["y", "z"]
     True
     >>> del d["z"]
-    >>> decolorize(str(d.history)) == '{Rs_92162dea64a7462725cac7dcee71b67669f69: None}'
+    >>> d.history == {ø40*"mX_dc5a686049ceb1caf8778e34d26f5fd4cc8c8": None}
     True
     >>> d >>= lambda y: {"x": y**2}
     >>> d >>= lambda y: {"w": y**2}
     >>> del d["x"]
     >>> del d["w"]
-    >>> decolorize(str(d.history)) == '{Rs_92162dea64a7462725cac7dcee71b67669f69: None}'
+    >>> d.history == {ø40*"mX_dc5a686049ceb1caf8778e34d26f5fd4cc8c8": None}
     True
     >>> d["u"] = 2
     >>> d >>= lambda y: {"w": y**2}
     >>> d["v"] = 8
-    >>> decolorize(str(d.history)) == '{j9_045f5ac950e6b2ff74f26c099994c606a119b: {Rs_92162dea64a7462725cac7dcee71b67669f69, uI_acddd31feb9259465f280b47ba1310d928122}, MOQ356EM3Aw3fpX8bh3lbZBjdhuGHJTLdHHU130o: None, dH_b1735f953d1c9a6859e61eaea2f6012e6193d: None}'
+    >>> d.history == {
+    ...     ø40*"Hb_7314dcc8edea97e1ca271ebd99e9a7027e41e": {
+    ...         ø40*"lg_3e7c0b98a45ac2a4c1bfe594d68a486791c45",
+    ...         ø40*"mX_dc5a686049ceb1caf8778e34d26f5fd4cc8c8"
+    ...     },
+    ...     ø40*"J-GKFUnorPV20E7RfczBXKCxn9AGHJTLdHHU130o": None,
+    ...     ø40*"3q_94bb5942b4b0899e2da30eb1665567ac21bde": None
+    ... }
     True
     >>> d["d"] = d
     >>> d.show(colored=False)
     {
-        "id": "il-YWAqTLqxXMPK7BGjEe1rQra32prLvrinN360M",
+        "id": "n8SY5Tc6e3h6lMvKYXZiGStDD622prLvrinN360M",
         "ids": {
-            "w": "yFRT.QXWbEBxKPv6.HY0WTtTUxrGHJTLdHHU130o",
-            "y": "Rs_92162dea64a7462725cac7dcee71b67669f69",
-            "u": "uI_acddd31feb9259465f280b47ba1310d928122",
-            "v": "dH_b1735f953d1c9a6859e61eaea2f6012e6193d",
-            "d": "9SjmNApbfmSKqS051DRVOda9hlGGHJTLdHHU130o"
+            "w": "Jba-cVOujao7LA9-RhV6riospexGHJTLdHHU130o",
+            "y": "mX_dc5a686049ceb1caf8778e34d26f5fd4cc8c8",
+            "u": "lg_3e7c0b98a45ac2a4c1bfe594d68a486791c45",
+            "v": "3q_94bb5942b4b0899e2da30eb1665567ac21bde",
+            "d": "lnQdLh5SnHAqOWlLOVRsogxTllsGHJTLdHHU130o"
         },
         "w": "→(y)",
         "y": 7,
         "u": 2,
         "v": 8,
         "d": {
-            "id": "BlZvumbNqO9tdyGB3f8wXY0GhGEGHJTLdHHU130o",
+            "id": "LrKo5MNkOCR8B-lYRx835WnomGGGHJTLdHHU130o",
             "ids": {
-                "w": "yFRT.QXWbEBxKPv6.HY0WTtTUxrGHJTLdHHU130o",
-                "y": "Rs_92162dea64a7462725cac7dcee71b67669f69",
-                "u": "uI_acddd31feb9259465f280b47ba1310d928122",
-                "v": "dH_b1735f953d1c9a6859e61eaea2f6012e6193d"
+                "w": "Jba-cVOujao7LA9-RhV6riospexGHJTLdHHU130o",
+                "y": "mX_dc5a686049ceb1caf8778e34d26f5fd4cc8c8",
+                "u": "lg_3e7c0b98a45ac2a4c1bfe594d68a486791c45",
+                "v": "3q_94bb5942b4b0899e2da30eb1665567ac21bde"
             },
             "w": "→(y)",
             "y": 7,
@@ -133,7 +160,20 @@ def rewrite_history(history, last, hosh, hoshes):
     >>> d["p"] = 82
     >>> d["q"] = 18
     >>> from ldict import decolorize
-    >>> decolorize(str(d.history)) == '{yFRT.QXWbEBxKPv6.HY0WTtTUxrGHJTLdHHU130o: None, 38_19e4d550a16004128ea17f609178b75aea8a6: {dH_b1735f953d1c9a6859e61eaea2f6012e6193d, Rs_92162dea64a7462725cac7dcee71b67669f69}, 9SjmNApbfmSKqS051DRVOda9hlGGHJTLdHHU130o: None, wo_dbc5bf9d6d53cdc50c64e67323f8a3f8bb04d: {pt_369001ff096b860c63702a81e7bb7dc6252ae, Sr_028bb0aa9a6ddd4c6527ed7a94fd3322b9bfb, gv_06cc5343c944510b23dca462b64fe26acc2a2}}'
+    >>> from garoupa import ø40
+    >>> d.history == {
+    ...     ø40*"Jba-cVOujao7LA9-RhV6riospexGHJTLdHHU130o": None,
+    ...     ø40*"ql_d9432b72fd415edb262b26ea29b4c6470e3a7": {
+    ...         ø40*"3q_94bb5942b4b0899e2da30eb1665567ac21bde",
+    ...         ø40*"mX_dc5a686049ceb1caf8778e34d26f5fd4cc8c8"
+    ...     },
+    ...     ø40*"lnQdLh5SnHAqOWlLOVRsogxTllsGHJTLdHHU130o": None,
+    ...     ø40*"J1_ed3b1fb24ac128f66047a99c71b36a016a962": {
+    ...         ø40*"oY_0275e7afca5c1a73e43c6e7c4777abdeadb9f",
+    ...         ø40*"zF_90477513efef849fb70166c137f54f6039f7e",
+    ...         ø40*"Mr_27c70f609f2c33eeb30ab18413467f3653e44"
+    ...     }
+    ... }
     True
 
     Parameters

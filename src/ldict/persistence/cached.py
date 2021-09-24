@@ -29,7 +29,7 @@ def cached(d, cache):
         def func(**kwargs):
             # Try loading.
             if id in cache:
-                return {output_field: cache[id]}
+                return cache[id]
 
             # Process and save (all fields, to avoid a parcial ldict being stored).
             result = None
@@ -43,7 +43,7 @@ def cached(d, cache):
                 raise Exception(f"{output_field=} not in fields: {ids.items}")
 
             # Return requested value.
-            return {output_field: result}
+            return result
 
         return func
 
