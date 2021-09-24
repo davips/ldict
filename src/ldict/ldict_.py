@@ -39,7 +39,7 @@ from ldict.data import key2id
 from ldict.exception import WrongKeyType, WrongValueType, OverwriteException, check, MissingIds, WrongId
 from ldict.functionspace import FunctionSpace
 from ldict.history import extend_history, rewrite_history
-from ldict.lazy import islazy
+from ldict.lazyval import islazy
 from ldict.persistence.cached import cached
 
 VT = TypeVar("VT")

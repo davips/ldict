@@ -20,7 +20,7 @@
 #  part of this work is illegal and unethical regarding the effort and
 #  time spent here.
 
-class Lazy:
+class LazyVal:
     def __init__(self, field, f, deps):
         self.field = field
         self.f = f
@@ -38,6 +38,3 @@ class Lazy:
             dic[k] = v if islazy(v) else ""
         return f"→({' '.join([f'{k}{v}' for k, v in dic.items()])})"
 
-
-def islazy(obj):
-    return obj.__class__.__name__ == "Lazy"

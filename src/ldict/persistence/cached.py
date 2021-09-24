@@ -20,7 +20,7 @@
 #  part of this work is illegal and unethical regarding the effort and
 #  time spent here.
 
-from ldict.lazy import Lazy, islazy
+from ldict.lazyval import LazyVal, islazy
 
 
 def cached(d, cache):
@@ -53,5 +53,5 @@ def cached(d, cache):
             id = d.hashes[field].id if field in d.hashes else d.hoshes[field].id
             deps = {"^": None}
             deps.update(v.deps)
-            clone.data[field] = Lazy(field, closure(id, d.ids, d.data, field), deps)
+            clone.data[field] = LazyVal(field, closure(id, d.ids, d.data, field), deps)
     return clone

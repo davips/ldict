@@ -34,7 +34,7 @@ from ldict.data import fhosh, removal_id
 from ldict.exception import NoInputException, DependenceException, FunctionETypeException, NoReturnException, \
     BadOutput, InconsistentLange, MultipleIdsForFunction
 from ldict.history import extend_history
-from ldict.lazy import Lazy
+from ldict.lazyval import LazyVal
 
 
 def delete(d, clone, k):
@@ -373,7 +373,7 @@ def application(self, clone, other: Callable, config, rnd):
     if len(output) == 1:
         field = output[0]
         clone.hoshes[field] = substitute(self.hoshes, [field], uf) if field in self.data else ufu_
-        clone.data[field] = Lazy(field, other, deps)
+        clone.data[field] = LazyVal(field, other, deps)
         clone.data["ids"][field] = clone.hoshes[field].id
     else:
         acc = self.identity
@@ -387,7 +387,7 @@ def application(self, clone, other: Callable, config, rnd):
             else:
                 field_hosh = ~acc * ufu__
             clone.hoshes[field] = field_hosh
-            clone.data[field] = Lazy(field, other, deps)
+            clone.data[field] = LazyVal(field, other, deps)
             clone.data["ids"][field] = field_hosh.id
 
     for k, v in self.data.items():

@@ -26,11 +26,8 @@ from types import FunctionType
 class CustomJSONEncoder(JSONEncoder):
     def default(self, obj):
         if obj is not None:
-            from garoupa import Hosh
-            if isinstance(obj, Hosh):
-                return obj.id
-            elif isinstance(obj, FunctionType):
-                return obj.__name__
+            if isinstance(obj, FunctionType):
+                return str(obj)
             elif not isinstance(obj, (list, set, str, int, float, bytearray, bool)):
                 try:
                     from pandas.core.frame import DataFrame, Series

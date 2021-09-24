@@ -24,7 +24,7 @@ import json
 import re
 
 from ldict.customjson import CustomJSONEncoder
-from ldict.lazy import islazy
+from ldict.lazyval import islazy
 
 
 def decolorize(txt):
