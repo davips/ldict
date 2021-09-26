@@ -20,26 +20,62 @@
 #  part of this work is illegal and unethical regarding the effort and
 #  time spent here.
 from json import JSONEncoder
-from types import FunctionType
 
 
 class CustomJSONEncoder(JSONEncoder):
+    """
+    >>> from ldict.frozenlazydict import FrozenLazyDict
+    >>> ldict = FrozenLazyDict
+    >>> a = ldict(x=3)
+    >>> ldict(d=a, y=5)
+    {
+        "d": {
+            "x": 3
+        },
+        "y": 5
+    }
+    >>> from pandas.core.frame import DataFrame, Series
+    >>> df = DataFrame([[1,2],[3,4]])
+    >>> df
+       0  1
+    0  1  2
+    1  3  4
+    >>> b = ldict(d=a, y=5, df=df)
+    >>> b
+    {
+        "d": {
+            "x": 3
+        },
+        "y": 5,
+        "df": "[[1 2] [3 4]]"
+    }
+    >>> from numpy import array
+    >>> ldict(b=b, z=9, c=(c:=array([1,2,3])), d=Series(c), dd=array([[1, 2], [3, 4]]))
+    """
+
     def default(self, obj):
         if obj is not None:
-            if isinstance(obj, FunctionType):
+            from ldict.frozenlazydict import FrozenLazyDict
+            from ldict.lazyval import LazyVal
+            if isinstance(obj, FrozenLazyDict):
+                return self.data
+            if isinstance(obj, LazyVal):
                 return str(obj)
-            elif not isinstance(obj, (list, set, str, int, float, bytearray, bool)):
+            # if isinstance(obj, FunctionType):
+            #     return str(obj)
+            if not isinstance(obj, (list, set, str, int, float, bytearray, bool)):
                 try:
                     from pandas.core.frame import DataFrame, Series
                     if isinstance(obj, (DataFrame, Series)):
-                        return str(obj.to_numpy())
+                        return truncate("«" + str(obj.to_dict()) + "»")  # «str()» is to avoid nested identation
                     from numpy import ndarray
                     if isinstance(obj, ndarray):
-                        return str(obj)
+                        return truncate("«" + str(obj).replace("\n", "") + "»")
                 except ImportError:
                     print("Pandas or numpy may be missing.")
                 return obj.asdict if hasattr(obj, "asdict") else obj.aslist
         return JSONEncoder.default(self, obj)
+
 
 # class CustomJSONDecoder(JSONDecoder):
 #     def __init__(self, *args, **kwargs):
@@ -50,3 +86,6 @@ class CustomJSONEncoder(JSONEncoder):
 #             if isinstance(obj, str) and len(obj) == digits:
 #                 return
 #         return obj
+
+def truncate(txt):
+    return txt + "..." if len(txt) == 1000 else txt

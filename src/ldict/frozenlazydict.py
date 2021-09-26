@@ -27,12 +27,11 @@ from functools import reduce
 from random import Random
 from typing import Dict, TypeVar, Union, Callable
 
-from ldict.appearance import ldict2dic
-from ldict.apply import delete, application
+from ldict import FunctionSpace
+from ldict.apply import application
 from ldict.customjson import CustomJSONEncoder
 from ldict.exception import WrongKeyType, WrongValueType, OverwriteException, ReadOnlyLdict
-from ldict.functionspace import FunctionSpace
-from ldict.lazyval import islazy, LazyVal
+from ldict.lazyval import LazyVal
 from ldict.persistence.cached import cached
 
 VT = TypeVar("VT")
@@ -43,7 +42,7 @@ class FrozenLazyDict(UserDict, Dict[str, VT]):
 
     Usage:
 
-    >>> from ldict import ldict
+    >>> from ldict.frozenlazydict import FrozenLazyDict as ldict
     >>> ldict()
     {}
     >>> d = ldict(x=5, y=3)
@@ -104,7 +103,7 @@ class FrozenLazyDict(UserDict, Dict[str, VT]):
         return self.data[item]
 
     def __setitem__(self, key: str, value):
-        del self[key]
+        del self[key]  # Reuse 'del' exception.
 
     def __delitem__(self, key):
         raise ReadOnlyLdict(f"Cannot change a frozen dict.", key)
@@ -115,15 +114,10 @@ class FrozenLazyDict(UserDict, Dict[str, VT]):
         return self.__getattribute__(item)
 
     def __repr__(self):
-        dic = self.data.copy()
-        for k, v in self.data.items():
-            if isinstance(v, LazyVal):
-                dic[k] = str(v)
-            elif isinstance(v, FrozenLazyDict):
-                dic[k] = repr(v)
+        txt = json.dumps(self, indent=4, ensure_ascii=False, cls=CustomJSONEncoder)
+        return txt.replace("\"«", "").replace("»\"", "")
 
-    def __str__(self):
-        return json.dumps(repr(self), indent=4, ensure_ascii=False, cls=CustomJSONEncoder)
+    __str__ = __repr__
 
     def evaluate(self):
         """
@@ -144,7 +138,9 @@ class FrozenLazyDict(UserDict, Dict[str, VT]):
         }
         """
         for field in self:
-            _ = self[field]
+            v = self[field]
+            if isinstance(v, FrozenLazyDict):
+                v.evaluate()
 
     @property
     def asdict(self):
@@ -197,8 +193,7 @@ class FrozenLazyDict(UserDict, Dict[str, VT]):
             clone = self.clone()
             for k, v in other.items():
                 if v is None:
-                    delete(self, clone, k)
-
+                    del clone.data[k]
                 elif callable(v):
                     raise WrongValueType(f"Value (for field {k}) cannot have type {type(v)}")
                 elif k not in ["id", "ids"]:

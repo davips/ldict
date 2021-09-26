@@ -46,7 +46,6 @@ from orjson import OPT_SORT_KEYS, dumps
 from ldict.core.history import extend_history
 from ldict.data import removal_id
 from ldict.exception import InconsistentLange, OverwriteException
-from ldict.lazy import Lazy
 
 
 def handle_dict(d, dictlike):

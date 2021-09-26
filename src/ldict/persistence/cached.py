@@ -20,7 +20,7 @@
 #  part of this work is illegal and unethical regarding the effort and
 #  time spent here.
 
-from ldict.lazyval import LazyVal, islazy
+from ldict.lazyval import LazyVal
 
 
 def cached(d, cache):

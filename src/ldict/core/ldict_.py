@@ -76,7 +76,6 @@ from ldict.core.rshift import update_identity, create_lazies, handle_dict
 from ldict.customjson import CustomJSONEncoder
 from ldict.data import key2id
 from ldict.exception import WrongKeyType, check_access
-from ldict.lazy import islazy
 from ldict.parameter.functionspace import FunctionSpace
 from ldict.parameter.let import Let
 from ldict.persistence.cached import cached

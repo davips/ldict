@@ -33,7 +33,6 @@ from uncompyle6.main import decompile
 from ldict.data import fhosh, removal_id
 from ldict.exception import NoInputException, DependenceException, FunctionETypeException, NoReturnException, \
     BadOutput, InconsistentLange, MultipleIdsForFunction
-from ldict.history import extend_history
 from ldict.lazyval import LazyVal
 
 

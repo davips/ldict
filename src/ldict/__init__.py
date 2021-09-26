@@ -1,4 +1,3 @@
-from ldict.core.ldict_ import Ldict as ldict
 from ldict.parameter.functionspace import FunctionSpace
 from .appearance import decolorize
 from .config import setup as setup
