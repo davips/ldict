@@ -29,7 +29,7 @@ class LazyVal:
 
     def __call__(self, *args, **kwargs):
         for k, v in self.deps.items():
-            if islazy(v):
+            if isinstance(v, LazyVal):
                 self.deps[k] = v()
         result = self.f(**self.deps)
         return result[self.field] if self.multi_output else result
@@ -37,6 +37,6 @@ class LazyVal:
     def __repr__(self):
         dic = {}
         for k, v in self.deps.items():
-            dic[k] = v if islazy(v) else ""
+            dic[k] = v if isinstance(v, LazyVal) else ""
         return f"→({' '.join([f'{k}{v}' for k, v in dic.items()])})"
 

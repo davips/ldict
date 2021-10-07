@@ -1,7 +1,8 @@
-from ldict.parameter.functionspace import FunctionSpace
 from .appearance import decolorize
 from .config import setup as setup
+from .core.ldict_ import Ldict as ldict
 from .empty import Empty
+from .parameter.functionspace import FunctionSpace
 from .parameter.let import Let as let
 
 empty = Empty()

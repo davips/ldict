@@ -19,22 +19,15 @@
 #  works or verbatim, obfuscated, compiled or rewritten versions of any
 #  part of this work is illegal and unethical regarding the effort and
 #  time spent here.
-from typing import Callable, Dict, Union
+from abc import abstractmethod
+from collections import UserDict
+from typing import Dict, TypeVar
 
-from ldict.frozenlazydict import FrozenLazyDict
-from ldict.parameter.functionspace import FunctionSpace
+VT = TypeVar("VT")
 
 
-class Empty(FrozenLazyDict):
-    def __init__(self):
-        super().__init__()
-
-    def __rshift__(self, other: Union[Dict, Callable, FunctionSpace], config={}):
-        from ldict.parameter.let import Let
-        if callable(other):
-            return FunctionSpace(other)
-        if isinstance(other, (Let, FrozenLazyDict)):
-            return other
-        if isinstance(other, dict):
-            return FrozenLazyDict(other)
-        return NotImplemented
+class AbstractLazyDict(UserDict, Dict[str, VT]):
+    @property
+    @abstractmethod
+    def asdict(self):
+        raise NotImplementedError

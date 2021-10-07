@@ -26,64 +26,25 @@ from pprint import pprint
 
 from uncompyle6.main import decompile
 
-from ldict.data import fhosh
-from ldict.exception import NoInputException, DependenceException, NoReturnException, BadOutput, UnderscoreInField, \
-    MultipleDicts, FunctionETypeException
+from ldict.exception import NoInputException, NoReturnException, BadOutput, UnderscoreInField
 
 
-def input_fields(f, previous_fields, identity):
-    """Extract input fields (and parameters/hosh, when default values are present).
-
-    >>> from garoupa import ø40
-    >>> from ldict.appearance import decolorize
-    >>> decolorize(str(input_fields(lambda x,y: {"z": x*y, "w": x+y}, {"x":None, "y":None}, ø40)))
-    "(['x', 'y'], {}, vqpiPPzpfpDvaE4UbHnVw3tvx3QmsRaiF9yEw.z7)"
-    >>> def f(x, y, a=[1,2,3,...,10], b=[1,2,4,...,32], _id=b"some unique content"):
-    ...     return {
-    ...         "z": a*x + b*y,
-    ...         "w": x+y
-    ...     }
-    >>> input_fields(f, {"x":None, "y":None}, ø40)[:2]
-    (['x', 'y'], {'a': [1, 2, 3, Ellipsis, 10], 'b': [1, 2, 4, Ellipsis, 32]})
-
-    Returns
-    -------
-    (input, input_fields, hosh)
-    """
-    parameters = {}
-    hosh = identity
-    if hasattr(f, "hosh"):
-        input = f.input_fields
-        hosh *= f.hosh
-        if hasattr(f, "parameters"):
-            parameters = f.parameters
-    else:
-        pars = dict(signature(f).parameters)
-        input = []
-        if "kwargs" in pars:
-            del pars["kwargs"]
-        for k, v in pars.items():
-            if v.default is v.empty:
-                input.append(k)
-            elif k == "_id":
-                hosh *= v.default
-            else:
-                parameters[k] = v.default
+def extract_input(f):
+    pars = dict(signature(f).parameters)
+    input, parameters = [], {}
+    if "kwargs" in pars:
+        del pars["kwargs"]
+    for k, v in pars.items():
+        if v.default is v.empty:
+            input.append(k)
+        else:
+            parameters[k] = v.default
     if not input and not parameters:
         raise NoInputException(f"Missing function input parameters.")
-    for field in input:
-        if field not in previous_fields:
-            # TODO: stacktrace para apontar toda a cadeia de dependências, caso seja profunda
-            raise DependenceException(f"Function depends on inexistent field [{field}]. Current",
-                                      list(previous_fields.keys())[2:])
-    if hosh == identity:
-        hosh = fhosh(f, version=identity.version)
-    if hosh.etype != "ordered":
-        raise FunctionETypeException(f"Function hosh etype ({hosh.etype}) should be 'ordered'.", hosh)
-    return input, parameters, hosh
+    return input, parameters
 
 
-def extract_dicts(f):
+def extract_dictstr(f):
     """
     >>> def f(x, y, implicit=["a", "b", "c"]):
     ...     return {
@@ -91,7 +52,7 @@ def extract_dicts(f):
     ...         "w": x+y,
     ...         implicit: x/y
     ...     }
-    >>> extract_dicts(f)
+    >>> extract_dictstr(f)
     ["{'z': x * y,  'w': x + y,  implicit: x / y}"]
     """
     out = StringIO()
@@ -99,16 +60,16 @@ def extract_dicts(f):
     code = "".join([line for line in out.getvalue().split("\n") if not line.startswith("#")])
     if "return" not in code:
         raise NoReturnException(f"Missing return statement:", code)
-    dicts = re.findall("(?={)(.+?)(?<=})", code)
-    if len(dicts) != 1:
+    dict_strs = re.findall("(?={)(.+?)(?<=})", code)
+    if len(dict_strs) != 1:
         raise BadOutput(
             "Cannot detect output fields, or missing dict (with proper pairs 'identifier'->result) as a return value.",
-            dicts
+            dict_strs
         )
-    return dicts
+    return dict_strs[0]
 
 
-def output_fields(f, dicts, parameters):
+def extract_output(f, dictstr, parameters):
     """Extract output fields. They cannot contain underscores.
 
     https://stackoverflow.com/a/68753149/9681577
@@ -116,13 +77,8 @@ def output_fields(f, dicts, parameters):
     >>> output_fields(lambda:None, ["{'z': x*y, 'w': x+y, implicitfield: y**2}"], {"implicitfield":"k"})
     ['z', 'w', 'k']
     """
-    if hasattr(f, "output_fields"):
-        return f.output_fields, []
-    if len(dicts) != 1:
-        raise MultipleDicts("Cannot return less or more than one dict:", dicts)
-
-    explicit = re.findall(r"[\"']([a-zA-Z]+[a-zA-Z0-9]*)[\"']:", dicts[0])
-    implicit = re.findall(r"[ {]([_a-zA-Z]+[_a-zA-Z0-9]*):", dicts[0])
+    explicit = re.findall(r"[\"']([a-zA-Z]+[a-zA-Z0-9]*)[\"']:", dictstr)
+    implicit = re.findall(r"[ {]([_a-zA-Z]+[_a-zA-Z0-9]*):", dictstr)
     for field in implicit:
         if "_" in field:  # pragma: no cover
             raise UnderscoreInField("Field names cannot contain underscores:", field, dicts[0])
@@ -130,12 +86,10 @@ def output_fields(f, dicts, parameters):
             raise Exception("Missing parameter providing implicit field", field, parameters)
         explicit.append(parameters[field])
     if not explicit:
-        pprint(dicts)
+        pprint(dictstr)
         raise BadOutput("Could not find output fields that are valid identifiers (or kwargs[...]):")
     return explicit
 
 
-def implicit_input(f, dicts, parameters):
-    if hasattr(f, "input_fields"):
-        return []
-    return re.findall(r"kwargs\[([a-zA-Z]+[a-zA-Z0-9_]*)][^:]", dicts[0])
+def extract_implicit_input(dictstr):
+    return re.findall(r"kwargs\[([a-zA-Z]+[a-zA-Z0-9_]*)][^:]", dictstr)
