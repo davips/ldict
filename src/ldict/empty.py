@@ -21,6 +21,7 @@
 #  time spent here.
 from typing import Callable, Dict, Union
 
+from ldict.core.ldict_ import Ldict
 from ldict.frozenlazydict import FrozenLazyDict
 from ldict.parameter.functionspace import FunctionSpace
 
@@ -33,8 +34,8 @@ class Empty(FrozenLazyDict):
         from ldict.parameter.let import Let
         if callable(other):
             return FunctionSpace(other)
-        if isinstance(other, (Let, FrozenLazyDict)):
+        if isinstance(other, (Let, Ldict)):
             return other
         if isinstance(other, dict):
-            return FrozenLazyDict(other)
+            return Ldict(other)
         return NotImplemented

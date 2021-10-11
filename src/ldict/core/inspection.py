@@ -26,7 +26,7 @@ from pprint import pprint
 
 from uncompyle6.main import decompile
 
-from ldict.exception import NoInputException, NoReturnException, BadOutput, UnderscoreInField
+from ldict.exception import NoInputException, NoReturnException, BadOutput, UnderscoreInField, MultipleDicts
 
 
 def extract_input(f):
@@ -44,7 +44,25 @@ def extract_input(f):
     return input, parameters
 
 
-def extract_dictstr(f):
+def extract_returnstr(f):
+    """
+    >>> def f(x, y, implicit=["a", "b", "c"]):
+    ...     return x*y, x+y, x/y
+    >>> extract_returnstr(f)
+    '(x * y, x + y, x / y)'
+    """
+    out = StringIO()
+    decompile(bytecode_version=None, co=f.__code__, out=out)
+    code = "".join([line for line in out.getvalue().split("\n") if not line.startswith("#")])
+    if "return" not in code:
+        raise NoReturnException(f"Missing return statement:", code)
+    strs = re.findall("(?<=return )(.+)", code)
+    if len(strs) != 1:  # pragma:  cover
+        raise BadOutput("Cannot detect return expression.", strs)
+    return strs[0]
+
+
+def extract_dictstr(returnstr):
     """
     >>> def f(x, y, implicit=["a", "b", "c"]):
     ...     return {
@@ -52,18 +70,18 @@ def extract_dictstr(f):
     ...         "w": x+y,
     ...         implicit: x/y
     ...     }
-    >>> extract_dictstr(f)
-    ["{'z': x * y,  'w': x + y,  implicit: x / y}"]
+    >>> extract_dictstr(extract_returnstr(f))
+    "{'z': x * y,  'w': x + y,  implicit: x / y}"
     """
-    out = StringIO()
-    decompile(bytecode_version=None, co=f.__code__, out=out)
-    code = "".join([line for line in out.getvalue().split("\n") if not line.startswith("#")])
-    if "return" not in code:
-        raise NoReturnException(f"Missing return statement:", code)
-    dict_strs = re.findall("(?={)(.+?)(?<=})", code)
-    if len(dict_strs) != 1:
+    dict_strs = re.findall("(?={)(.+?)(?<=})", returnstr)
+    if len(dict_strs) == 0:
         raise BadOutput(
             "Cannot detect output fields, or missing dict (with proper pairs 'identifier'->result) as a return value.",
+            dict_strs
+        )
+    if len(dict_strs) > 1:
+        raise MultipleDicts(
+            "Cannot detect output fields, multiple dicts as a return value.",
             dict_strs
         )
     return dict_strs[0]
@@ -74,7 +92,7 @@ def extract_output(f, dictstr, parameters):
 
     https://stackoverflow.com/a/68753149/9681577
 
-    >>> output_fields(lambda:None, ["{'z': x*y, 'w': x+y, implicitfield: y**2}"], {"implicitfield":"k"})
+    >>> extract_output(lambda:None, "{'z': x*y, 'w': x+y, implicitfield: y**2}", {"implicitfield":"k"})
     ['z', 'w', 'k']
     """
     explicit = re.findall(r"[\"']([a-zA-Z]+[a-zA-Z0-9]*)[\"']:", dictstr)

@@ -19,6 +19,7 @@
 #  works or verbatim, obfuscated, compiled or rewritten versions of any
 #  part of this work is illegal and unethical regarding the effort and
 #  time spent here.
+
 from ldict.parameter.functionspace import FunctionSpace
 
 
@@ -28,14 +29,38 @@ class Let:
 
     >>> from ldict import ldict, let
     >>> f = lambda x,y, a=[-1,-0.9,-0.8,...,1]: {"z": a*x + y}
-    >>> let(f, a=0)
-    «let{'a': 0} × <lambda>»
-    >>> d = ldict(x=5,y=7) >> let(f, a=0)
-    >>> d.show(colored=False)
+    >>> f_a = let(f, a=0)
+    >>> f_a
+    λ{'a': 0}
+    >>> d = ldict(x=5,y=7)
+    >>> d2 = d >> f_a
+    >>> d2
     {
-        "z": "→(a x y)",
         "x": 5,
-        "y": 7
+        "y": 7,
+        "z": "→(a x y)"
+    }
+    >>> d2.evaluate()
+    >>> d2
+    {
+        "x": 5,
+        "y": 7,
+        "z": 7
+    }
+    >>> from random import Random
+    >>> d2 = d >> Random(0) >> let(f, a=[8,9])
+    >>> d2
+    {
+        "x": 5,
+        "y": 7,
+        "z": "→(a x y)"
+    }
+    >>> d2.evaluate()
+    >>> d2
+    {
+        "x": 5,
+        "y": 7,
+        "z": 52
     }
     """
 
@@ -62,4 +87,4 @@ class Let:
         return NotImplemented
 
     def __repr__(self):
-        return "let" + str(self.config)
+        return "λ" + str(self.config)

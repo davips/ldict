@@ -38,55 +38,56 @@
 #  part of this work is illegal and unethical regarding the effort and
 #  time spent here.
 
-from typing import Callable, Union
+from typing import Union
 
 from lange import AP, GP
 
-from ldict.core.inspection import extract_dictstr, extract_implicit_input, extract_output
+from ldict.core.inspection import extract_implicit_input, extract_output, extract_returnstr, extract_dictstr
 from ldict.core.inspection import extract_input
-from ldict.exception import InconsistentLange
+from ldict.exception import InconsistentLange, UndefinedSeed, DependenceException
 from ldict.lazyval import LazyVal
 
 
 def handle_dict(data, dictlike, rnd):
     """
-    >>> from ldict.frozenlazydict import FrozenLazyDict as ldict
+    >>> from ldict import ldict
     >>> d = ldict(x=5, y=7, z=8)
-    >>> handle_dict(d, {"y":None})
-    >>> d
-    {
-        "x": 5,
-        "z": 8
-    }
-    >>> handle_dict(d, {"w":lambda x,z: x**z})
-    >>> d
-    {
-        "w": "→(x z)",
-        "x": 5,
-        "z": 8
-    }
+    >>> di = handle_dict(d.frozen.data, {"y":None}, None)
+    >>> di
+    {'x': 5, 'z': 8}
+    >>> handle_dict(di, {"w":lambda x,z: x**z}, None)
+    {'x': 5, 'z': 8, 'w': →(x z)}
     """
     data = data.copy()
     for k, v in dictlike.items():
         if v is None:
             del data[k]
         else:
-            data[k] = lazify(data, k, v, rnd) if callable(v) else v
+            from ldict.core.ldict_ import Ldict
+            if callable(v):
+                data[k] = lazify(data, k, v, rnd, multi_output=False)
+            elif isinstance(v, Ldict):
+                data[k] = v.frozen
+            else:
+                data[k] = v
     return data
 
 
-def lazify(data, output_field: Union[list, str], f, rnd) -> Union[dict, LazyVal]:
+def lazify(data, output_field: Union[list, str],
+           f, rnd, multi_output) -> Union[dict, LazyVal]:
     from ldict.parameter.let import Let
     config, f = (f.config, f.f) if isinstance(f, Let) else ({}, f)
     input_fields, parameters = extract_input(f)
-    dictstr = extract_dictstr(f)
-    for par in extract_implicit_input(dictstr):
+    returnstr = extract_returnstr(f)
+    if multi_output:
+        returnstr = extract_dictstr(returnstr)
+    for par in extract_implicit_input(returnstr):
         if par not in config:
             raise Exception(f"Parameter '{par}' value is not available:", config)
         input_fields.append(config[par])
     deps = prepare_deps(data, input_fields, parameters, config, rnd)
     if output_field == "extract":
-        return {k: LazyVal(k, f, deps, multi_output=True) for k in extract_output(f, dictstr, parameters)}
+        return {k: LazyVal(k, f, deps, multi_output=True) for k in extract_output(f, returnstr, parameters)}
     else:
         return LazyVal(output_field, f, deps, multi_output=False)
 
@@ -99,11 +100,18 @@ def prepare_deps(data, input, parameters, config, rnd):
     """
     deps = {}
     for k, v in parameters.items():
+        if k in config:
+            v = config[k]
         if isinstance(v, list):
+            if rnd is None:  # pragma: no cover
+                raise UndefinedSeed("Missing Random object before parameterized function application.")
             deps[k] = rnd.choice(expand(v))
-        elif k in config:
-            deps[k] = config[k]
-    deps.update({k: data[k] for k in input})
+        else:
+            deps[k] = v
+    for k in input:
+        if k not in data:  # pragma: no cover
+            raise DependenceException(f"Missing field {k}.", data.keys())
+        deps[k] = data[k]
     return deps
 
 
@@ -123,7 +131,7 @@ def expand(lst):
     -------
 
     """
-    return list(list2progression(lst))
+    return list(list2progression(lst)) if Ellipsis in lst else lst
 
 
 def list2progression(lst):
@@ -154,31 +162,3 @@ def list2progression(lst):
         return GP(*newlst)
     else:
         raise InconsistentLange(f"Cannot identify whether this is a G. or A. progression: {lst}")
-
-
-def rho(c, digits):
-    return digits // 2 * "-" + str(c).rjust(digits // 2, ".")
-
-
-def create_lazies(f: Callable, input, implicit_input, output, data, config, parameters, rnd, multi_output):
-    deps = {}
-    for k, v in parameters.items():
-        if isinstance(v, list):
-            deps[k] = rnd.choice(expand(v))
-        elif k in config:
-            deps[k] = config[k]
-    deps.update({k: data[k] for k in input})
-    print(11111111, implicit_input)
-    deps.update({(k := config[par]): data[k] for par in implicit_input})
-    config.clear()
-    reordered_data = {"id": None, "ids": {}}
-    if len(output) == 1:
-        reordered_data[output[0]] = LazyVal(output[0], f, deps, multi_output=multi_output)
-    else:
-        for field in output:
-            reordered_data[field] = LazyVal(field, f, deps, multi_output=True)
-    for k, v in data.items():
-        if k not in reordered_data:
-            reordered_data[k] = v
-    data.clear()
-    data.update(reordered_data)

@@ -26,12 +26,12 @@ from functools import reduce
 from random import Random
 from typing import Dict, TypeVar, Union, Callable
 
-from ldict import FunctionSpace
 from ldict.core.base import AbstractLazyDict
 from ldict.core.rshift import handle_dict, lazify
 from ldict.customjson import CustomJSONEncoder
 from ldict.exception import WrongKeyType, ReadOnlyLdict
 from ldict.lazyval import LazyVal
+from ldict.parameter.functionspace import FunctionSpace
 from ldict.parameter.let import Let
 
 VT = TypeVar("VT")
@@ -180,7 +180,7 @@ class FrozenLazyDict(AbstractLazyDict):
         if isinstance(other, FunctionSpace):
             return reduce(operator.rshift, (self,) + other.functions)
         if callable(other) or isinstance(other, Let):
-            lazies = lazify(self.data, output_field="extract", f=other, rnd=self.rnd)
+            lazies = lazify(self.data, output_field="extract", f=other, rnd=self.rnd, multi_output=True)
             data = self.data.copy()
             data.update(lazies)
             return self.clone(data)

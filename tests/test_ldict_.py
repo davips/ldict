@@ -19,15 +19,12 @@
 #  works or verbatim, obfuscated, compiled or rewritten versions of any
 #  part of this work is illegal and unethical regarding the effort and
 #  time spent here.
-from collections import namedtuple
 from unittest import TestCase
 
 import pytest
-from sys import maxsize
 
 from ldict import ldict, Ø
-from ldict.exception import DependenceException, NoInputException, WrongKeyType, ReadOnlyLdict, \
-    OverwriteException
+from ldict.exception import DependenceException, NoInputException, WrongKeyType, ReadOnlyLdict
 
 
 class TestLdict(TestCase):
@@ -35,13 +32,9 @@ class TestLdict(TestCase):
         a = Ø >> {"x": 1, "y": 2}
         b = a >> Ø
         self.assertEqual(a, b)
-        self.assertFalse(a == 123)
-        self.assertNotEqual(a, 123)
-        self.assertEqual(a.hosh.n % maxsize, hash(a))
-        d = {'id': 'Tc_fb3057e399a385aaa6ebade51ef1f31c5f7e4',
-             'ids': {'x': 'tY_a0e4015c066c1a73e43c6e7c4777abdeadb9f', 'y': 'pg_7d1eecc7838558a4c1bf9584d68a487791c45'},
-             'x': 1,
-             'y': 2}
+        self.assertFalse(a == {"a": 3})
+        self.assertNotEqual(a, {"a": 3})
+        d = {'x': 1, 'y': 2}
         self.assertEqual(a.asdict, d)
 
     def test_illdefined_function(self):
@@ -57,8 +50,6 @@ class TestLdict(TestCase):
         d["z"] = 5
         self.assertEqual(
             """{
-    "id": "Pd_7f559308b2f3bf28c9dfd54cf6ba43b636504",
-    "ids": "WB_e55a47230d67db81bcc1aecde8f1b950282cd... +1 ...1U_fdd682399a475d5365aeb336044f7b4270977",
     "x": 3,
     "y": 4,
     "z": 5
@@ -74,11 +65,9 @@ class TestLdict(TestCase):
 
         self.assertEqual(
             """{
-    "id": "dq32pdZalIcM-fc5ZX1PZjUhNSpadBnjS7VNt6Mg",
-    "ids": "m3S-qN-WiH188lwxKIguTF.2YniadBnjS7VNt6Mg... +1 ...0U_e2a86ff72e226d5365aea336044f7b4270977",
-    "z": "→(x y)",
     "x": 3,
-    "y": 5
+    "y": 5,
+    "z": "→(x y)"
 }""",
             str(d),
         )
@@ -89,22 +78,20 @@ class TestLdict(TestCase):
         d["x"] = 3
         d["y"] = 5
         d >>= lambda x, y: {"z": x * y}
-        id = d.id
-        self.assertEqual(id, d.id)
+        d.evaluate()
+        self.assertEqual(d, {"x": 3, "y": 5, "z": 15})
 
         # Overwrite same value.
-        d.show()
         d["y"] = 5
-        d.show()
-        self.assertEqual(id, d.id)
+        self.assertEqual(d, {"x": 3, "y": 5, "z": 15})
 
         # Repeate same overwrite.
         d["y"] = 5
-        self.assertEqual(id, d.id)
+        self.assertEqual(d, {"x": 3, "y": 5, "z": 15})
 
         # Overwrite other value.
         d["y"] = 6
-        self.assertNotEqual(id, d.id)
+        self.assertNotEqual(d, {"x": 3, "y": 5, "z": 15})
 
     def test_rshift(self):
         d = ldict()
@@ -113,28 +100,24 @@ class TestLdict(TestCase):
         d >>= lambda x, y: {"z": x * y}
         self.assertEqual(
             """{
-    "id": "dq32pdZalIcM-fc5ZX1PZjUhNSpadBnjS7VNt6Mg",
-    "ids": "m3S-qN-WiH188lwxKIguTF.2YniadBnjS7VNt6Mg... +1 ...0U_e2a86ff72e226d5365aea336044f7b4270977",
-    "z": "→(x y)",
     "x": 3,
-    "y": 5
+    "y": 5,
+    "z": "→(x y)"
 }""",
             str(d),
         )
         self.assertEqual(15, d.z)
-        with pytest.raises(OverwriteException):
-            d >>= {"z": 5}
+        # with pytest.raises(OverwriteException):
+        #     d >>= {"z": 5}
 
     def test_overwrite(self):
         a = ldict(x=3)
-        # a.show()
-        # (a >> {"x": 3}).show()
-        # self.assertEqual(a.idc, (a >> {"x": 3}).idc)  # overwrite
-        b = ldict(y=4, x=3)
+        self.assertEqual(a, a >> {"x": 3})  # overwrite
         a >>= {"y": 4}
-        self.assertEqual(b.idc, a.idc)  # new value
-        with pytest.raises(OverwriteException):
-            self.assertNotEqual(a, a >> {"x": 3})
+        b = ldict(y=4, x=3)
+        self.assertEqual(a, b)  # new value
+        self.assertEqual(a, a >> {"x": 3})  # should differ for idict/cdict
+        # with pytest.raises(OverwriteException):
 
     def test_setitem_overwrite_function(self):
         d = ldict()
@@ -146,6 +129,7 @@ class TestLdict(TestCase):
         old = d
         d >>= lambda x, y, z: {"z": x + y * z}  # 7
         self.assertNotEqual(old, d)
+        self.assertEqual(d, {"x": 1, "y": 2, "z": 7})
 
         # Reapply same function.
         old = d
@@ -156,7 +140,7 @@ class TestLdict(TestCase):
         old = d
         d >>= lambda x, y, z: {"z": x + y * z}  # 31
         self.assertNotEqual(old, d)
-        self.assertEqual(31, d.z)
+        self.assertEqual(d, {"x": 1, "y": 2, "z": 31})
 
         def f(x):
             return {"z": x + 2}
@@ -164,9 +148,6 @@ class TestLdict(TestCase):
         a = Ø >> {"x": 1, "y": 2} >> f
         b = a >> (lambda x: {"z": x ** 2})
         self.assertNotEqual(a, b)
-        self.assertNotEqual(a.ids["z"], b.ids["z"])
-        self.assertEqual(a.ids["x"], b.ids["x"])
-        self.assertEqual(a.ids["y"], b.ids["y"])
 
     def test_getitem(self):
         d = Ø >> {"x": 0}
@@ -191,11 +172,7 @@ class TestLdict(TestCase):
             d[1] = 1
 
         d = Ø >> {"d": d}
-        with pytest.raises(ReadOnlyLdict):
-            d["d"]["x"] = 5
+        # with pytest.raises(ReadOnlyLdict):
+        #     d["d"]["x"] = 5
 
-        T = namedtuple("T", "hosh")
-        h = d.hosh
-        t = T(d.hosh)
-        d["t"] = t
-        self.assertEqual(d.hosh, h * h)
+        # T = namedtuple("T", "hosh")

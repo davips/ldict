@@ -73,10 +73,6 @@ class BadOutput(Exception):
     pass
 
 
-class ReadOnlyLdict(Exception):
-    pass
-
-
 class WrongKeyType(Exception):
     pass
 
@@ -125,5 +121,9 @@ class MultipleDicts(Exception):
     pass
 
 
-class InconsistentIds(Exception):
+class UndefinedSeed(Exception):
+    pass
+
+
+class ReadOnlyLdict(Exception):
     pass

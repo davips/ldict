@@ -47,10 +47,23 @@ class CustomJSONEncoder(JSONEncoder):
             "x": 3
         },
         "y": 5,
-        "df": "[[1 2] [3 4]]"
+        "df": {0: {0: 1, 1: 3}, 1: {0: 2, 1: 4}}
     }
     >>> from numpy import array
     >>> ldict(b=b, z=9, c=(c:=array([1,2,3])), d=Series(c), dd=array([[1, 2], [3, 4]]))
+    {
+        "b": {
+            "d": {
+                "x": 3
+            },
+            "y": 5,
+            "df": {0: {0: 1, 1: 3}, 1: {0: 2, 1: 4}}
+        },
+        "z": 9,
+        "c": [1 2 3],
+        "d": {0: 1, 1: 2, 2: 3},
+        "dd": [[1 2] [3 4]]
+    }
     """
 
     def default(self, obj):
