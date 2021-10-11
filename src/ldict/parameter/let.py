@@ -62,6 +62,32 @@ class Let:
         "y": 7,
         "z": 52
     }
+    >>> let(f, a=5) >> {"x": 5, "y": 7}
+    «λ{'a': 5} × {
+        "x": 5,
+        "y": 7
+    }»
+    >>> ldict({"x": 5, "y": 7}) >> let(f, a=5)
+    {
+        "x": 5,
+        "y": 7,
+        "z": "→(a x y)"
+    }
+    >>> let(f, a=5) >> ldict({"x": 5, "y": 7})
+    «λ{'a': 5} × {
+        "x": 5,
+        "y": 7
+    }»
+    >>> from random import Random
+    >>> let(f, a=5) >> ["mycache"]
+    «λ{'a': 5} × ^»
+    >>> from ldict.parameter.functionspace import FunctionSpace
+    >>> let(f, a=5) >> FunctionSpace()
+    «λ{'a': 5}»
+    >>> FunctionSpace() >> let(f, a=5)
+    «λ{'a': 5}»
+    >>> (lambda x: {"z": x*8}) >> let(f, a=5)
+    «λ × λ{'a': 5}»
     """
 
     def __init__(self, f, **kwargs):
@@ -76,7 +102,7 @@ class Let:
             return FunctionSpace(self, other)
         if isinstance(other, FunctionSpace):
             return FunctionSpace(self, *other.functions)
-        return NotImplemented
+        return NotImplemented  # pragma: no cover
 
     def __rrshift__(self, other):
         from ldict.core.ldict_ import Ldict
@@ -84,7 +110,7 @@ class Let:
             return FunctionSpace(other, self)
         if isinstance(other, FunctionSpace):
             return FunctionSpace(*other.functions, self)
-        return NotImplemented
+        return NotImplemented  # pragma: no cover
 
     def __repr__(self):
         return "λ" + str(self.config)

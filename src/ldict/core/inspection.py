@@ -57,7 +57,7 @@ def extract_returnstr(f):
     if "return" not in code:
         raise NoReturnException(f"Missing return statement:", code)
     strs = re.findall("(?<=return )(.+)", code)
-    if len(strs) != 1:  # pragma:  cover
+    if len(strs) != 1:  # pragma: no cover
         raise BadOutput("Cannot detect return expression.", strs)
     return strs[0]
 

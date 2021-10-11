@@ -43,6 +43,38 @@ from typing import Dict
 
 
 class FunctionSpace:
+    """Aglutination for future application
+
+    >>> from ldict import ldict, Ø
+    >>> Ø >> FunctionSpace()
+    {}
+    >>> fs = FunctionSpace() >> Ø
+    >>> fs >>= {"x": 5}
+    >>> fs
+    «{
+        "x": 5
+    }»
+    >>> ldict(y=7) >> fs
+    {
+        "y": 7,
+        "x": 5
+    }
+    >>> fs >>= ldict(y=7)
+    >>> fs
+    «{
+        "x": 5
+    } × {
+        "y": 7
+    }»
+    >>> fs >>= lambda x,y: {"z": x*y}
+    >>> fs
+    «{
+        "x": 5
+    } × {
+        "y": 7
+    } × λ»
+    """
+
     def __init__(self, *args):
         self.functions = args
 
@@ -56,7 +88,7 @@ class FunctionSpace:
         if callable(other) or isinstance(other, (Ldict, FunctionSpace, list)):
             new_functions = other.functions if isinstance(other, FunctionSpace) else (other,)
             return FunctionSpace(*self.functions, *new_functions)
-        return NotImplemented
+        return NotImplemented  # pragma: no cover
 
     __mul__ = __rshift__
 
@@ -71,8 +103,8 @@ class FunctionSpace:
         for f in self.functions:
             if isinstance(f, list):
                 s = "^"
-            elif hasattr(f, "__name__"):
-                s = f.__name__
+            elif str(f).startswith("<function <lambda> at "):
+                s = "λ"
             else:
                 s = str(f)
             txt.append(s)

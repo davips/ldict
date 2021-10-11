@@ -93,6 +93,7 @@ class Ldict(AbstractLazyDict):
     def __init__(self, /, _dictionary=None, rnd=None, **kwargs):
         self.rnd = rnd
         self.frozen = FrozenLazyDict(_dictionary or kwargs, rnd=rnd)
+        self.data = self.frozen.data
 
     def __getitem__(self, item):
         return self.frozen[item]
@@ -175,22 +176,17 @@ class Ldict(AbstractLazyDict):
             data = self.frozen.data.copy()
             data.update(lazies)
             return self.clone(data)
-        raise NotImplemented
+        return NotImplemented
 
     def __ne__(self, other):
         return not (self == other)
 
     def __eq__(self, other):
         # REMINDER: idict and cdict should compared ids
-        if isinstance(other, FrozenLazyDict):
-            self.evaluate()
+        self.evaluate()
+        if isinstance(other, (FrozenLazyDict, Ldict)):
             other.evaluate()
             return self.data == other.data
-        if isinstance(other, Ldict):
-            self.evaluate()
-            other.evaluate()
-            return self.frozen.data == other.frozen.data
         if isinstance(other, Dict):
-            self.evaluate()
             return self.frozen.data == other
         raise TypeError(f"Cannot compare {type(self)} and {type(other)}")
