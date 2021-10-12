@@ -45,10 +45,10 @@ from typing import Dict
 class FunctionSpace:
     """Aglutination for future application
 
-    >>> from ldict import ldict, Ø
-    >>> Ø >> FunctionSpace()
+    >>> from ldict import ldict, empty
+    >>> empty >> FunctionSpace()
     {}
-    >>> fs = FunctionSpace() >> Ø
+    >>> fs = FunctionSpace() >> empty
     >>> fs >>= {"x": 5}
     >>> fs
     «{

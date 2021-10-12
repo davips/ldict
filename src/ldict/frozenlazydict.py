@@ -83,8 +83,8 @@ class FrozenLazyDict(AbstractLazyDict):
         "x": 123123,
         "y": 88
     }
-    >>> from ldict import Ø
-    >>> d = Ø >> {"x": "more content"}
+    >>> from ldict import empty
+    >>> d = empty >> {"x": "more content"}
     >>> d
     {
         "x": "more content"

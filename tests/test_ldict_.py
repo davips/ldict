@@ -23,14 +23,14 @@ from unittest import TestCase
 
 import pytest
 
-from ldict import ldict, Ø
+from ldict import ldict, empty
 from ldict.exception import DependenceException, NoInputException, WrongKeyType, ReadOnlyLdict
 
 
 class TestLdict(TestCase):
     def test_identity(self):
-        a = Ø >> {"x": 1, "y": 2}
-        b = a >> Ø
+        a = empty >> {"x": 1, "y": 2}
+        b = a >> empty
         self.assertEqual(a, b)
         self.assertFalse(a == {"a": 3})
         self.assertNotEqual(a, {"a": 3})
@@ -39,9 +39,9 @@ class TestLdict(TestCase):
 
     def test_illdefined_function(self):
         with pytest.raises(DependenceException):
-            Ø >> {"x": 5} >> (lambda y: {"x": 5})
+            empty >> {"x": 5} >> (lambda y: {"x": 5})
         with pytest.raises(NoInputException):
-            Ø >> {"x": 5} >> (lambda: {"x": 5})
+            empty >> {"x": 5} >> (lambda: {"x": 5})
 
     def test_setitem_value(self):
         d = ldict()
@@ -145,19 +145,19 @@ class TestLdict(TestCase):
         def f(x):
             return {"z": x + 2}
 
-        a = Ø >> {"x": 1, "y": 2} >> f
+        a = empty >> {"x": 1, "y": 2} >> f
         b = a >> (lambda x: {"z": x ** 2})
         self.assertNotEqual(a, b)
 
     def test_getitem(self):
-        d = Ø >> {"x": 0}
+        d = empty >> {"x": 0}
         with pytest.raises(WrongKeyType):
             _ = d[1]
         with pytest.raises(KeyError):
             _ = d["1"]
 
     def test_delitem(self):
-        d = Ø >> {"x": 0}
+        d = empty >> {"x": 0}
         with pytest.raises(WrongKeyType):
             del d[1]
         with pytest.raises(KeyError):
@@ -167,11 +167,11 @@ class TestLdict(TestCase):
             del d.d["x"]
 
     def test_setitem(self):
-        d = Ø >> {"x": 0}
+        d = empty >> {"x": 0}
         with pytest.raises(WrongKeyType):
             d[1] = 1
 
-        d = Ø >> {"d": d}
+        d = empty >> {"d": d}
         # with pytest.raises(ReadOnlyLdict):
         #     d["d"]["x"] = 5
 

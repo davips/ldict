@@ -23,7 +23,7 @@ from unittest import TestCase
 
 import pytest
 
-from ldict import Ø
+from ldict import empty
 from ldict.core.inspection import extract_input, extract_dictstr, extract_returnstr
 from ldict.core.rshift import list2progression
 from ldict.exception import NoInputException, BadOutput, InconsistentLange, \
@@ -59,7 +59,7 @@ class Test(TestCase):
 
     def test_application(self):
         with pytest.raises(BadOutput):
-            _ = Ø >> {"x": 2} >> (lambda x: 0)
+            _ = empty >> {"x": 2} >> (lambda x: 0)
 
     def test_list2progression(self):
         with pytest.raises(InconsistentLange):

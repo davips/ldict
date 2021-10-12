@@ -20,6 +20,7 @@
 #  part of this work is illegal and unethical regarding the effort and
 #  time spent here.
 #
+import json
 import operator
 from functools import reduce
 from random import Random
@@ -27,23 +28,24 @@ from typing import Dict, TypeVar, Union, Callable
 
 from ldict.core.base import AbstractLazyDict
 from ldict.core.rshift import handle_dict, lazify
-from ldict.exception import WrongKeyType
-from ldict.frozenlazydict import FrozenLazyDict
+from ldict.customjson import CustomJSONEncoder
+from ldict.exception import WrongKeyType, ReadOnlyLdict
+from ldict.lazyval import LazyVal
 from ldict.parameter.functionspace import FunctionSpace
 from ldict.parameter.let import Let
 
 VT = TypeVar("VT")
 
 
-class Ldict(AbstractLazyDict):
-    """Mutable lazy dict for serializable (picklable) pairs str->value
+class FrozenIdentifiedDict(AbstractLazyDict):
+    """Immutable lazy universally identified dict for serializable (picklable) pairs str->value
 
     Usage:
 
-    >>> from ldict import ldict
-    >>> ldict()
+    >>> from idict.frozenidentifieddict import FrozenIdentifiedDict as idict
+    >>> idict()
     {}
-    >>> d = ldict(x=5, y=3)
+    >>> d = idict(x=5, y=3)
     >>> d
     {
         "x": 5,
@@ -51,17 +53,17 @@ class Ldict(AbstractLazyDict):
     }
     >>> d["y"]
     3
-    >>> ldict(x=123123, y=88)
+    >>> idict(x=123123, y=88)
     {
         "x": 123123,
         "y": 88
     }
-    >>> ldict(y=88, x=123123)
+    >>> idict(y=88, x=123123)
     {
         "y": 88,
         "x": 123123
     }
-    >>> d = ldict(x=123123, y=88)
+    >>> d = idict(x=123123, y=88)
     >>> e = d >> (lambda x: {"z": x**2}) >> (lambda x,y: {"w": x/y})
     >>> e
     {
@@ -75,46 +77,48 @@ class Ldict(AbstractLazyDict):
     >>> dic = d.asdict  # Converting to dict
     >>> dic
     {'x': 123123, 'y': 88}
-    >>> d2 = ldict(dic)  # Reconstructing from a dict
+    >>> d2 = idict(dic)  # Reconstructing from a dict
     >>> print(d2)
     {
         "x": 123123,
         "y": 88
     }
-    >>> from ldict import empty
-    >>> d = empty >> {"x": "more content"}
+    >>> from idict import Ø
+    >>> d = idict() >> {"x": "more content"}
     >>> d
     {
         "x": "more content"
     }
     """
 
-    # noinspection PyMissingConstructor
     def __init__(self, /, _dictionary=None, rnd=None, **kwargs):
         self.rnd = rnd
-        self.frozen = FrozenLazyDict(_dictionary or kwargs, rnd=rnd)
-        self.data = self.frozen.data
+        super().__init__()
+        self.data = _dictionary or kwargs
 
     def __getitem__(self, item):
-        return self.frozen[item]
+        if not isinstance(item, str):
+            raise WrongKeyType(f"Key must be string, not {type(item)}.", item)
+        if item not in self.data:
+            raise KeyError(item)
+        if isinstance(content := self.data[item], LazyVal):
+            self.data[item] = content()
+        return self.data[item]
 
     def __setitem__(self, key: str, value):
-        if not isinstance(key, str):
-            raise WrongKeyType(f"Key must be string, not {type(key)}.", key)
-        self.frozen >>= {key: value}
+        del self[key]  # Reuse 'del' exception.
 
     def __delitem__(self, key):
-        if not isinstance(key, str):
-            raise WrongKeyType(f"Key must be string, not {type(key)}.", key)
-        data = self.frozen.data.copy()
-        del data[key]
-        return self.frozen.clone(data)
+        raise ReadOnlyLdict(f"Cannot change a frozen dict.", key)
 
     def __getattr__(self, item):
-        return self.frozen[item]
+        if item in self:
+            return self[item]
+        return self.__getattribute__(item)
 
     def __repr__(self):
-        return repr(self.frozen)
+        txt = json.dumps(self.data, indent=4, ensure_ascii=False, cls=CustomJSONEncoder)
+        return txt.replace("\"«", "").replace("»\"", "")
 
     __str__ = __repr__
 
@@ -136,57 +140,48 @@ class Ldict(AbstractLazyDict):
             "y": 5
         }
         """
-        self.frozen.evaluate()
+        for field in self:
+            v = self[field]
+            if isinstance(v, FrozenIdentifiedDict):
+                v.evaluate()
 
     @property
     def asdict(self):
         """
-        >>> from ldict import ldict
+        >>> from ldict.frozenlazydict import FrozenLazyDict as ldict
         >>> d = ldict(x=3, y=5)
         >>> ldict(x=7, y=8, d=d).asdict
         {'x': 7, 'y': 8, 'd': {'x': 3, 'y': 5}}
         """
-        return self.frozen.asdict
+        dic = {}
+        for field in self:
+            v = self[field]
+            dic[field] = v.asdict if isinstance(v, AbstractLazyDict) else v
+        return dic
 
     def clone(self, data=None, rnd=None):
         """Same lazy content with (optional) new data or rnd object."""
-        return Ldict(self.frozen.data if data is None else data, rnd=rnd or self.rnd)
+        return FrozenIdentifiedDict(self.data if data is None else data, rnd=rnd or self.rnd)
 
     def __rrshift__(self, other: Union[Dict, Callable, FunctionSpace]):
         if isinstance(other, Dict):
-            return Ldict(other) >> self
+            return FrozenIdentifiedDict(other) >> self
         if callable(other):
             return FunctionSpace(other, self)
         return NotImplemented
 
     def __rshift__(self, other: Union[Dict, 'Ldict', Callable, Let, FunctionSpace, Random]):
-        from ldict import Empty
         if isinstance(other, Random):
             return self.clone(rnd=other)
-        if isinstance(other, Empty):
-            return self
-        if isinstance(other, Ldict):
-            return self.clone(handle_dict(self.frozen.data, other, other.rnd), other.rnd)
+        if isinstance(other, FrozenIdentifiedDict):
+            return self.clone(handle_dict(self.data, other, other.rnd), other.rnd)
         if isinstance(other, Dict):
-            return self.clone(handle_dict(self.frozen.data, other, self.rnd))
+            return self.clone(handle_dict(self.data, other, self.rnd))
         if isinstance(other, FunctionSpace):
             return reduce(operator.rshift, (self,) + other.functions)
         if callable(other) or isinstance(other, Let):
-            lazies = lazify(self.frozen.data, output_field="extract", f=other, rnd=self.rnd, multi_output=True)
-            data = self.frozen.data.copy()
+            lazies = lazify(self.data, output_field="extract", f=other, rnd=self.rnd, multi_output=True)
+            data = self.data.copy()
             data.update(lazies)
             return self.clone(data)
-        return NotImplemented
-
-    def __ne__(self, other):
-        return not (self == other)
-
-    def __eq__(self, other):
-        # REMINDER: idict and cdict should compared ids
-        self.evaluate()
-        if isinstance(other, (FrozenLazyDict, Ldict)):
-            other.evaluate()
-            return self.data == other.data
-        if isinstance(other, Dict):
-            return self.frozen.data == other
-        raise TypeError(f"Cannot compare {type(self)} and {type(other)}")
+        raise NotImplemented
