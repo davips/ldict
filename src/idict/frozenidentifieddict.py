@@ -26,6 +26,8 @@ from functools import reduce
 from random import Random
 from typing import Dict, TypeVar, Union, Callable
 
+from garoupa import ø40
+
 from ldict.core.base import AbstractLazyDict
 from ldict.core.rshift import handle_dict, lazify
 from ldict.customjson import CustomJSONEncoder
@@ -91,10 +93,43 @@ class FrozenIdentifiedDict(AbstractLazyDict):
     }
     """
 
-    def __init__(self, /, _dictionary=None, rnd=None, **kwargs):
+    def __init__(self, /, _dictionary=None, rnd=None, identity=ø40, _cloned=None, **kwargs):
         self.rnd = rnd
         super().__init__()
-        self.data = _dictionary or kwargs
+        self.data = _dictionary or kwargs  # TODO: handle incomming ids
+        if _cloned:
+            self.hashes = _cloned["hashes"]
+            self.hoshes = _cloned["hoshes"]
+            self.blobs = _cloned["blobs"]
+        else:
+            self.hashes = _cloned["hashes"]
+            self.hoshes = _cloned["hoshes"]
+            self.blobs = _cloned["blobs"]
+        self.hosh = reduce(operator.mul, self.hoshes)
+
+    # def __init__(self, /, _dictionary=None, identity=ø40, readonly=False, **kwargs):
+    #     dic = _dictionary or {}
+    #     self.readonly, self.digits, self.version = readonly, identity.digits, identity.version
+    #     self.rho, self.delete = identity.rho, identity.delete
+    #     self.hosh = self.identity = identity
+    #     self.blobs, self.hashes, self.hoshes = {}, {}, {}
+    #     self.history, self.last = {}, None
+    #     self.rnd = Random()
+    #     dic.update(kwargs)
+    #     super().__init__()
+    #     if id := self.data.get("id", False) or dic.get("id", False):
+    #         if not (ids := self.data.pop("ids", False) or dic.pop("ids", False)):
+    #             raise MissingIds(f"id {id} provided but ids missing while importing dict-like")
+    #         if not isinstance(id, str):
+    #             raise WrongId(f"id {id} provided should be str, not {type(id)}")
+    #         self.hosh *= id
+    #         self.hoshes.update(ids)
+    #         self.data.update(dic)
+    #         self.data["ids"] = ids.copy()
+    #     else:
+    #         self.data.update(id=identity.id, ids={})
+    #         self.update(dic)
+    #     self.__name__ = self.id[:10]  # TODO: useful?
 
     def __getitem__(self, item):
         if not isinstance(item, str):
