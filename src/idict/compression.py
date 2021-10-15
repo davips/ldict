@@ -22,7 +22,8 @@
 import pickle
 
 import lz4.frame as lz4
-from ldict.config import GLOBAL
+
+from idict.config import GLOBAL
 
 
 def pack(obj):

@@ -73,8 +73,7 @@ def handle_dict(data, dictlike, rnd):
     return data
 
 
-def lazify(data, output_field: Union[list, str],
-           f, rnd, multi_output) -> Union[dict, LazyVal]:
+def lazify(data, output_field: Union[list, str], f, rnd, multi_output) -> Union[dict, LazyVal]:
     from ldict.parameter.let import Let
     config, f = (f.config, f.f) if isinstance(f, Let) else ({}, f)
     input_fields, parameters = extract_input(f)

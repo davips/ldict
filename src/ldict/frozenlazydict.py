@@ -94,7 +94,8 @@ class FrozenLazyDict(AbstractLazyDict):
     def __init__(self, /, _dictionary=None, rnd=None, **kwargs):
         self.rnd = rnd
         super().__init__()
-        self.data = _dictionary or kwargs
+        self.data = _dictionary or {}
+        self.data.update(kwargs)
 
     def __getitem__(self, item):
         if not isinstance(item, str):

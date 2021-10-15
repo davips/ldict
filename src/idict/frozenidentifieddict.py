@@ -20,7 +20,6 @@
 #  part of this work is illegal and unethical regarding the effort and
 #  time spent here.
 #
-import json
 import operator
 from functools import reduce
 from random import Random
@@ -28,11 +27,11 @@ from typing import Dict, TypeVar, Union, Callable
 
 from garoupa import ø40
 
+from idict.compression import pack
+from idict.data import key2id
 from ldict.core.base import AbstractLazyDict
 from ldict.core.rshift import handle_dict, lazify
-from ldict.customjson import CustomJSONEncoder
-from ldict.exception import WrongKeyType, ReadOnlyLdict
-from ldict.lazyval import LazyVal
+from ldict.frozenlazydict import FrozenLazyDict
 from ldict.parameter.functionspace import FunctionSpace
 from ldict.parameter.let import Let
 
@@ -46,45 +45,66 @@ class FrozenIdentifiedDict(AbstractLazyDict):
 
     >>> from idict.frozenidentifieddict import FrozenIdentifiedDict as idict
     >>> idict()
-    {}
+    {
+        "id": "0000000000000000000000000000000000000000",
+        "ids": {}
+    }
     >>> d = idict(x=5, y=3)
     >>> d
     {
         "x": 5,
-        "y": 3
+        "y": 3,
+        "id": "Xt_6cc13095bc5b4c671270fbe8ec313568a8b35",
+        "ids": {
+            "x": ".T_f0bb8da3062cc75365ae0446044f7b3270977",
+            "y": "XB_1cba4912b6826191bcc15ebde8f1b960282cd"
+        }
     }
     >>> d["y"]
     3
     >>> idict(x=123123, y=88)
     {
         "x": 123123,
-        "y": 88
+        "y": 88,
+        "id": "dR_5b58200b12d6f162541e09c570838ef5a429e",
+        "ids": {
+            "x": "4W_3331a1c01e3e27831cf08b7bde9b865db7b2e",
+            "y": "9X_c8cb257a04eba75c381df365a1e7f7e2dc660"
+        }
     }
     >>> idict(y=88, x=123123)
     {
         "y": 88,
-        "x": 123123
+        "x": 123123,
+        "id": "dR_5b58200b12d6f162541e09c570838ef5a429e",
+        "ids": {
+            "y": "9X_c8cb257a04eba75c381df365a1e7f7e2dc660",
+            "x": "4W_3331a1c01e3e27831cf08b7bde9b865db7b2e"
+        }
     }
     >>> d = idict(x=123123, y=88)
     >>> e = d >> (lambda x: {"z": x**2}) >> (lambda x,y: {"w": x/y})
     >>> e
     {
-        "x": 123123,
-        "y": 88,
-        "z": "→(x)",
-        "w": "→(x y)"
     }
     >>> a = d >> (lambda x: {"z": x**2}) >> (lambda x, y: {"w": x/y})
     >>> b = d >> (lambda x, y: {"w": x/y}) >> (lambda x: {"z": x**2})
     >>> dic = d.asdict  # Converting to dict
     >>> dic
-    {'x': 123123, 'y': 88}
+    {'x': 123123, 'y': 88, 'id': 'dR_5b58200b12d6f162541e09c570838ef5a429e', 'ids': {'x': '4W_3331a1c01e3e27831cf08b7bde9b865db7b2e', 'y': '9X_c8cb257a04eba75c381df365a1e7f7e2dc660'}}
     >>> d2 = idict(dic)  # Reconstructing from a dict
     >>> print(d2)
     {
         "x": 123123,
-        "y": 88
+        "y": 88,
+        "id": "dR_5b58200b12d6f162541e09c570838ef5a429e",
+        "ids": {
+            "x": "4W_3331a1c01e3e27831cf08b7bde9b865db7b2e",
+            "y": "9X_c8cb257a04eba75c381df365a1e7f7e2dc660"
+        }
     }
+    >>> d == d2
+    True
     >>> from idict import Ø
     >>> d = idict() >> {"x": "more content"}
     >>> d
@@ -93,110 +113,105 @@ class FrozenIdentifiedDict(AbstractLazyDict):
     }
     """
 
-    def __init__(self, /, _dictionary=None, rnd=None, identity=ø40, _cloned=None, **kwargs):
+    # noinspection PyMissingConstructor
+    def __init__(self, /, _dictionary=None, id=None, ids=None, rnd=None, identity=ø40, _cloned=None, **kwargs):
         self.rnd = rnd
-        super().__init__()
-        self.data = _dictionary or kwargs  # TODO: handle incomming ids
-        if _cloned:
-            self.hashes = _cloned["hashes"]
-            self.hoshes = _cloned["hoshes"]
-            self.blobs = _cloned["blobs"]
-        else:
-            self.hashes = _cloned["hashes"]
-            self.hoshes = _cloned["hoshes"]
-            self.blobs = _cloned["blobs"]
-        self.hosh = reduce(operator.mul, self.hoshes)
+        self.identity = identity
+        data = _dictionary or {}
+        if "id" in data:
+            if id:  # pragma: no cover
+                raise Exception(f"Conflicting 'id' values: {id} and {data['id']}")
+            id = data.pop("id")
+        if "ids" in data:
+            if ids:  # pragma: no cover
+                raise Exception(f"Conflicting 'ids' values: {ids} and {data['ids']}")
+            ids = data.pop("ids")
+        data.update(kwargs)
 
-    # def __init__(self, /, _dictionary=None, identity=ø40, readonly=False, **kwargs):
-    #     dic = _dictionary or {}
-    #     self.readonly, self.digits, self.version = readonly, identity.digits, identity.version
-    #     self.rho, self.delete = identity.rho, identity.delete
-    #     self.hosh = self.identity = identity
-    #     self.blobs, self.hashes, self.hoshes = {}, {}, {}
-    #     self.history, self.last = {}, None
-    #     self.rnd = Random()
-    #     dic.update(kwargs)
-    #     super().__init__()
-    #     if id := self.data.get("id", False) or dic.get("id", False):
-    #         if not (ids := self.data.pop("ids", False) or dic.pop("ids", False)):
-    #             raise MissingIds(f"id {id} provided but ids missing while importing dict-like")
-    #         if not isinstance(id, str):
-    #             raise WrongId(f"id {id} provided should be str, not {type(id)}")
-    #         self.hosh *= id
-    #         self.hoshes.update(ids)
-    #         self.data.update(dic)
-    #         self.data["ids"] = ids.copy()
-    #     else:
-    #         self.data.update(id=identity.id, ids={})
-    #         self.update(dic)
-    #     self.__name__ = self.id[:10]  # TODO: useful?
+        #  Prepare id/ids, hosh/hoshes (and hashes and blobs if possible).
+        if id:
+            if ids is None:  # pragma: no cover
+                raise Exception(f"'id' {id} given, but 'ids' is missing.")
+            self.blobs = {}
+            self.hashes = {}
+            self.hoshes = {k: identity * v for k, v in ids.items()}
+            self.hosh = reduce(operator.mul, [identity] + list(self.hoshes.values()))
+        else:
+            if _cloned:
+                self.blobs = _cloned["blobs"]
+                self.hashes = _cloned["hashes"]
+                self.hoshes = _cloned["hoshes"]
+                self.hosh = _cloned["hosh"]
+            else:
+                self.blobs = {}
+                self.hashes = {}
+                self.hoshes = {}
+                for k, v in data.items():
+                    if isinstance(v, FrozenIdentifiedDict):
+
+                    self.blobs[k] = pack(v)
+                    self.hashes[k] = self.identity.h * self.blobs[k]
+                    self.hoshes[k] = self.hashes[k] ** key2id(k, identity.digits)
+                self.hosh = reduce(operator.mul, [identity] + list(self.hoshes.values()))
+            id = self.hosh.id
+            ids = {k: v.id for k, v in self.hoshes.items()}
+
+        # Store as immutable lazy dict.
+        self.frozen = FrozenLazyDict(data, id=id, ids=ids, rnd=rnd)
+        self.data = self.frozen.data
+        self.id = self.hosh.id
 
     def __getitem__(self, item):
-        if not isinstance(item, str):
-            raise WrongKeyType(f"Key must be string, not {type(item)}.", item)
-        if item not in self.data:
-            raise KeyError(item)
-        if isinstance(content := self.data[item], LazyVal):
-            self.data[item] = content()
-        return self.data[item]
+        return self.frozen[item]
 
     def __setitem__(self, key: str, value):
-        del self[key]  # Reuse 'del' exception.
+        self.frozen[key] = value
 
     def __delitem__(self, key):
-        raise ReadOnlyLdict(f"Cannot change a frozen dict.", key)
+        del self.frozen[key]
 
     def __getattr__(self, item):
-        if item in self:
-            return self[item]
-        return self.__getattribute__(item)
+        return getattr(self.frozen, item)
 
     def __repr__(self):
-        txt = json.dumps(self.data, indent=4, ensure_ascii=False, cls=CustomJSONEncoder)
-        return txt.replace("\"«", "").replace("»\"", "")
+        return repr(self.frozen)
 
     __str__ = __repr__
 
     def evaluate(self):
         """
-        >>> from ldict import ldict
+        >>> from idict.frozenidentifieddict import FrozenIdentifiedDict as idict
         >>> f = lambda x: {"y": x+2}
-        >>> d = ldict(x=3)
+        >>> d = idict(x=3)
         >>> a = d >> f
         >>> a
         {
-            "x": 3,
-            "y": "→(x)"
+
         }
         >>> a.evaluate()
         >>> a
         {
-            "x": 3,
-            "y": 5
+
         }
         """
-        for field in self:
-            v = self[field]
-            if isinstance(v, FrozenIdentifiedDict):
-                v.evaluate()
+        self.frozen.evaluate()
 
     @property
     def asdict(self):
         """
-        >>> from ldict.frozenlazydict import FrozenLazyDict as ldict
-        >>> d = ldict(x=3, y=5)
-        >>> ldict(x=7, y=8, d=d).asdict
-        {'x': 7, 'y': 8, 'd': {'x': 3, 'y': 5}}
+        >>> from idict.frozenidentifieddict import FrozenIdentifiedDict as idict
+        >>> d = idict(x=3, y=5)
+        >>> d.id
+        'Xt_a63010fa2b5b4c671270fbe8ec313568a8b35'
+        >>> idict(x=7, y=8, d=d).asdict
+        {'x': 7, 'y': 8, 'd': {'x': 3, 'y': 5, 'id': 'Xt_a63010fa2b5b4c671270fbe8ec313568a8b35', 'ids': {'x': 'WB_e55a47230d67db81bcc1aecde8f1b950282cd', 'y': '0U_e2a86ff72e226d5365aea336044f7b4270977'}}, 'id': 'zA_7005dbe406b4d9bf09793a8863441c3ee7d42', 'ids': {'x': 'lX_9e55978592eeb1caf8778e34d26f5fd4cc8c8', 'y': '6q_07bbf68ac6eb0f9e2da3bda1665567bc21bde', 'd': '6f_4df6a215aca301e3e25ec39d3a8f4507e99aa'}}
+        >>> d.id
         """
-        dic = {}
-        for field in self:
-            v = self[field]
-            dic[field] = v.asdict if isinstance(v, AbstractLazyDict) else v
-        return dic
+        return self.frozen.asdic
 
-    def clone(self, data=None, rnd=None):
-        """Same lazy content with (optional) new data or rnd object."""
-        return FrozenIdentifiedDict(self.data if data is None else data, rnd=rnd or self.rnd)
+    # def clone(self, data=None, rnd=None):
+    #     """Same lazy content with (optional) new data or rnd object."""
+    #     return FrozenIdentifiedDict(self.data if data is None else data, rnd=rnd or self.rnd)
 
     def __rrshift__(self, other: Union[Dict, Callable, FunctionSpace]):
         if isinstance(other, Dict):
@@ -220,3 +235,12 @@ class FrozenIdentifiedDict(AbstractLazyDict):
             data.update(lazies)
             return self.clone(data)
         raise NotImplemented
+
+    def __eq__(self, other):
+        return self.hosh == other.hosh
+
+    def __ne__(self, other):
+        return self.hosh != other.hosh
+
+    def __hash__(self):
+        return hash(self.hosh)
