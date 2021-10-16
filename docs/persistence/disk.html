@@ -56,7 +56,7 @@ from ldict.persistence.cache import Cache
 VT = TypeVar(&#34;VT&#34;)
 
 
-class Disk(Cache):  # pragma: no cover
+class Disk(Cache):
     &#34;&#34;&#34;Save to/retrieve from disk.
 
     Based on built-in module shelve. Open and close at every transaction.
@@ -145,7 +145,7 @@ x 5
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class Disk(Cache):  # pragma: no cover
+<pre><code class="python">class Disk(Cache):
     &#34;&#34;&#34;Save to/retrieve from disk.
 
     Based on built-in module shelve. Open and close at every transaction.

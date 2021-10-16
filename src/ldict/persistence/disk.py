@@ -28,7 +28,7 @@ from ldict.persistence.cache import Cache
 VT = TypeVar("VT")
 
 
-class Disk(Cache):  # pragma: no cover
+class Disk(Cache):
     """Save to/retrieve from disk.
 
     Based on built-in module shelve. Open and close at every transaction.
