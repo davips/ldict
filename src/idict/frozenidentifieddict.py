@@ -27,6 +27,7 @@ from typing import Dict, TypeVar, Union, Callable
 
 from garoupa import ø40
 
+from idict.appearance import decolorize
 from idict.data import key2id, blobs_hashes_hoshes
 from idict.rshift import application, ihandle_dict
 from ldict.core.base import AbstractLazyDict
@@ -266,3 +267,19 @@ class FrozenIdentifiedDict(AbstractLazyDict):
 
     def __hash__(self):
         return hash(self.hosh)
+
+    def show(self, colored=True):
+        r"""
+        >>> from idict.frozenidentifieddict import FrozenIdentifiedDict as idict
+        >>> idict(x=134124, y= 56).show(colored=False)
+        {
+            "id": "dq_d85091ef315b9ce0d5eb1a5aabb6e6434a97f",
+            "ids": {
+                "x": "gZ_37ee5e71c9cd4c9bde421cdb917e5c56f7ebe",
+                "y": "Zs_c473399e77e6c2d2f69914891a488a3732bb0"
+            },
+            "x": 134124,
+            "y": 56
+        }
+        """
+        return print(self.all if colored else decolorize(self.all))
