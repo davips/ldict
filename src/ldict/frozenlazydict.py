@@ -91,8 +91,9 @@ class FrozenLazyDict(AbstractLazyDict):
     }
     """
 
-    def __init__(self, /, _dictionary=None, rnd=None, **kwargs):
+    def __init__(self, /, _dictionary=None, rnd=None, _changed=None, **kwargs):
         self.rnd = rnd
+        self.returned = _changed
         super().__init__()
         self.data = _dictionary or {}
         self.data.update(kwargs)
@@ -160,9 +161,9 @@ class FrozenLazyDict(AbstractLazyDict):
             dic[field] = v.asdict if isinstance(v, AbstractLazyDict) else v
         return dic
 
-    def clone(self, data=None, rnd=None):
+    def clone(self, data=None, rnd=None, _returned=None):
         """Same lazy content with (optional) new data or rnd object."""
-        return FrozenLazyDict(self.data if data is None else data, rnd=rnd or self.rnd)
+        return FrozenLazyDict(self.data if data is None else data, rnd=rnd or self.rnd, _returned=_returned)
 
     def __rrshift__(self, other: Union[Dict, Callable, FunctionSpace]):
         if isinstance(other, Dict):
@@ -184,5 +185,5 @@ class FrozenLazyDict(AbstractLazyDict):
             lazies = lazify(self.data, output_field="extract", f=other, rnd=self.rnd, multi_output=True)
             data = self.data.copy()
             data.update(lazies)
-            return self.clone(data)
+            return self.clone(data, _returned=list(lazies.keys()))
         raise NotImplemented

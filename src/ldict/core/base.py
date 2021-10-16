@@ -21,12 +21,15 @@
 #  time spent here.
 from abc import abstractmethod
 from collections import UserDict
+from random import Random
 from typing import Dict, TypeVar
 
 VT = TypeVar("VT")
 
 
 class AbstractLazyDict(UserDict, Dict[str, VT]):
+    rnd: Random
+
     @property
     @abstractmethod
     def asdict(self):

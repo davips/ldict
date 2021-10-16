@@ -19,6 +19,8 @@
 #  works or verbatim, obfuscated, compiled or rewritten versions of any
 #  part of this work is illegal and unethical regarding the effort and
 #  time spent here.
+from ldict.core.rshift import lazify
+
 
 def ihandle_dict(data, dictlike, rnd):
     """
@@ -43,3 +45,36 @@ def ihandle_dict(data, dictlike, rnd):
             else:
                 data[k] = v
     return data
+
+
+def handle_dict(data, dictlike, rnd):
+    for k, v in dictlike.items():
+        if v is None:
+            removal_hosh = remove(k, d.data, d.hosh, d.hoshes, d.hashes)
+            d.hosh *= removal_hosh
+            d.last = extend_history(d.history, d.last, removal_hosh)
+        elif k not in ["id", "ids"]:
+            if k in d.data:
+                raise OverwriteException(f"Cannot overwrite field ({k}) via value insertion through >>")
+            d[k] = v
+
+
+def remove(key, data, hosh, hoshes, hashes):
+    fhosh = hosh.ø * removal_id(hosh.delete, key)
+    it = iter(hoshes.items())
+    while (pair := next(it))[0] != key:
+        pass
+    oldfield_hosh = pair[1]
+    right = hosh.ø
+    for k, v in it:
+        right *= v
+    field_hosh = oldfield_hosh * right * fhosh * ~right
+
+    data["id"] = hosh.id
+    data[key] = None
+    data["ids"][key] = field_hosh.id
+    hoshes[key] = field_hosh
+    if key in hashes:
+        del hashes[key]
+
+    return fhosh

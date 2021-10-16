@@ -30,7 +30,6 @@ from garoupa import ø40
 from idict.compression import pack
 from idict.data import key2id
 from ldict.core.base import AbstractLazyDict
-from ldict.core.rshift import handle_dict, lazify
 from ldict.frozenlazydict import FrozenLazyDict
 from ldict.parameter.functionspace import FunctionSpace
 from ldict.parameter.let import Let
@@ -209,11 +208,6 @@ class FrozenIdentifiedDict(AbstractLazyDict):
         """
         return self.frozen.asdic
 
-    def clone(self, data=None, rnd=None, _cloned=None):
-        """Clone with a new rnd object."""
-        _cloned = _cloned or dict(blobs=self.blobs, hashes=self.hashes, hoshes=self.hoshes, hosh=self.hosh)
-        return FrozenIdentifiedDict(data=data or self.data, rnd=rnd or self.rnd, _cloned=_cloned)
-
     def __rrshift__(self, other: Union[Dict, Callable, FunctionSpace]):
         if isinstance(other, Dict):
             return FrozenIdentifiedDict(other) >> self
@@ -224,18 +218,37 @@ class FrozenIdentifiedDict(AbstractLazyDict):
     def __rshift__(self, other: Union[Dict, AbstractLazyDict, Callable, Let, FunctionSpace, Random]):
         if isinstance(other, Random):
             return self.clone(rnd=other)
-        if isinstance(other, FrozenIdentifiedDict):
-            return self.clone(ihandle_dict(self.data, other, other.rnd), other.rnd)
-        if isinstance(other, Dict):
-            return self.clone(handle_dict(self.data, other, self.rnd))
         if isinstance(other, FunctionSpace):
             return reduce(operator.rshift, (self,) + other.functions)
         if callable(other) or isinstance(other, Let):
-            lazies = lazify(self.data, output_field="extract", f=other, rnd=self.rnd, multi_output=True)
-            data = self.data.copy()
-            data.update(lazies)
-            return self.clone(data)
+            frozen = self.frozen >> other
+
+            # Reorder items.
+            newdata, newblobs, newhashes, newhoshes = {}, self.blobs.copy(), self.hashes.copy(), self.hoshes.copy()
+            for k in frozen.returned:
+                newdata[k] = frozen.data[k]
+                if k in newhoshes[k]:
+                    newhoshes[k] =
+                    if k in newblobs[k]:
+                        del newblobs[k]
+                    if k in newhashes[k]:
+                        del newhashes[k]
+
+            cloned_internals = dict(blobs=self.blobs, hashes=self.hashes, hoshes=self.hoshes, hosh=self.hosh)
+            return self.clone(newdata, _cloned=cloned_internals)
+
+        # if isinstance(other, FrozenIdentifiedDict):
+        #     return self.clone(ihandle_dict(self.frozen, other, other.rnd), other.rnd)
+        # if isinstance(other, AbstractLazyDict):
+        #     return self.clone(ihandle_dict(self.frozen, other, other.rnd), other.rnd)
+        # if isinstance(other, Dict):
+        #     return self.clone(handle_dict(self.data, other, self.rnd))
         raise NotImplemented
+
+    def clone(self, data=None, rnd=None, _cloned=None):
+        """Clone with a new rnd object."""
+        cloned_internals = _cloned or dict(blobs=self.blobs, hashes=self.hashes, hoshes=self.hoshes, hosh=self.hosh)
+        return FrozenIdentifiedDict(data=data or self.data, rnd=rnd or self.rnd, _cloned=cloned_internals)
 
     def __eq__(self, other):
         return self.hosh == other.hosh
