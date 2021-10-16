@@ -110,6 +110,7 @@ from orjson import dumps
 #     """
 #     bytes = dumps(obj, option=OPT_SORT_KEYS)
 #     return Hosh(bytes, "hybrid", version=version), bytes
+from idict.compression import pack
 from ldict.exception import NoInputException
 
 
@@ -177,3 +178,20 @@ def removal_id(template, field):
     '--------------------.............myfield'
     """
     return template[:-len(field)] + field
+
+
+def blobs_hashes_hoshes(data, identity):
+    from idict.frozenidentifieddict import FrozenIdentifiedDict
+    blobs = {}
+    hashes = {}
+    hoshes = {}
+    for k, v in data.items():
+        # TODO checar se é um ?dict mutável e congelar ele
+        if isinstance(v, FrozenIdentifiedDict):
+            hashes[k] = v.hosh
+            hoshes[k] = hashes[k] ** key2id(k, identity.digits)
+        else:
+            blobs[k] = pack(v)
+            hashes[k] = identity.h * blobs[k]
+            hoshes[k] = hashes[k] ** key2id(k, identity.digits)
+    return dict(blobs=blobs, hashes=hashes, hoshes=hoshes)

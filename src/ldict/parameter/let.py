@@ -19,6 +19,7 @@
 #  works or verbatim, obfuscated, compiled or rewritten versions of any
 #  part of this work is illegal and unethical regarding the effort and
 #  time spent here.
+from json import dumps
 
 from ldict.parameter.functionspace import FunctionSpace
 
@@ -93,6 +94,7 @@ class Let:
     def __init__(self, f, **kwargs):
         self.f = f
         self.config = kwargs
+        self.asdict = dumps(self.config, sort_keys=True)
 
     def __rshift__(self, other):
         from ldict.core.ldict_ import Ldict

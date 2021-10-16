@@ -19,28 +19,36 @@
 #  works or verbatim, obfuscated, compiled or rewritten versions of any
 #  part of this work is illegal and unethical regarding the effort and
 #  time spent here.
-from idict.data import fhosh, removal_id
-from ldict.core.rshift import lazify
+import operator
+from functools import reduce
+
+from idict.data import fhosh, removal_id, blobs_hashes_hoshes
+from ldict.parameter.let import Let
 
 
-def application(self, other, f, f_hosh):
+def application(self, other, f, f_hosh, output=None):
     f_hosh *= fhosh(f, self.identity.version)  # d' = d * ħ(config) * f
-    frozen = self.frozen >> other
+    if output:
+        frozen = self.frozen >> {output: other}
+        outputs = [output]
+    else:
+        frozen = self.frozen >> other
+        outputs = frozen.returned
     uf = self.hosh * f_hosh
-    ufu_1 = lambda: solve(self.hoshes, frozen.returned, uf)
+    ufu_1 = lambda: solve(self.hoshes, outputs, uf)
 
     # Reorder items.
     newdata, newhoshes, newblobs, newhashes, = {}, {}, self.blobs.copy(), self.hashes.copy()
-    noutputs = len(frozen.returned)
+    noutputs = len(outputs)
     if noutputs == 1:
-        k = frozen.returned[0]
+        k = outputs[0]
         newdata[k] = frozen.data[k]
         newhoshes[k] = ufu_1() if k in self.ids else uf * ~self.hosh
     else:
         ufu_1 = ufu_1()
         acc = self.identity
         c = 0
-        for i, k in enumerate(frozen.returned):
+        for i, k in enumerate(outputs):
             newdata[k] = frozen.data[k]
             if i < noutputs - 1:
                 field_hosh = ufu_1 * rho(c, self.identity.digits)
@@ -49,9 +57,9 @@ def application(self, other, f, f_hosh):
             else:
                 field_hosh = ~acc * ufu_1
             newhoshes[k] = field_hosh
-            if k in newblobs[k]:
+            if k in newblobs:
                 del newblobs[k]
-            if k in newhashes[k]:
+            if k in newhashes:
                 del newhashes[k]
     for k in self.ids:
         if k not in newdata:
@@ -63,69 +71,67 @@ def application(self, other, f, f_hosh):
 
 
 def delete(self, k):
-    frozen = self.frozen >> {k: None}
     f_hosh = self.identity * removal_id(self.identity.delete, k)  # d' = d * "--------------------...................y"
     uf = self.hosh * f_hosh
-
-    ph = placeholder(k, f_hosh, self.identity, self.hoshes)
-
-    # Reorder items.
-    newdata, newhoshes, newblobs, newhashes, = {}, {}, self.blobs.copy(), self.hashes.copy()
-    noutputs = len(frozen.returned)
-    if noutputs == 1:
-        k = frozen.returned[0]
-        newdata[k] = frozen.data[k]
-        newhoshes[k] = ufu_1() if k in self.ids else uf * ~self.hosh
-    else:
-        ufu_1 = ufu_1()
-        acc = self.identity
-        c = 0
-        for i, k in enumerate(frozen.returned):
-            newdata[k] = frozen.data[k]
-            if i < noutputs - 1:
-                field_hosh = ufu_1 * rho(c, self.identity.digits)
-                c += 1
-                acc *= field_hosh
-            else:
-                field_hosh = ~acc * ufu_1
-            newhoshes[k] = field_hosh
-            if k in newblobs[k]:
-                del newblobs[k]
-            if k in newhashes[k]:
-                del newhashes[k]
-    for k in self.ids:
-        if k not in newdata:
-            newhoshes[k] = self.hoshes[k]
-            newdata[k] = frozen.data[k]
-
-    cloned_internals = dict(blobs=newblobs, hashes=newhashes, hoshes=newhoshes, hosh=uf)
-    return self.clone(newdata, _cloned=cloned_internals)
+    newdata = self.data.copy()
+    newdata[k] = None
+    newhoshes, newblobs, newhashes, = self.hoshes.copy(), self.blobs.copy(), self.hashes.copy()
+    newhoshes[k] = placeholder(k, f_hosh, self.identity, self.hoshes)
+    if k in newblobs:
+        del newblobs[k]
+    if k in newhashes:
+        del newhashes[k]
+    return self.clone(newdata, _cloned=dict(blobs=newblobs, hashes=newhashes, hoshes=newhoshes, hosh=uf))
 
 
 def ihandle_dict(self, dictlike):
     """
     >>> from idict.frozenidentifieddict import FrozenIdentifiedDict as idict
     >>> d = idict(x=5, y=7, z=8)
-    >>> di = ihandle_dict(d.frozen.data, {"y":None}, None)
+    >>> di = ihandle_dict(d, {"y":None})
     >>> di
-    {'x': 5, 'y':None, 'z': 8}
-    >>> ihandle_dict(di, {"w":lambda x,z: x**z}, None)
-    {'x': 5, 'z': 8, 'w': →(x z)}
+    {
+        "x": 5,
+        "y": null,
+        "z": 8,
+        "id": "dejCAhZMpV8N1ZR8s3HUnCi0-LP............y",
+        "ids": {
+            "x": ".T_f0bb8da3062cc75365ae0446044f7b3270977",
+            "y": "gDcc4Rgrs4C3tMZUcb1Fp9KO53R............y",
+            "z": "7q_3c95f44b01eb0f9e2da3bda1665567bc21bde"
+        }
+    }
+    >>> ihandle_dict(di, {"w":lambda x,z: x**z})
+    {
+        "w": "→(x z)",
+        "x": 5,
+        "y": null,
+        "z": 8,
+        "id": "p.82XiVd66i7iZcpKpspLqJjTIqs3d9r2rr8kHNE",
+        "ids": {
+            "w": "APe82rIDSl0OEtKebkaueUlhuQts3d9r2rr8kHN5",
+            "x": ".T_f0bb8da3062cc75365ae0446044f7b3270977",
+            "y": "gDcc4Rgrs4C3tMZUcb1Fp9KO53R............y",
+            "z": "7q_3c95f44b01eb0f9e2da3bda1665567bc21bde"
+        }
+    }
     """
-    data = self.frozen.data.copy()
+    from idict.frozenidentifieddict import FrozenIdentifiedDict
+    from ldict.core.base import AbstractLazyDict
+    clone = self.clone(rnd=dictlike.rnd) if isinstance(dictlike, AbstractLazyDict) and dictlike.rnd else self
     for k, v in dictlike.items():
         if v is None:
-            frozen = self.frozen >> {k: None}
-            data[k] = None
+            clone = delete(clone, k)
         else:
-            from ldict.core.ldict_ import Ldict
-            if callable(v):
-                data[k] = lazify(data, k, v, rnd, multi_output=False)
-            elif isinstance(v, Ldict):
-                data[k] = v.frozen
+            if isinstance(v, Let):
+                clone = application(clone, v, v.f, v.asdict.encode(), k)
+            elif callable(v):
+                clone = application(clone, v, v, self.identity, k)
             else:
-                data[k] = v
-    return data
+                internals = blobs_hashes_hoshes({k: v}, self.identity)
+                internals["hosh"] = reduce(operator.mul, [self.identity] + list(self.hoshes.values()))
+                clone = FrozenIdentifiedDict(clone.data, rnd=clone.rnd, _cloned=internals, **{k: v})
+    return clone
 
 
 def placeholder(key, f_hosh, identity, hoshes):

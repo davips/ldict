@@ -22,16 +22,13 @@
 #
 import operator
 from functools import reduce
-from json import dumps
 from random import Random
 from typing import Dict, TypeVar, Union, Callable
 
 from garoupa import ø40
-from orjson import OPT_SORT_KEYS
 
-from idict.compression import pack
-from idict.data import key2id
-from idict.rshift import application
+from idict.data import key2id, blobs_hashes_hoshes
+from idict.rshift import application, ihandle_dict
 from ldict.core.base import AbstractLazyDict
 from ldict.frozenlazydict import FrozenLazyDict
 from ldict.parameter.functionspace import FunctionSpace
@@ -125,6 +122,11 @@ class FrozenIdentifiedDict(AbstractLazyDict):
     >>> d = idict() >> {"x": "more content"}
     >>> d
     {
+        "id": "0000000000000000000000000000000000000000",
+        "ids": {
+            "x": "lU_2bc203cfa982e84748e044ad5f3a86dcf97ff"
+        },
+        "x": "more content"
     }
     """
 
@@ -141,8 +143,6 @@ class FrozenIdentifiedDict(AbstractLazyDict):
             self.hoshes = _cloned["hoshes"]
             self.hosh = _cloned["hosh"]
         else:
-            self.blobs = {}
-            self.hashes = {}
             if "id" in data:
                 if id:  # pragma: no cover
                     raise Exception(f"Conflicting 'id' values: {id} and {data['id']}")
@@ -155,17 +155,11 @@ class FrozenIdentifiedDict(AbstractLazyDict):
             if id:
                 if ids is None:  # pragma: no cover
                     raise Exception(f"'id' {id} given, but 'ids' is missing.")
+                self.blobs = {}
+                self.hashes = {}
                 self.hoshes = {k: identity * v for k, v in ids.items()}
             else:
-                self.hoshes = {}
-                for k, v in data.items():
-                    if isinstance(v, FrozenIdentifiedDict):
-                        self.hashes[k] = v.hosh
-                        self.hoshes[k] = self.hashes[k] ** key2id(k, identity.digits)
-                    else:
-                        self.blobs[k] = pack(v)
-                        self.hashes[k] = self.identity.h * self.blobs[k]
-                        self.hoshes[k] = self.hashes[k] ** key2id(k, identity.digits)
+                self.blobs, self.hashes, self.hoshes = blobs_hashes_hoshes(data, identity).values()
             self.hosh = reduce(operator.mul, [identity] + list(self.hoshes.values()))
 
         if id is None:
@@ -251,17 +245,12 @@ class FrozenIdentifiedDict(AbstractLazyDict):
             return self.clone(rnd=other)
         if isinstance(other, FunctionSpace):
             return reduce(operator.rshift, (self,) + other.functions)
+        if isinstance(other, Let):
+            return application(self, other, other.f, other.asdict.encode())
         if callable(other):
             return application(self, other, other, self.identity)
-        if isinstance(other, Let):
-            return application(self, other, other.f, dumps(other.config, option=OPT_SORT_KEYS))
-
-        # if isinstance(other, FrozenIdentifiedDict):
-        #     return self.clone(ihandle_dict(self.frozen, other, other.rnd), other.rnd)
-        # if isinstance(other, AbstractLazyDict):
-        #     return self.clone(ihandle_dict(self.frozen, other, other.rnd), other.rnd)
-        # if isinstance(other, Dict):
-        #     return self.clone(handle_dict(self.data, other, self.rnd))
+        if isinstance(other, Dict):
+            return ihandle_dict(self, other)
         return NotImplemented
 
     def clone(self, data=None, rnd=None, _cloned=None):
