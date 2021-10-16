@@ -238,9 +238,9 @@ d1.show(colored=False)
 print(d1.z)
 """
 {
-    "id": "Mp1yr9noHt9SvXiI1f1bZEijYbMBL0mALAyZNEWy",
+    "id": "8RkTU6eij2v8phhESReWgxteg86rNJRhvw9k3erx",
     "ids": {
-        "z": "GtlAp2MdvSSR6p2Pl4I4nEKYJ0MBL0mALAyZNEWy",
+        "z": "bWlAG1cXoyf4jP0LaHVPGwVT1Z5rNJRhvw9k3erx",
         "x": "Tz_d158c49297834fad67e6de7cdba3ea368aae4",
         "y": "Rs_92162dea64a7462725cac7dcee71b67669f69"
     },
@@ -248,7 +248,7 @@ print(d1.z)
     "x": 5,
     "y": 7
 }
-69999575.0
+-33.0
 """
 ```
 
@@ -259,9 +259,9 @@ d2.show(colored=False)
 print(d2.z)
 """
 {
-    "id": "WjV.14N7ZlvtNZg11VO2iNBDMxpTjr8ndG.oMHQh",
+    "id": "hVHXHZ7gF.DEA78xRYaDETHdM3OkFxKEgMNbDHEt",
     "ids": {
-        "z": "sndxQOXZv6q2Bv08lKtYHM1hympTjr8ndG.oMHQh",
+        "z": "KTisGzh3Vo7CjETD9ORw2T7TxUNkFxKEgMNbDHEt",
         "x": "Tz_d158c49297834fad67e6de7cdba3ea368aae4",
         "y": "Rs_92162dea64a7462725cac7dcee71b67669f69"
     },
@@ -269,7 +269,7 @@ print(d2.z)
     "x": 5,
     "y": 7
 }
-6999725.0
+6999530.0
 """
 ```
 
@@ -289,7 +289,7 @@ print(e.z)
 e = d >> cfg(a=5) >> fun
 print(e.z)
 """
-25.7
+700000025.0
 """
 ```
 
@@ -299,7 +299,7 @@ print(e.z)
 e = e >> cfg(a=5) >> fun
 print(e.z)
 """
-25.0007
+32.0
 """
 ```
 
@@ -385,8 +385,8 @@ d = {"x": 5, "y": 7} >> fun
 print(d)
 """
 {
-    "id": "H120ZR1TfMaO7IZpNddKpp7c1hBXAr3ofA9xxcfE",
-    "ids": "39J9hxiBgjZnheJw53UDPozRO5BXAr3ofA9xxcfE... +1 ...Rs_92162dea64a7462725cac7dcee71b67669f69",
+    "id": "GMdkYLFG-4HiA2nhRNMlupfoIdKVvw.pqEGlpcS0",
+    "ids": "AGFkQRT.5m06KA6o9DrfUoH1u2KVvw.pqEGlpcS0... +1 ...Rs_92162dea64a7462725cac7dcee71b67669f69",
     "z": "→(c z→(a b x y))",
     "x": 5,
     "y": 7
@@ -398,7 +398,7 @@ print(d)
 
 print(d.z)
 """
-2160.0
+240.0
 """
 ```
 
@@ -407,7 +407,7 @@ print(d.z)
 d = {"x": 5, "y": 7} >> fun
 print(d.z)
 """
-41.4
+45.7
 """
 ```
 
@@ -563,16 +563,11 @@ with shelve.open("/tmp/my-cache-file.db") as db:
     print(e.m0, e.m)
 
 """
-{'ZK_daeadc42296aa9a548b4f40a0911e9113dda6': [1, 4],
- 'nAKKyEJQ.unjd8SFCGPcevcxfjf8hIbZ8IXI2c0c': 2.8284271247461903,
- 'uD_be8e2b9128cd165438ae0efe887dff0a992d1': [3, 2]}
+{}
 2.8284271247461903
 {'3Q_85403c3464883af128dc24eef54294173d8ef': [1, 4],
  'E0_45bf7de0dcdfc012da8a0f556492e8880b09d': [3, 2],
- 'KBQMiN2gHLwCewlu6HC67I1R2-m8hIbZ8IXI2c0c': 2.8284271247461903,
- 'ZK_daeadc42296aa9a548b4f40a0911e9113dda6': [1, 4],
- 'nAKKyEJQ.unjd8SFCGPcevcxfjf8hIbZ8IXI2c0c': 2.8284271247461903,
- 'uD_be8e2b9128cd165438ae0efe887dff0a992d1': [3, 2]}
+ 'KBQMiN2gHLwCewlu6HC67I1R2-m8hIbZ8IXI2c0c': 2.8284271247461903}
 3.2169892001050897 10.349019513592784
 """
 ```
