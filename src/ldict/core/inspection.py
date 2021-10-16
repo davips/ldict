@@ -24,7 +24,7 @@ from inspect import signature
 from io import StringIO
 from pprint import pprint
 
-from decompyle3.main import decompile
+from uncompyle6.main import decompile
 
 from ldict.exception import NoInputException, NoReturnException, BadOutput, UnderscoreInField, MultipleDicts
 
@@ -52,7 +52,7 @@ def extract_returnstr(f):
     '(x * y, x + y, x / y)'
     """
     out = StringIO()
-    decompile(bytecode_version=(3, 8), co=f.__code__, out=out)
+    decompile(bytecode_version=None, co=f.__code__, out=out)  # TODO: fix python bytecode version
     code = "".join([line for line in out.getvalue().split("\n") if not line.startswith("#")])
     if "return" not in code:
         raise NoReturnException(f"Missing return statement:", code)
