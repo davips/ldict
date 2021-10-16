@@ -91,9 +91,9 @@ class FrozenLazyDict(AbstractLazyDict):
     }
     """
 
-    def __init__(self, /, _dictionary=None, rnd=None, _changed=None, **kwargs):
+    def __init__(self, /, _dictionary=None, rnd=None, _returned=None, **kwargs):
         self.rnd = rnd
-        self.returned = _changed
+        self.returned = _returned
         super().__init__()
         self.data = _dictionary or {}
         self.data.update(kwargs)
@@ -186,4 +186,4 @@ class FrozenLazyDict(AbstractLazyDict):
             data = self.data.copy()
             data.update(lazies)
             return self.clone(data, _returned=list(lazies.keys()))
-        raise NotImplemented
+        return NotImplemented

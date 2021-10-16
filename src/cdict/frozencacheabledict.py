@@ -184,4 +184,4 @@ class FrozenCacheableDict(AbstractLazyDict):
             data = self.data.copy()
             data.update(lazies)
             return self.clone(data)
-        raise NotImplemented
+        return NotImplemented

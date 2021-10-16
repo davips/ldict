@@ -22,13 +22,16 @@
 #
 import operator
 from functools import reduce
+from json import dumps
 from random import Random
 from typing import Dict, TypeVar, Union, Callable
 
 from garoupa import ø40
+from orjson import OPT_SORT_KEYS
 
 from idict.compression import pack
 from idict.data import key2id
+from idict.rshift import application
 from ldict.core.base import AbstractLazyDict
 from ldict.frozenlazydict import FrozenLazyDict
 from ldict.parameter.functionspace import FunctionSpace
@@ -82,9 +85,23 @@ class FrozenIdentifiedDict(AbstractLazyDict):
         }
     }
     >>> d = idict(x=123123, y=88)
-    >>> e = d >> (lambda x: {"z": x**2}) >> (lambda x,y: {"w": x/y})
+    >>> d2 = d >> (lambda x: {"z": x**2})
+    >>> d2.hosh == d2.identity * d2.ids["z"] * d2.ids["x"] * d2.ids["y"]
+    True
+    >>> e = d2 >> (lambda x,y: {"w": x/y})
     >>> e
     {
+        "w": "→(x y)",
+        "z": "→(x)",
+        "x": 123123,
+        "y": 88,
+        "id": "96PdbhpKgueRWa.LSQWcSSbr.ZMZsuLzkF84sOwe",
+        "ids": {
+            "w": "1--sDMlN-GuH4FUXhvPWNkyHmTOfTbFo4RK7M5M5",
+            "z": ".JXmafqx65TZ-laengA5qxtk1fUJBi6bgQpYHIM8",
+            "x": "4W_3331a1c01e3e27831cf08b7bde9b865db7b2e",
+            "y": "9X_c8cb257a04eba75c381df365a1e7f7e2dc660"
+        }
     }
     >>> a = d >> (lambda x: {"z": x**2}) >> (lambda x, y: {"w": x/y})
     >>> b = d >> (lambda x, y: {"w": x/y}) >> (lambda x: {"z": x**2})
@@ -185,10 +202,24 @@ class FrozenIdentifiedDict(AbstractLazyDict):
         >>> a = d >> f
         >>> a
         {
+            "y": "→(x)",
+            "x": 3,
+            "id": "tFkvrmyHlXSnstVFIFktJjD7K91yW4AU0sYuSnwe",
+            "ids": {
+                "y": "BZz1P5xA5r0gfAqOtHySEb.m0HTxW4AU0sYuSnwe",
+                "x": "WB_e55a47230d67db81bcc1aecde8f1b950282cd"
+            }
         }
         >>> a.evaluate()
         >>> a
         {
+            "y": 5,
+            "x": 3,
+            "id": "tFkvrmyHlXSnstVFIFktJjD7K91yW4AU0sYuSnwe",
+            "ids": {
+                "y": "BZz1P5xA5r0gfAqOtHySEb.m0HTxW4AU0sYuSnwe",
+                "x": "WB_e55a47230d67db81bcc1aecde8f1b950282cd"
+            }
         }
         """
         self.frozen.evaluate()
@@ -220,22 +251,10 @@ class FrozenIdentifiedDict(AbstractLazyDict):
             return self.clone(rnd=other)
         if isinstance(other, FunctionSpace):
             return reduce(operator.rshift, (self,) + other.functions)
-        if callable(other) or isinstance(other, Let):
-            frozen = self.frozen >> other
-
-            # Reorder items.
-            newdata, newblobs, newhashes, newhoshes = {}, self.blobs.copy(), self.hashes.copy(), self.hoshes.copy()
-            for k in frozen.returned:
-                newdata[k] = frozen.data[k]
-                if k in newhoshes[k]:
-                    newhoshes[k] =
-                    if k in newblobs[k]:
-                        del newblobs[k]
-                    if k in newhashes[k]:
-                        del newhashes[k]
-
-            cloned_internals = dict(blobs=self.blobs, hashes=self.hashes, hoshes=self.hoshes, hosh=self.hosh)
-            return self.clone(newdata, _cloned=cloned_internals)
+        if callable(other):
+            return application(self, other, other, self.identity)
+        if isinstance(other, Let):
+            return application(self, other, other.f, dumps(other.config, option=OPT_SORT_KEYS))
 
         # if isinstance(other, FrozenIdentifiedDict):
         #     return self.clone(ihandle_dict(self.frozen, other, other.rnd), other.rnd)
@@ -243,12 +262,12 @@ class FrozenIdentifiedDict(AbstractLazyDict):
         #     return self.clone(ihandle_dict(self.frozen, other, other.rnd), other.rnd)
         # if isinstance(other, Dict):
         #     return self.clone(handle_dict(self.data, other, self.rnd))
-        raise NotImplemented
+        return NotImplemented
 
     def clone(self, data=None, rnd=None, _cloned=None):
         """Clone with a new rnd object."""
         cloned_internals = _cloned or dict(blobs=self.blobs, hashes=self.hashes, hoshes=self.hoshes, hosh=self.hosh)
-        return FrozenIdentifiedDict(data=data or self.data, rnd=rnd or self.rnd, _cloned=cloned_internals)
+        return FrozenIdentifiedDict(data or self.data, rnd=rnd or self.rnd, _cloned=cloned_internals)
 
     def __eq__(self, other):
         return self.hosh == other.hosh
