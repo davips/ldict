@@ -109,7 +109,6 @@ class FrozenIdentifiedDict(AbstractLazyDict):
     >>> d = idict() >> {"x": "more content"}
     >>> d
     {
-        "x": "more content"
     }
     """
 
@@ -118,41 +117,42 @@ class FrozenIdentifiedDict(AbstractLazyDict):
         self.rnd = rnd
         self.identity = identity
         data = _dictionary or {}
-        if "id" in data:
-            if id:  # pragma: no cover
-                raise Exception(f"Conflicting 'id' values: {id} and {data['id']}")
-            id = data.pop("id")
-        if "ids" in data:
-            if ids:  # pragma: no cover
-                raise Exception(f"Conflicting 'ids' values: {ids} and {data['ids']}")
-            ids = data.pop("ids")
         data.update(kwargs)
 
-        #  Prepare id/ids, hosh/hoshes (and hashes and blobs if possible).
-        if id:
-            if ids is None:  # pragma: no cover
-                raise Exception(f"'id' {id} given, but 'ids' is missing.")
+        if _cloned:
+            self.blobs = _cloned["blobs"]
+            self.hashes = _cloned["hashes"]
+            self.hoshes = _cloned["hoshes"]
+            self.hosh = _cloned["hosh"]
+        else:
             self.blobs = {}
             self.hashes = {}
-            self.hoshes = {k: identity * v for k, v in ids.items()}
-            self.hosh = reduce(operator.mul, [identity] + list(self.hoshes.values()))
-        else:
-            if _cloned:
-                self.blobs = _cloned["blobs"]
-                self.hashes = _cloned["hashes"]
-                self.hoshes = _cloned["hoshes"]
-                self.hosh = _cloned["hosh"]
+            if "id" in data:
+                if id:  # pragma: no cover
+                    raise Exception(f"Conflicting 'id' values: {id} and {data['id']}")
+                id = data.pop("id")
+            if "ids" in data:
+                if ids:  # pragma: no cover
+                    raise Exception(f"Conflicting 'ids' values: {ids} and {data['ids']}")
+                ids = data.pop("ids")
+
+            if id:
+                if ids is None:  # pragma: no cover
+                    raise Exception(f"'id' {id} given, but 'ids' is missing.")
+                self.hoshes = {k: identity * v for k, v in ids.items()}
             else:
-                self.blobs = {}
-                self.hashes = {}
                 self.hoshes = {}
                 for k, v in data.items():
                     if isinstance(v, FrozenIdentifiedDict):
+                        self.hashes[k] = v.hosh
+                        self.hoshes[k] = self.hashes[k] ** key2id(k, identity.digits)
+                    else:
+                        self.blobs[k] = pack(v)
+                        self.hashes[k] = self.identity.h * self.blobs[k]
+                        self.hoshes[k] = self.hashes[k] ** key2id(k, identity.digits)
+            self.hosh = reduce(operator.mul, [identity] + list(self.hoshes.values()))
 
-                    self.blobs[k] = pack(v)
-                    self.hashes[k] = self.identity.h * self.blobs[k]
-                    self.hoshes[k] = self.hashes[k] ** key2id(k, identity.digits)
-                self.hosh = reduce(operator.mul, [identity] + list(self.hoshes.values()))
+        if id is None:
             id = self.hosh.id
             ids = {k: v.id for k, v in self.hoshes.items()}
 
@@ -186,12 +186,10 @@ class FrozenIdentifiedDict(AbstractLazyDict):
         >>> a = d >> f
         >>> a
         {
-
         }
         >>> a.evaluate()
         >>> a
         {
-
         }
         """
         self.frozen.evaluate()
@@ -203,15 +201,18 @@ class FrozenIdentifiedDict(AbstractLazyDict):
         >>> d = idict(x=3, y=5)
         >>> d.id
         'Xt_a63010fa2b5b4c671270fbe8ec313568a8b35'
-        >>> idict(x=7, y=8, d=d).asdict
-        {'x': 7, 'y': 8, 'd': {'x': 3, 'y': 5, 'id': 'Xt_a63010fa2b5b4c671270fbe8ec313568a8b35', 'ids': {'x': 'WB_e55a47230d67db81bcc1aecde8f1b950282cd', 'y': '0U_e2a86ff72e226d5365aea336044f7b4270977'}}, 'id': 'zA_7005dbe406b4d9bf09793a8863441c3ee7d42', 'ids': {'x': 'lX_9e55978592eeb1caf8778e34d26f5fd4cc8c8', 'y': '6q_07bbf68ac6eb0f9e2da3bda1665567bc21bde', 'd': '6f_4df6a215aca301e3e25ec39d3a8f4507e99aa'}}
-        >>> d.id
+        >>> e = idict(x=7, y=8, d=d)
+        >>> e.asdict
+        {'x': 7, 'y': 8, 'd': {'x': 3, 'y': 5, 'id': 'Xt_a63010fa2b5b4c671270fbe8ec313568a8b35', 'ids': {'x': 'WB_e55a47230d67db81bcc1aecde8f1b950282cd', 'y': '0U_e2a86ff72e226d5365aea336044f7b4270977'}}, 'id': 'AN_650bae25143e28c5489bfbc806f5fb55c6fdc', 'ids': {'x': 'lX_9e55978592eeb1caf8778e34d26f5fd4cc8c8', 'y': '6q_07bbf68ac6eb0f9e2da3bda1665567bc21bde', 'd': '8s_1ccd1655bae1d9e91270e5eddc31351eb8b35'}}
+        >>> d.hosh ** key2id("d", d.identity.digits) == e.hoshes["d"]
+        True
         """
         return self.frozen.asdic
 
-    # def clone(self, data=None, rnd=None):
-    #     """Same lazy content with (optional) new data or rnd object."""
-    #     return FrozenIdentifiedDict(self.data if data is None else data, rnd=rnd or self.rnd)
+    def clone(self, data=None, rnd=None, _cloned=None):
+        """Clone with a new rnd object."""
+        _cloned = _cloned or dict(blobs=self.blobs, hashes=self.hashes, hoshes=self.hoshes, hosh=self.hosh)
+        return FrozenIdentifiedDict(data=data or self.data, rnd=rnd or self.rnd, _cloned=_cloned)
 
     def __rrshift__(self, other: Union[Dict, Callable, FunctionSpace]):
         if isinstance(other, Dict):
@@ -220,11 +221,11 @@ class FrozenIdentifiedDict(AbstractLazyDict):
             return FunctionSpace(other, self)
         return NotImplemented
 
-    def __rshift__(self, other: Union[Dict, 'Ldict', Callable, Let, FunctionSpace, Random]):
+    def __rshift__(self, other: Union[Dict, AbstractLazyDict, Callable, Let, FunctionSpace, Random]):
         if isinstance(other, Random):
             return self.clone(rnd=other)
         if isinstance(other, FrozenIdentifiedDict):
-            return self.clone(handle_dict(self.data, other, other.rnd), other.rnd)
+            return self.clone(ihandle_dict(self.data, other, other.rnd), other.rnd)
         if isinstance(other, Dict):
             return self.clone(handle_dict(self.data, other, self.rnd))
         if isinstance(other, FunctionSpace):
