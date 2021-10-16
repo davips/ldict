@@ -19,10 +19,12 @@
 #  works or verbatim, obfuscated, compiled or rewritten versions of any
 #  part of this work is illegal and unethical regarding the effort and
 #  time spent here.
-from abc import abstractmethod
+from abc import abstractmethod, ABC
 from collections import UserDict
 from random import Random
 from typing import Dict, TypeVar
+
+from ldict.exception import WrongKeyType
 
 VT = TypeVar("VT")
 
@@ -34,3 +36,24 @@ class AbstractLazyDict(UserDict, Dict[str, VT]):
     @abstractmethod
     def asdict(self):
         raise NotImplementedError
+
+
+class AbstractMutableLazyDict(AbstractLazyDict, ABC):
+    rnd: Random
+    frozen: AbstractLazyDict
+
+    @property
+    def rnd(self):
+        return self.frozen.rnd
+
+    @property
+    def data(self):
+        return self.frozen.data
+
+    def __getitem__(self, item):
+        return self.frozen[item]
+
+    def __setitem__(self, key: str, value):
+        if not isinstance(key, str):
+            raise WrongKeyType(f"Key must be string, not {type(key)}.", key)
+        self.frozen >>= {key: value}

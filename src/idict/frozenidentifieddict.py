@@ -28,8 +28,8 @@ from typing import Dict, TypeVar, Union, Callable
 from garoupa import ø40
 
 from idict.appearance import decolorize, ldict2txt
-from idict.data import key2id, blobs_hashes_hoshes
-from idict.rshift import application, ihandle_dict
+from idict.core.identification import key2id, blobs_hashes_hoshes
+from idict.core.rshift import application, ihandle_dict
 from ldict.core.base import AbstractLazyDict
 from ldict.frozenlazydict import FrozenLazyDict
 from ldict.parameter.functionspace import FunctionSpace
@@ -255,9 +255,10 @@ class FrozenIdentifiedDict(AbstractLazyDict):
         return NotImplemented
 
     def clone(self, data=None, rnd=None, _cloned=None):
-        """Clone with a new rnd object."""
         cloned_internals = _cloned or dict(blobs=self.blobs, hashes=self.hashes, hoshes=self.hoshes, hosh=self.hosh)
-        return FrozenIdentifiedDict(data or self.data, rnd=rnd or self.rnd, _cloned=cloned_internals)
+        return FrozenIdentifiedDict(
+            data or self.data, rnd=rnd or self.rnd, identity=self.identity, _cloned=cloned_internals
+        )
 
     def __eq__(self, other):
         return self.hosh == other.hosh

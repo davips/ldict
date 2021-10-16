@@ -25,7 +25,7 @@ from functools import reduce
 from random import Random
 from typing import Dict, TypeVar, Union, Callable
 
-from ldict.core.base import AbstractLazyDict
+from ldict.core.base import AbstractMutableLazyDict
 from ldict.core.rshift import handle_dict, lazify
 from ldict.exception import WrongKeyType
 from ldict.frozenlazydict import FrozenLazyDict
@@ -35,7 +35,7 @@ from ldict.parameter.let import Let
 VT = TypeVar("VT")
 
 
-class Ldict(AbstractLazyDict):
+class Ldict(AbstractMutableLazyDict):
     """Mutable lazy dict for serializable (picklable) pairs str->value
 
     Usage:
@@ -91,24 +91,14 @@ class Ldict(AbstractLazyDict):
 
     # noinspection PyMissingConstructor
     def __init__(self, /, _dictionary=None, rnd=None, **kwargs):
-        self.rnd = rnd
-        self.frozen = FrozenLazyDict(_dictionary or kwargs, rnd=rnd)
-        self.data = self.frozen.data
-
-    def __getitem__(self, item):
-        return self.frozen[item]
-
-    def __setitem__(self, key: str, value):
-        if not isinstance(key, str):
-            raise WrongKeyType(f"Key must be string, not {type(key)}.", key)
-        self.frozen >>= {key: value}
+        self.frozen: FrozenLazyDict = FrozenLazyDict(_dictionary or kwargs, rnd=rnd)
 
     def __delitem__(self, key):
         if not isinstance(key, str):
             raise WrongKeyType(f"Key must be string, not {type(key)}.", key)
         data = self.frozen.data.copy()
         del data[key]
-        return self.frozen.clone(data)
+        self.frozen = self.frozen.clone(data)
 
     def __getattr__(self, item):
         return self.frozen[item]
