@@ -38,57 +38,11 @@ VT = TypeVar("VT")
 
 
 class FrozenCacheableDict(AbstractLazyDict):
-    """Immutable lazy universally identified dict for serializable (picklable) pairs str->value
+    """Cacheable immutable lazy universally identified dict for serializable (picklable) pairs str->value
 
     Usage:
 
-    >>> from idict.frozenidentifieddict import FrozenIdentifiedDict as idict
-    >>> idict()
-    {}
-    >>> d = idict(x=5, y=3)
-    >>> d
-    {
-        "x": 5,
-        "y": 3
-    }
-    >>> d["y"]
-    3
-    >>> idict(x=123123, y=88)
-    {
-        "x": 123123,
-        "y": 88
-    }
-    >>> idict(y=88, x=123123)
-    {
-        "y": 88,
-        "x": 123123
-    }
-    >>> d = idict(x=123123, y=88)
-    >>> e = d >> (lambda x: {"z": x**2}) >> (lambda x,y: {"w": x/y})
-    >>> e
-    {
-        "x": 123123,
-        "y": 88,
-        "z": "→(x)",
-        "w": "→(x y)"
-    }
-    >>> a = d >> (lambda x: {"z": x**2}) >> (lambda x, y: {"w": x/y})
-    >>> b = d >> (lambda x, y: {"w": x/y}) >> (lambda x: {"z": x**2})
-    >>> dic = d.asdict  # Converting to dict
-    >>> dic
-    {'x': 123123, 'y': 88}
-    >>> d2 = idict(dic)  # Reconstructing from a dict
-    >>> print(d2)
-    {
-        "x": 123123,
-        "y": 88
-    }
-    >>> from idict import Ø
-    >>> d = idict() >> {"x": "more content"}
-    >>> d
-    {
-        "x": "more content"
-    }
+
     """
 
     def __init__(self, /, _dictionary=None, rnd=None, **kwargs):

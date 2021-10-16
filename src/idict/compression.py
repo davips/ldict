@@ -28,7 +28,8 @@ from idict.config import GLOBAL
 
 def pack(obj):
     r"""
-    >>> setup(True, True, {}, compression_cachelimit_MB=0.000_100)
+    >>> from idict import setup
+    >>> setup(compression_cachelimit_MB=0.000_100)
     >>> memo = GLOBAL["compression_cache"] = {}
     >>> GLOBAL["compression_cachesize"] = 0
     >>> b = b"000011"

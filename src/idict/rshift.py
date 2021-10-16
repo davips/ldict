@@ -89,7 +89,7 @@ def ihandle_dict(self, dictlike):
     >>> from idict.frozenidentifieddict import FrozenIdentifiedDict as idict
     >>> d = idict(x=5, y=7, z=8)
     >>> di = ihandle_dict(d, {"y":None})
-    >>> di
+    >>> print(di)
     {
         "x": 5,
         "y": null,
@@ -101,7 +101,7 @@ def ihandle_dict(self, dictlike):
             "z": "7q_3c95f44b01eb0f9e2da3bda1665567bc21bde"
         }
     }
-    >>> ihandle_dict(di, {"w":lambda x,z: x**z})
+    >>> print(ihandle_dict(di, {"w":lambda x,z: x**z}))
     {
         "w": "→(x z)",
         "x": 5,
@@ -148,53 +148,53 @@ def placeholder(key, f_hosh, identity, hoshes):
 
 def solve(hoshes, output, uf):
     """
-    >>> from ldict import ldict
-    >>> a = ldict(x=3)
+    >>> from idict.frozenidentifieddict import FrozenIdentifiedDict as idict
+    >>> a = idict(x=3)
     >>> a.show(colored=False)
     {
+        "x": 3,
         "id": "WB_e55a47230d67db81bcc1aecde8f1b950282cd",
         "ids": {
             "x": "WB_e55a47230d67db81bcc1aecde8f1b950282cd"
-        },
-        "x": 3
+        }
     }
     >>> a >>= (lambda x: {"x": x+2})
     >>> a.show(colored=False)
     {
+        "x": "→(x)",
         "id": "j9i-.G4WwbjZsi8V.dLkkb5hhPDYDDRQkGiQ6qJ8",
         "ids": {
             "x": "j9i-.G4WwbjZsi8V.dLkkb5hhPDYDDRQkGiQ6qJ8"
-        },
-        "x": "→(x)"
+        }
     }
-    >>> a = ldict(x=3, y=5) >> (lambda x: {"x": x+2})
+    >>> a = idict(x=3, y=5) >> (lambda x: {"x": x+2})
     >>> a.hosh == a.hoshes["x"] * a.hoshes["y"]
     True
-    >>> a = ldict(w=2, x=3) >> (lambda x: {"x": x+2})
+    >>> a = idict(w=2, x=3) >> (lambda x: {"x": x+2})
     >>> a.hosh == a.hoshes["x"] * a.hoshes["w"]
     True
-    >>> a = ldict(w=2, x=3, z=1, y=4) >> (lambda x: {"x": x+2})
+    >>> a = idict(w=2, x=3, z=1, y=4) >> (lambda x: {"x": x+2})
     >>> a.hosh == a.hoshes["x"] * a.hoshes["w"] * a.hoshes["z"] * a.hoshes["y"]
     True
-    >>> a = ldict(w=2, x=3, z=1, y=4) >> (lambda w,x,y: {"x": x+2, "a": w*x*y})
+    >>> a = idict(w=2, x=3, z=1, y=4) >> (lambda w,x,y: {"x": x+2, "a": w*x*y})
     >>> a.hosh == a.hoshes["x"] * a.hoshes["a"] * a.hoshes["w"] * a.hoshes["z"] * a.hoshes["y"]
     True
-    >>> a = ldict(w=2, x=3, z=1, y=4) >> (lambda w,x,y: {"x": x+2, "y": w*x*y})
+    >>> a = idict(w=2, x=3, z=1, y=4) >> (lambda w,x,y: {"x": x+2, "y": w*x*y})
     >>> a.hosh == a.hoshes["x"] * a.hoshes["y"] * a.hoshes["w"] * a.hoshes["z"]
     True
     >>> a.show(colored=False)
     {
+        "x": "→(w x y)",
+        "y": "→(w x y)",
+        "w": 2,
+        "z": 1,
         "id": "4k236R0oT.PI6-c2KLgmahWdNOzzkEFdqK4B1zjh",
         "ids": {
             "x": "RonX9OcL1opfeXE9CJXL1LtpNBqgmEFdqG4B1zji",
             "y": "ofEb.nRSYsUsgAnnyp4KYFovZaUOV6000sv....-",
             "w": "ng_5dad44381c5ac2a4c1bfe594d68a486791c45",
             "z": "vY_6b073e90b397af73e43c1e6c4777abeeadb9f"
-        },
-        "x": "→(w x y)",
-        "y": "→(w x y)",
-        "w": 2,
-        "z": 1
+        }
     }
     """
     previous = uf.ø

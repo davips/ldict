@@ -27,7 +27,7 @@ from typing import Dict, TypeVar, Union, Callable
 
 from garoupa import ø40
 
-from idict.appearance import decolorize
+from idict.appearance import decolorize, ldict2txt
 from idict.data import key2id, blobs_hashes_hoshes
 from idict.rshift import application, ihandle_dict
 from ldict.core.base import AbstractLazyDict
@@ -44,13 +44,13 @@ class FrozenIdentifiedDict(AbstractLazyDict):
     Usage:
 
     >>> from idict.frozenidentifieddict import FrozenIdentifiedDict as idict
-    >>> idict()
+    >>> print(idict())
     {
         "id": "0000000000000000000000000000000000000000",
         "ids": {}
     }
     >>> d = idict(x=5, y=3)
-    >>> d
+    >>> print(d)
     {
         "x": 5,
         "y": 3,
@@ -62,7 +62,7 @@ class FrozenIdentifiedDict(AbstractLazyDict):
     }
     >>> d["y"]
     3
-    >>> idict(x=123123, y=88)
+    >>> print(idict(x=123123, y=88))
     {
         "x": 123123,
         "y": 88,
@@ -72,7 +72,7 @@ class FrozenIdentifiedDict(AbstractLazyDict):
             "y": "9X_c8cb257a04eba75c381df365a1e7f7e2dc660"
         }
     }
-    >>> idict(y=88, x=123123)
+    >>> print(idict(y=88, x=123123))
     {
         "y": 88,
         "x": 123123,
@@ -87,7 +87,7 @@ class FrozenIdentifiedDict(AbstractLazyDict):
     >>> d2.hosh == d2.identity * d2.ids["z"] * d2.ids["x"] * d2.ids["y"]
     True
     >>> e = d2 >> (lambda x,y: {"w": x/y})
-    >>> e
+    >>> print(e)
     {
         "w": "→(x y)",
         "z": "→(x)",
@@ -121,7 +121,7 @@ class FrozenIdentifiedDict(AbstractLazyDict):
     True
     >>> from idict import Ø
     >>> d = idict() >> {"x": "more content"}
-    >>> d
+    >>> print(d)
     {
         "id": "0000000000000000000000000000000000000000",
         "ids": {
@@ -195,7 +195,7 @@ class FrozenIdentifiedDict(AbstractLazyDict):
         >>> f = lambda x: {"y": x+2}
         >>> d = idict(x=3)
         >>> a = d >> f
-        >>> a
+        >>> print(a)
         {
             "y": "→(x)",
             "x": 3,
@@ -206,7 +206,7 @@ class FrozenIdentifiedDict(AbstractLazyDict):
             }
         }
         >>> a.evaluate()
-        >>> a
+        >>> print(a)
         {
             "y": 5,
             "x": 3,
@@ -273,13 +273,29 @@ class FrozenIdentifiedDict(AbstractLazyDict):
         >>> from idict.frozenidentifieddict import FrozenIdentifiedDict as idict
         >>> idict(x=134124, y= 56).show(colored=False)
         {
+            "x": 134124,
+            "y": 56,
             "id": "dq_d85091ef315b9ce0d5eb1a5aabb6e6434a97f",
             "ids": {
                 "x": "gZ_37ee5e71c9cd4c9bde421cdb917e5c56f7ebe",
                 "y": "Zs_c473399e77e6c2d2f69914891a488a3732bb0"
-            },
-            "x": 134124,
-            "y": 56
+            }
         }
         """
         return print(self.all if colored else decolorize(self.all))
+
+    def __repr__(self, all=False):
+        return ldict2txt(self, all)
+
+    @property
+    def all(self):
+        r"""
+        Usage:
+
+        >>> from idict.frozenidentifieddict import FrozenIdentifiedDict as idict
+        >>> from idict.appearance import decolorize
+        >>> out = idict(x=134124, y= 56).all
+        >>> decolorize(out)
+        '{\n    "x": 134124,\n    "y": 56,\n    "id": "dq_d85091ef315b9ce0d5eb1a5aabb6e6434a97f",\n    "ids": {\n        "x": "gZ_37ee5e71c9cd4c9bde421cdb917e5c56f7ebe",\n        "y": "Zs_c473399e77e6c2d2f69914891a488a3732bb0"\n    }\n}'
+        """
+        return self.__repr__(all=True)

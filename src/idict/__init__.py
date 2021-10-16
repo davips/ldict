@@ -19,6 +19,7 @@
 #  works or verbatim, obfuscated, compiled or rewritten versions of any
 #  part of this work is illegal and unethical regarding the effort and
 #  time spent here.
+from idict.config import setup
 from idict.empty import Empty
 
 empty = Empty()
