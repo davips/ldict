@@ -26,9 +26,9 @@ from io import StringIO
 from pprint import pprint
 from typing import Callable
 
+from decompyle3.main import decompile
 from lange import AP, GP
 from orjson import OPT_SORT_KEYS, dumps
-from uncompyle6.main import decompile
 
 from ldict.data import fhosh, removal_id
 from ldict.exception import NoInputException, DependenceException, FunctionETypeException, NoReturnException, \
@@ -152,7 +152,7 @@ def output_and_implicit_fields(f, parameters):
     if hasattr(f, "output_fields"):
         return f.output_fields, []
     out = StringIO()
-    decompile(bytecode_version=None, co=f.__code__, out=out)
+    decompile(bytecode_version=(3, 8), co=f.__code__, out=out)
     ret = "".join([line for line in out.getvalue().split("\n") if not line.startswith("#")])
     if "return" not in ret:
         raise NoReturnException(f"Missing return statement:")
