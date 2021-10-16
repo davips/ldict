@@ -238,9 +238,9 @@ d1.show(colored=False)
 print(d1.z)
 """
 {
-    "id": "8RkTU6eij2v8phhESReWgxteg86rNJRhvw9k3erx",
+    "id": "FKxURnqTcR7yzBkHP5hxMd9Hq92up0wP54dlSI4A",
     "ids": {
-        "z": "bWlAG1cXoyf4jP0LaHVPGwVT1Z5rNJRhvw9k3erx",
+        "z": "haZ2HdG4RF2lm54O7XXqadBkc-1up0wP54dlSI4A",
         "x": "Tz_d158c49297834fad67e6de7cdba3ea368aae4",
         "y": "Rs_92162dea64a7462725cac7dcee71b67669f69"
     },
@@ -248,7 +248,7 @@ print(d1.z)
     "x": 5,
     "y": 7
 }
--33.0
+-153.0
 """
 ```
 
@@ -259,9 +259,9 @@ d2.show(colored=False)
 print(d2.z)
 """
 {
-    "id": "hVHXHZ7gF.DEA78xRYaDETHdM3OkFxKEgMNbDHEt",
+    "id": "nJjjH43L7fPqDeLAQV310b3QhoFRjQSZRG8DESoH",
     "ids": {
-        "z": "KTisGzh3Vo7CjETD9ORw2T7TxUNkFxKEgMNbDHEt",
+        "z": "bwHWB8tHuoc3VIuH8LKWpavt3dFRjQSZRG8DESoH",
         "x": "Tz_d158c49297834fad67e6de7cdba3ea368aae4",
         "y": "Rs_92162dea64a7462725cac7dcee71b67669f69"
     },
@@ -269,7 +269,7 @@ print(d2.z)
     "x": 5,
     "y": 7
 }
-6999530.0
+-444.3
 """
 ```
 
@@ -289,7 +289,7 @@ print(e.z)
 e = d >> cfg(a=5) >> fun
 print(e.z)
 """
-700000025.0
+25.07
 """
 ```
 
@@ -299,7 +299,7 @@ print(e.z)
 e = e >> cfg(a=5) >> fun
 print(e.z)
 """
-32.0
+25.007
 """
 ```
 
@@ -385,8 +385,8 @@ d = {"x": 5, "y": 7} >> fun
 print(d)
 """
 {
-    "id": "GMdkYLFG-4HiA2nhRNMlupfoIdKVvw.pqEGlpcS0",
-    "ids": "AGFkQRT.5m06KA6o9DrfUoH1u2KVvw.pqEGlpcS0... +1 ...Rs_92162dea64a7462725cac7dcee71b67669f69",
+    "id": "fUGQbBBxEEhC-hrZuB0cIvjt6FVb2zCtjK9ZuvIg",
+    "ids": "dVJqVEgPaAHq1Ra4PqH56vL6UtVb2zCtjK9ZuvIg... +1 ...Rs_92162dea64a7462725cac7dcee71b67669f69",
     "z": "→(c z→(a b x y))",
     "x": 5,
     "y": 7
@@ -398,7 +398,7 @@ print(d)
 
 print(d.z)
 """
-240.0
+1470.0
 """
 ```
 
@@ -407,7 +407,7 @@ print(d.z)
 d = {"x": 5, "y": 7} >> fun
 print(d.z)
 """
-45.7
+60.021
 """
 ```
 
@@ -563,7 +563,9 @@ with shelve.open("/tmp/my-cache-file.db") as db:
     print(e.m0, e.m)
 
 """
-{}
+{'3Q_85403c3464883af128dc24eef54294173d8ef': [1, 4],
+ 'E0_45bf7de0dcdfc012da8a0f556492e8880b09d': [3, 2],
+ 'KBQMiN2gHLwCewlu6HC67I1R2-m8hIbZ8IXI2c0c': 2.8284271247461903}
 2.8284271247461903
 {'3Q_85403c3464883af128dc24eef54294173d8ef': [1, 4],
  'E0_45bf7de0dcdfc012da8a0f556492e8880b09d': [3, 2],
