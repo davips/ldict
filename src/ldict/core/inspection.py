@@ -99,7 +99,7 @@ def extract_output(f, dictstr, parameters):
     implicit = re.findall(r"[ {]([_a-zA-Z]+[_a-zA-Z0-9]*):", dictstr)
     for field in implicit:
         if "_" in field:  # pragma: no cover
-            raise UnderscoreInField("Field names cannot contain underscores:", field, dicts[0])
+            raise UnderscoreInField("Field names cannot contain underscores:", field, dictstr)
         if field not in parameters:
             raise Exception("Missing parameter providing implicit field", field, parameters)
         explicit.append(parameters[field])
