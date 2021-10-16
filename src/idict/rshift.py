@@ -19,12 +19,11 @@
 #  works or verbatim, obfuscated, compiled or rewritten versions of any
 #  part of this work is illegal and unethical regarding the effort and
 #  time spent here.
-from idict.data import fhosh
+from idict.data import fhosh, removal_id
 from ldict.core.rshift import lazify
 
 
 def application(self, other, f, f_hosh):
-    # noinspection PyUnboundLocalVariable
     f_hosh *= fhosh(f, self.identity.version)  # d' = d * ħ(config) * f
     frozen = self.frozen >> other
     uf = self.hosh * f_hosh
@@ -63,7 +62,47 @@ def application(self, other, f, f_hosh):
     return self.clone(newdata, _cloned=cloned_internals)
 
 
-def ihandle_dict(data, dictlike, rnd):
+def delete(self, k):
+    frozen = self.frozen >> {k: None}
+    f_hosh = self.identity * removal_id(self.identity.delete, k)  # d' = d * "--------------------...................y"
+    uf = self.hosh * f_hosh
+
+    ph = placeholder(k, f_hosh, self.identity, self.hoshes)
+
+    # Reorder items.
+    newdata, newhoshes, newblobs, newhashes, = {}, {}, self.blobs.copy(), self.hashes.copy()
+    noutputs = len(frozen.returned)
+    if noutputs == 1:
+        k = frozen.returned[0]
+        newdata[k] = frozen.data[k]
+        newhoshes[k] = ufu_1() if k in self.ids else uf * ~self.hosh
+    else:
+        ufu_1 = ufu_1()
+        acc = self.identity
+        c = 0
+        for i, k in enumerate(frozen.returned):
+            newdata[k] = frozen.data[k]
+            if i < noutputs - 1:
+                field_hosh = ufu_1 * rho(c, self.identity.digits)
+                c += 1
+                acc *= field_hosh
+            else:
+                field_hosh = ~acc * ufu_1
+            newhoshes[k] = field_hosh
+            if k in newblobs[k]:
+                del newblobs[k]
+            if k in newhashes[k]:
+                del newhashes[k]
+    for k in self.ids:
+        if k not in newdata:
+            newhoshes[k] = self.hoshes[k]
+            newdata[k] = frozen.data[k]
+
+    cloned_internals = dict(blobs=newblobs, hashes=newhashes, hoshes=newhoshes, hosh=uf)
+    return self.clone(newdata, _cloned=cloned_internals)
+
+
+def ihandle_dict(self, dictlike):
     """
     >>> from idict.frozenidentifieddict import FrozenIdentifiedDict as idict
     >>> d = idict(x=5, y=7, z=8)
@@ -73,9 +112,10 @@ def ihandle_dict(data, dictlike, rnd):
     >>> ihandle_dict(di, {"w":lambda x,z: x**z}, None)
     {'x': 5, 'z': 8, 'w': →(x z)}
     """
-    data = data.copy()
+    data = self.frozen.data.copy()
     for k, v in dictlike.items():
         if v is None:
+            frozen = self.frozen >> {k: None}
             data[k] = None
         else:
             from ldict.core.ldict_ import Ldict
@@ -88,37 +128,16 @@ def ihandle_dict(data, dictlike, rnd):
     return data
 
 
-# def handle_dict(data, dictlike, rnd):
-#     for k, v in dictlike.items():
-#         if v is None:
-#             removal_hosh = remove(k, d.data, d.hosh, d.hoshes, d.hashes)
-#             d.hosh *= removal_hosh
-#             d.last = extend_history(d.history, d.last, removal_hosh)
-#         elif k not in ["id", "ids"]:
-#             if k in d.data:
-#                 raise OverwriteException(f"Cannot overwrite field ({k}) via value insertion through >>")
-#             d[k] = v
-#
-#
-# def remove(key, data, hosh, hoshes, hashes):
-#     fhosh = hosh.ø * removal_id(hosh.delete, key)
-#     it = iter(hoshes.items())
-#     while (pair := next(it))[0] != key:
-#         pass
-#     oldfield_hosh = pair[1]
-#     right = hosh.ø
-#     for k, v in it:
-#         right *= v
-#     field_hosh = oldfield_hosh * right * fhosh * ~right
-#
-#     data["id"] = hosh.id
-#     data[key] = None
-#     data["ids"][key] = field_hosh.id
-#     hoshes[key] = field_hosh
-#     if key in hashes:
-#         del hashes[key]
-#
-#     return fhosh
+def placeholder(key, f_hosh, identity, hoshes):
+    it = iter(hoshes.items())
+    while (pair := next(it))[0] != key:
+        pass
+    oldfield_hosh = pair[1]
+    right = identity
+    for k, v in it:
+        right *= v
+    field_hosh = oldfield_hosh * right * f_hosh * ~right
+    return field_hosh
 
 
 def solve(hoshes, output, uf):
