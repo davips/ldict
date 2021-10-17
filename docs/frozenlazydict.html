@@ -148,7 +148,7 @@ class FrozenLazyDict(AbstractLazyDict):
 
     def __repr__(self):
         txt = json.dumps(self.data, indent=4, ensure_ascii=False, cls=CustomJSONEncoder)
-        return txt.replace(&#34;\&#34;«&#34;, &#34;&#34;).replace(&#34;»\&#34;&#34;, &#34;&#34;)
+        return txt.replace(&#39;&#34;«&#39;, &#34;&#34;).replace(&#39;»&#34;&#39;, &#34;&#34;)
 
     __str__ = __repr__
 
@@ -368,7 +368,7 @@ class FrozenLazyDict(AbstractLazyDict):
 
     def __repr__(self):
         txt = json.dumps(self.data, indent=4, ensure_ascii=False, cls=CustomJSONEncoder)
-        return txt.replace(&#34;\&#34;«&#34;, &#34;&#34;).replace(&#34;»\&#34;&#34;, &#34;&#34;)
+        return txt.replace(&#39;&#34;«&#39;, &#34;&#34;).replace(&#39;»&#34;&#39;, &#34;&#34;)
 
     __str__ = __repr__
 

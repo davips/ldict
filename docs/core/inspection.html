@@ -105,13 +105,10 @@ def extract_dictstr(returnstr):
     if len(dict_strs) == 0:
         raise BadOutput(
             &#34;Cannot detect output fields, or missing dict (with proper pairs &#39;identifier&#39;-&gt;result) as a return value.&#34;,
-            dict_strs
+            dict_strs,
         )
     if len(dict_strs) &gt; 1:
-        raise MultipleDicts(
-            &#34;Cannot detect output fields, multiple dicts as a return value.&#34;,
-            dict_strs
-        )
+        raise MultipleDicts(&#34;Cannot detect output fields, multiple dicts as a return value.&#34;, dict_strs)
     return dict_strs[0]
 
 
@@ -180,13 +177,10 @@ def extract_implicit_input(dictstr):
     if len(dict_strs) == 0:
         raise BadOutput(
             &#34;Cannot detect output fields, or missing dict (with proper pairs &#39;identifier&#39;-&gt;result) as a return value.&#34;,
-            dict_strs
+            dict_strs,
         )
     if len(dict_strs) &gt; 1:
-        raise MultipleDicts(
-            &#34;Cannot detect output fields, multiple dicts as a return value.&#34;,
-            dict_strs
-        )
+        raise MultipleDicts(&#34;Cannot detect output fields, multiple dicts as a return value.&#34;, dict_strs)
     return dict_strs[0]</code></pre>
 </details>
 </dd>

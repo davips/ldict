@@ -66,7 +66,8 @@ def check_package(module_name, obj=None):
     except ImportError:
         package = module_name.split(&#34;.&#34;)[0]
         raise MissingLibraryDependence(
-            f&#34;Package {package} should be installed to be able to handle objects of type {type(obj)}.&#34;)
+            f&#34;Package {package} should be installed to be able to handle objects of type {type(obj)}.&#34;
+        )
 
 
 class OverwriteException(Exception):
@@ -197,7 +198,8 @@ class ReadOnlyLdict(Exception):
     except ImportError:
         package = module_name.split(&#34;.&#34;)[0]
         raise MissingLibraryDependence(
-            f&#34;Package {package} should be installed to be able to handle objects of type {type(obj)}.&#34;)</code></pre>
+            f&#34;Package {package} should be installed to be able to handle objects of type {type(obj)}.&#34;
+        )</code></pre>
 </details>
 </dd>
 </dl>

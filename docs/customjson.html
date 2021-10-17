@@ -98,6 +98,7 @@ class CustomJSONEncoder(JSONEncoder):
         if obj is not None:
             from ldict.frozenlazydict import FrozenLazyDict
             from ldict.lazyval import LazyVal
+
             if isinstance(obj, FrozenLazyDict):
                 return self.data
             if isinstance(obj, LazyVal):
@@ -107,12 +108,14 @@ class CustomJSONEncoder(JSONEncoder):
             if not isinstance(obj, (list, set, str, int, float, bytearray, bool)):
                 try:
                     from pandas.core.frame import DataFrame, Series
+
                     if isinstance(obj, (DataFrame, Series)):
                         return truncate(&#34;«&#34; + str(obj.to_dict()) + &#34;»&#34;)  # «str()» is to avoid nested identation
                     from numpy import ndarray
+
                     if isinstance(obj, ndarray):
                         return truncate(&#34;«&#34; + str(obj).replace(&#34;\n&#34;, &#34;&#34;) + &#34;»&#34;)
-                except ImportError:
+                except ImportError:  # pragma: no cover
                     print(&#34;Pandas or numpy may be missing.&#34;)
                 return obj.asdict if hasattr(obj, &#34;asdict&#34;) else obj.aslist
         return JSONEncoder.default(self, obj)
@@ -127,6 +130,7 @@ class CustomJSONEncoder(JSONEncoder):
 #             if isinstance(obj, str) and len(obj) == digits:
 #                 return
 #         return obj
+
 
 def truncate(txt):
     return txt + &#34;...&#34; if len(txt) == 1000 else txt</code></pre>
@@ -291,6 +295,7 @@ version of the object or raise a <code>TypeError</code>.</p></div>
         if obj is not None:
             from ldict.frozenlazydict import FrozenLazyDict
             from ldict.lazyval import LazyVal
+
             if isinstance(obj, FrozenLazyDict):
                 return self.data
             if isinstance(obj, LazyVal):
@@ -300,12 +305,14 @@ version of the object or raise a <code>TypeError</code>.</p></div>
             if not isinstance(obj, (list, set, str, int, float, bytearray, bool)):
                 try:
                     from pandas.core.frame import DataFrame, Series
+
                     if isinstance(obj, (DataFrame, Series)):
                         return truncate(&#34;«&#34; + str(obj.to_dict()) + &#34;»&#34;)  # «str()» is to avoid nested identation
                     from numpy import ndarray
+
                     if isinstance(obj, ndarray):
                         return truncate(&#34;«&#34; + str(obj).replace(&#34;\n&#34;, &#34;&#34;) + &#34;»&#34;)
-                except ImportError:
+                except ImportError:  # pragma: no cover
                     print(&#34;Pandas or numpy may be missing.&#34;)
                 return obj.asdict if hasattr(obj, &#34;asdict&#34;) else obj.aslist
         return JSONEncoder.default(self, obj)</code></pre>
@@ -343,6 +350,7 @@ implement default like this::</p>
     if obj is not None:
         from ldict.frozenlazydict import FrozenLazyDict
         from ldict.lazyval import LazyVal
+
         if isinstance(obj, FrozenLazyDict):
             return self.data
         if isinstance(obj, LazyVal):
@@ -352,12 +360,14 @@ implement default like this::</p>
         if not isinstance(obj, (list, set, str, int, float, bytearray, bool)):
             try:
                 from pandas.core.frame import DataFrame, Series
+
                 if isinstance(obj, (DataFrame, Series)):
                     return truncate(&#34;«&#34; + str(obj.to_dict()) + &#34;»&#34;)  # «str()» is to avoid nested identation
                 from numpy import ndarray
+
                 if isinstance(obj, ndarray):
                     return truncate(&#34;«&#34; + str(obj).replace(&#34;\n&#34;, &#34;&#34;) + &#34;»&#34;)
-            except ImportError:
+            except ImportError:  # pragma: no cover
                 print(&#34;Pandas or numpy may be missing.&#34;)
             return obj.asdict if hasattr(obj, &#34;asdict&#34;) else obj.aslist
     return JSONEncoder.default(self, obj)</code></pre>

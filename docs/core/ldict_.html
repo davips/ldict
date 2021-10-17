@@ -179,6 +179,7 @@ class Ldict(AbstractMutableLazyDict):
 
     def __rshift__(self, other: Union[Dict, AbstractLazyDict, Callable, Let, FunctionSpace, Random]):
         from ldict import Empty
+
         if isinstance(other, Random):
             return self.clone(rnd=other)
         if isinstance(other, Empty):
@@ -394,6 +395,7 @@ class Ldict(AbstractMutableLazyDict):
 
     def __rshift__(self, other: Union[Dict, AbstractLazyDict, Callable, Let, FunctionSpace, Random]):
         from ldict import Empty
+
         if isinstance(other, Random):
             return self.clone(rnd=other)
         if isinstance(other, Empty):
