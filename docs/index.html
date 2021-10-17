@@ -26,39 +26,19 @@
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">from .appearance import decolorize
-from .config import setup
+<pre><code class="python">from .core.ldict_ import Ldict as ldict
 from .empty import Empty
-from .functionspace import FunctionSpace
-from .ldict_ import Ldict
-
-ldict = Ldict
+from .parameter.functionspace import FunctionSpace
+from .parameter.let import Let as let
 
 empty = Empty()
-&#34;&#34;&#34;The empty object is used to induce a ldict from a dict&#34;&#34;&#34;
-
-Ø = empty
-&#34;&#34;&#34;UTF-8 alias for the empty object, it is used to induce a ldict from a dict. AltGr+Shift+o in most keyboards.&#34;&#34;&#34;
-
-decolorize = decolorize</code></pre>
+&#34;&#34;&#34;The empty object is used to induce a ldict from a dict&#34;&#34;&#34;</code></pre>
 </details>
 </section>
 <section>
 <h2 class="section-title" id="header-submodules">Sub-modules</h2>
 <dl>
-<dt><code class="name"><a title="ldict.appearance" href="appearance.html">ldict.appearance</a></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt><code class="name"><a title="ldict.apply" href="apply.html">ldict.apply</a></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt><code class="name"><a title="ldict.cfg" href="cfg.html">ldict.cfg</a></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt><code class="name"><a title="ldict.config" href="config.html">ldict.config</a></code></dt>
+<dt><code class="name"><a title="ldict.core" href="core/index.html">ldict.core</a></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
@@ -66,31 +46,19 @@ decolorize = decolorize</code></pre>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt><code class="name"><a title="ldict.data" href="data.html">ldict.data</a></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
 <dt><code class="name"><a title="ldict.exception" href="exception.html">ldict.exception</a></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt><code class="name"><a title="ldict.functionspace" href="functionspace.html">ldict.functionspace</a></code></dt>
+<dt><code class="name"><a title="ldict.frozenlazydict" href="frozenlazydict.html">ldict.frozenlazydict</a></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt><code class="name"><a title="ldict.history" href="history.html">ldict.history</a></code></dt>
+<dt><code class="name"><a title="ldict.lazyval" href="lazyval.html">ldict.lazyval</a></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt><code class="name"><a title="ldict.lazy" href="lazy.html">ldict.lazy</a></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt><code class="name"><a title="ldict.ldict_" href="ldict_.html">ldict.ldict_</a></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt><code class="name"><a title="ldict.persistence" href="persistence/index.html">ldict.persistence</a></code></dt>
+<dt><code class="name"><a title="ldict.parameter" href="parameter/index.html">ldict.parameter</a></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
@@ -102,10 +70,6 @@ decolorize = decolorize</code></pre>
 <dt id="ldict.empty"><code class="name">var <span class="ident">empty</span></code></dt>
 <dd>
 <div class="desc"><p>The empty object is used to induce a ldict from a dict</p></div>
-</dd>
-<dt id="ldict.Ø"><code class="name">var <span class="ident">Ø</span></code></dt>
-<dd>
-<div class="desc"><p>UTF-8 alias for the empty object, it is used to induce a ldict from a dict. AltGr+Shift+o in most keyboards.</p></div>
 </dd>
 </dl>
 </section>
@@ -122,24 +86,17 @@ decolorize = decolorize</code></pre>
 <ul id="index">
 <li><h3><a href="#header-submodules">Sub-modules</a></h3>
 <ul>
-<li><code><a title="ldict.appearance" href="appearance.html">ldict.appearance</a></code></li>
-<li><code><a title="ldict.apply" href="apply.html">ldict.apply</a></code></li>
-<li><code><a title="ldict.cfg" href="cfg.html">ldict.cfg</a></code></li>
-<li><code><a title="ldict.config" href="config.html">ldict.config</a></code></li>
+<li><code><a title="ldict.core" href="core/index.html">ldict.core</a></code></li>
 <li><code><a title="ldict.customjson" href="customjson.html">ldict.customjson</a></code></li>
-<li><code><a title="ldict.data" href="data.html">ldict.data</a></code></li>
 <li><code><a title="ldict.exception" href="exception.html">ldict.exception</a></code></li>
-<li><code><a title="ldict.functionspace" href="functionspace.html">ldict.functionspace</a></code></li>
-<li><code><a title="ldict.history" href="history.html">ldict.history</a></code></li>
-<li><code><a title="ldict.lazy" href="lazy.html">ldict.lazy</a></code></li>
-<li><code><a title="ldict.ldict_" href="ldict_.html">ldict.ldict_</a></code></li>
-<li><code><a title="ldict.persistence" href="persistence/index.html">ldict.persistence</a></code></li>
+<li><code><a title="ldict.frozenlazydict" href="frozenlazydict.html">ldict.frozenlazydict</a></code></li>
+<li><code><a title="ldict.lazyval" href="lazyval.html">ldict.lazyval</a></code></li>
+<li><code><a title="ldict.parameter" href="parameter/index.html">ldict.parameter</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-variables">Global variables</a></h3>
 <ul class="">
 <li><code><a title="ldict.empty" href="#ldict.empty">empty</a></code></li>
-<li><code><a title="ldict.Ø" href="#ldict.Ø">Ø</a></code></li>
 </ul>
 </li>
 </ul>

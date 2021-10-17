@@ -39,6 +39,7 @@
 #  time spent here.
 import operator
 from functools import reduce
+from random import Random
 from typing import Dict
 
 
@@ -94,6 +95,8 @@ class FunctionSpace:
 
     def __rrshift__(self, other):
         from ldict.core.ldict_ import Ldict
+        if isinstance(other, Random):
+            return FunctionSpace(other, *self.functions)
         if not isinstance(other, Dict) or isinstance(other, Ldict):
             return NotImplemented
         return reduce(operator.rshift, (Ldict(other),) + self.functions)

@@ -1,7 +1,7 @@
 # Parameterized functions and sampling
 from random import Random
 
-from ldict import Ø, let
+from ldict import empty, let
 
 
 # A function provide input fields and, optionally, parameters.
@@ -13,59 +13,63 @@ def fun(x, y, a=[-100, -99, -98, ..., 100], b=[0.0001, 0.001, 0.01, ..., 1000000
     return {"z": a * x + b * y}
 
 
+def simplefun(x, y):
+    return {"z": x * y}
+
+
 # Creating an empty ldict. Alternatively: d = ldict().
-d = Ø >> {}
-d.show(colored=False)
+d = empty >> {}
+print(d)
 # ...
 
 # Putting some values. Alternatively: d = ldict(x=5, y=7).
 d["x"] = 5
 d["y"] = 7
-d.show(colored=False)
+print(d)
 # ...
 
 # Parameter values are uniformly sampled.
-d1 = d >> fun
-d1.show(colored=False)
+d1 = d >> simplefun
+print(d1)
 print(d1.z)
 # ...
 
-d2 = d >> fun
-d2.show(colored=False)
+d2 = d >> simplefun
+print(d2)
 print(d2.z)
 # ...
 
 # Parameter values can also be manually set.
-e = d >> let(a=5, b=10) >> fun
+e = d >> let(fun, a=5, b=10)
 print(e.z)
 # ...
 
 # Not all parameters need to be set.
-e = d >> let(a=5) >> fun
+e = d >> let(simplefun, a=5)
 print(e.z)
 # ...
 
 # Each run will be a different sample for the missing parameters.
-e = e >> let(a=5) >> fun
+e = e >> let(simplefun, a=5)
 print(e.z)
 # ...
 
 # We can define the initial state of the random sampler.
 # It will be in effect from its location place onwards in the expression.
-e = d >> let(a=5) >> Random(0) >> fun
+e = d >> Random(0) >> let(fun, a=5)
 print(e.z)
 # ...
 
 # All runs will yield the same result,
 # if starting from the same random number generator seed.
-e = e >> let(a=5) >> Random(0) >> fun
+e = e >> Random(0) >> let(fun, a=5)
 print(e.z)
 # ...
 
 # Reproducible different runs are achievable by using a single random number generator.
 rnd = Random(0)
-e = d >> let(a=5) >> rnd >> fun
+e = d >> rnd >> let(fun, a=5)
 print(e.z)
-e = d >> let(a=5) >> rnd >> fun  # Alternative syntax.
+e = d >> rnd >> let(fun, a=5)  # Alternative syntax.
 print(e.z)
 # ...

@@ -1,7 +1,7 @@
 # Composition of sets of functions
 from random import Random
 
-from ldict import Ø
+from ldict import empty
 
 
 # A multistep process can be defined without applying its functions
@@ -18,8 +18,7 @@ def h(z, c=[1, 2, 3]):
 # In the ldict framework 'data is function',
 # so the alias ø represents the 'empty data object' and the 'reflexive function' at the same time.
 # In other words: 'inserting nothing' has the same effect as 'doing nothing'.
-# The operator '*' is an alias for '>>', used just to make the context clearer.
-fun = Ø * g * h  # ø enable the cartesian product of the subsequent sets of functions within the expression.
+fun = empty >> g >> h  # empty enable the cartesian product of the subsequent sets of functions within the expression.
 print(fun)
 # ...
 
@@ -27,14 +26,14 @@ print(fun)
 # (resulting in an ldict object). The former still has its free parameters unsampled,
 # and results in an ordered set of composite functions.
 # It is a set because the parameter values of the functions are still undefined.
-d = {"x": 5, "y": 7} >> fun
+d = {"x": 5, "y": 7} >> (Random(0) >> fun)
 print(d)
 # ...
 
 print(d.z)
 # ...
 
-d = {"x": 5, "y": 7} >> fun
+d = {"x": 5, "y": 7} >> (Random(0) >> fun)
 print(d.z)
 # ...
 
