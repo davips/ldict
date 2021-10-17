@@ -76,3 +76,12 @@ print(e.z)
 e = d >> rnd >> let(fun, a=5)  # Alternative syntax.
 print(e.z)
 # ...
+
+# Output fields can be defined dynamically through parameter values.
+# Input fields can be defined dynamically through kwargs.
+copy = lambda source=None, target=None, **kwargs: {target: kwargs[source]}
+d = empty >> {"x": 5}
+d >>= let(copy, source="x", target="y")
+print(d)
+d.evaluate()
+print(d)
