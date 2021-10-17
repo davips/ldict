@@ -386,7 +386,7 @@ def h(z, c=[1, 2, 3]):
 fun = empty >> g >> h  # empty enable the cartesian product of the subsequent sets of functions within the expression.
 print(fun)
 """
-«<function g at 0x7fa606ce29d0> × <function h at 0x7fa6071c98b0>»
+«<function g at 0x7f03eb1af9d0> × <function h at 0x7f03eb6968b0>»
 """
 ```
 
@@ -482,15 +482,6 @@ A ldict is like a common Python dict, with extra functionality and lazy. It is a
 fields, and any serializable (pickable) object. The ldict `id` (identifier) and the field `ids` are also part of the
 mapping.
 
-The user can provide a unique identifier ([hosh](https://pypi.org/project/garoupa))
-for each function or value object. Otherwise, they will be calculated through blake3 hashing of the content of data or
-bytecode of function. For this reason, such functions should be simple, i.e., with minimal external dependencies, to
-avoid the unfortunate situation where two functions with identical local code actually perform different calculations
-through calls to external code that implement different algorithms with the same name.
-<!--- Alternatively, a Hosh object can be passed inside the dict that is returned by the function, under the key "_id". ---/>
-
 ## Grants
 This work was partially supported by Fapesp under supervision of
 Prof. André C. P. L. F. de Carvalho at CEPID-CeMEAI (Grants 2013/07375-0 – 2019/01735-0).
-
-</div>
