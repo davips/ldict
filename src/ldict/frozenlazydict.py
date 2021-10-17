@@ -187,3 +187,17 @@ class FrozenLazyDict(AbstractLazyDict):
             data.update(lazies)
             return self.clone(data, _returned=list(lazies.keys()))
         return NotImplemented
+
+    def __ne__(self, other):
+        return not (self == other)
+
+    def __eq__(self, other):
+        if self.keys() != other.keys():
+            return False
+        self.evaluate()
+        if isinstance(other, AbstractLazyDict):
+            other.evaluate()
+            return self.data == other.data
+        if isinstance(other, Dict):
+            return self.data == other
+        raise TypeError(f"Cannot compare {type(self)} and {type(other)}")  # pragma: no cover

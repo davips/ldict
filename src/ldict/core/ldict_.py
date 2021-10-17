@@ -170,14 +170,21 @@ class Ldict(AbstractMutableLazyDict):
         return NotImplemented
 
     def __ne__(self, other):
+        """
+        >>> {"x": 5} == Ldict({"x": 5})
+        True
+        >>> {"w": 5} == Ldict({"x": 5})
+        False
+        >>> {"x": 4} == Ldict({"x": 5})
+        False
+        >>> {"x": 5} == FrozenLazyDict({"x": 5})
+        True
+        >>> {"w": 5} == FrozenLazyDict({"x": 5})
+        False
+        >>> {"x": 4} == FrozenLazyDict({"x": 5})
+        False
+        """
         return not (self == other)
 
     def __eq__(self, other):
-        # REMINDER: idict and cdict should compared ids
-        self.evaluate()
-        if isinstance(other, (FrozenLazyDict, Ldict)):
-            other.evaluate()
-            return self.data == other.data
-        if isinstance(other, Dict):
-            return self.frozen.data == other
-        raise TypeError(f"Cannot compare {type(self)} and {type(other)}")
+        return self.frozen == other
