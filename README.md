@@ -18,6 +18,11 @@ A lazy dict with universally unique deterministic identifiers and transparent ag
 [Current code](https://github.com/davips/ldict) |
 [API documentation](https://davips.github.io/ldict)
 
+## See also
+
+* laziness+identity ([idict](https://pypi.org/project/idict))
+* laziness+identity+persistence ([cdict](https://pypi.org/project/cdict))
+
 ## Overview
 
 A ldict is a dict with `str` keys. It has three levels of increasing functionality: identity, laziness, and persistence.
@@ -384,7 +389,7 @@ def h(z, c=[1, 2, 3]):
 fun = empty >> g >> h  # empty enable the cartesian product of the subsequent sets of functions within the expression.
 print(fun)
 """
-«<function g at 0x7fa4059089d0> × <function h at 0x7fa405d728b0>»
+«<function g at 0x7f39aabde9d0> × <function h at 0x7f39ab0c58b0>»
 """
 ```
 

@@ -32,6 +32,7 @@ class Empty(FrozenLazyDict):
 
     def __rshift__(self, other: Union[Dict, Callable, FunctionSpace], config={}):
         from ldict.parameter.let import Let
+
         if callable(other):
             return FunctionSpace(other)
         if isinstance(other, (Let, Ldict)):

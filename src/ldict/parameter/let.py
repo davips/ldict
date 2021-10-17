@@ -98,6 +98,7 @@ class Let:
 
     def __rshift__(self, other):
         from ldict.core.ldict_ import Ldict
+
         if isinstance(other, dict):
             other = Ldict(other)
         if callable(other) or isinstance(other, (list, Ldict)):
@@ -108,6 +109,7 @@ class Let:
 
     def __rrshift__(self, other):
         from ldict.core.ldict_ import Ldict
+
         if callable(other) or isinstance(other, (list, Ldict)):
             return FunctionSpace(other, self)
         if isinstance(other, FunctionSpace):

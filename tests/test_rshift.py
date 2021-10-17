@@ -26,8 +26,7 @@ import pytest
 from ldict import empty
 from ldict.core.inspection import extract_input, extract_dictstr, extract_returnstr
 from ldict.core.rshift import list2progression
-from ldict.exception import NoInputException, BadOutput, InconsistentLange, \
-    MultipleDicts, NoReturnException
+from ldict.exception import NoInputException, BadOutput, InconsistentLange, MultipleDicts, NoReturnException
 
 
 class Test(TestCase):

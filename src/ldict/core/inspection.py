@@ -52,7 +52,7 @@ def extract_returnstr(f):
     '(x * y, x + y, x / y)'
     """
     out = StringIO()
-    decompile(bytecode_version=None, co=f.__code__, out=out)  # TODO: fix python bytecode version
+    decompile(bytecode_version=3.8, co=f.__code__, out=out)
     code = "".join([line for line in out.getvalue().split("\n") if not line.startswith("#")])
     if "return" not in code:
         raise NoReturnException(f"Missing return statement:", code)
@@ -77,13 +77,10 @@ def extract_dictstr(returnstr):
     if len(dict_strs) == 0:
         raise BadOutput(
             "Cannot detect output fields, or missing dict (with proper pairs 'identifier'->result) as a return value.",
-            dict_strs
+            dict_strs,
         )
     if len(dict_strs) > 1:
-        raise MultipleDicts(
-            "Cannot detect output fields, multiple dicts as a return value.",
-            dict_strs
-        )
+        raise MultipleDicts("Cannot detect output fields, multiple dicts as a return value.", dict_strs)
     return dict_strs[0]
 
 

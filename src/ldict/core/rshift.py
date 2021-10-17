@@ -64,6 +64,7 @@ def handle_dict(data, dictlike, rnd):
             del data[k]
         else:
             from ldict.core.ldict_ import Ldict
+
             if callable(v):
                 data[k] = lazify(data, k, v, rnd, multi_output=False)
             elif isinstance(v, Ldict):
@@ -75,6 +76,7 @@ def handle_dict(data, dictlike, rnd):
 
 def lazify(data, output_field: Union[list, str], f, rnd, multi_output) -> Union[dict, LazyVal]:
     from ldict.parameter.let import Let
+
     config, f = (f.config, f.f) if isinstance(f, Let) else ({}, f)
     input_fields, parameters = extract_input(f)
     returnstr = extract_returnstr(f)

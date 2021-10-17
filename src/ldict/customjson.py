@@ -70,6 +70,7 @@ class CustomJSONEncoder(JSONEncoder):
         if obj is not None:
             from ldict.frozenlazydict import FrozenLazyDict
             from ldict.lazyval import LazyVal
+
             if isinstance(obj, FrozenLazyDict):
                 return self.data
             if isinstance(obj, LazyVal):
@@ -79,12 +80,14 @@ class CustomJSONEncoder(JSONEncoder):
             if not isinstance(obj, (list, set, str, int, float, bytearray, bool)):
                 try:
                     from pandas.core.frame import DataFrame, Series
+
                     if isinstance(obj, (DataFrame, Series)):
                         return truncate("«" + str(obj.to_dict()) + "»")  # «str()» is to avoid nested identation
                     from numpy import ndarray
+
                     if isinstance(obj, ndarray):
                         return truncate("«" + str(obj).replace("\n", "") + "»")
-                except ImportError:
+                except ImportError:  # pragma: no cover
                     print("Pandas or numpy may be missing.")
                 return obj.asdict if hasattr(obj, "asdict") else obj.aslist
         return JSONEncoder.default(self, obj)
@@ -99,6 +102,7 @@ class CustomJSONEncoder(JSONEncoder):
 #             if isinstance(obj, str) and len(obj) == digits:
 #                 return
 #         return obj
+
 
 def truncate(txt):
     return txt + "..." if len(txt) == 1000 else txt

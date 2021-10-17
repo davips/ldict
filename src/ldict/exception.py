@@ -38,7 +38,8 @@ def check_package(module_name, obj=None):
     except ImportError:
         package = module_name.split(".")[0]
         raise MissingLibraryDependence(
-            f"Package {package} should be installed to be able to handle objects of type {type(obj)}.")
+            f"Package {package} should be installed to be able to handle objects of type {type(obj)}."
+        )
 
 
 class OverwriteException(Exception):

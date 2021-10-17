@@ -18,6 +18,11 @@ A lazy dict with universally unique deterministic identifiers and transparent ag
 [Current code](https://github.com/davips/ldict) |
 [API documentation](https://davips.github.io/ldict)
 
+## See also
+
+* laziness+identity ([idict](https://pypi.org/project/idict))
+* laziness+identity+persistence ([cdict](https://pypi.org/project/cdict))
+
 ## Overview
 
 A ldict is a dict with `str` keys. It has three levels of increasing functionality: identity, laziness, and persistence.

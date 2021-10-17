@@ -1,0 +1,584 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.10.0" />
+<title>ldict.core.ldict_ API documentation</title>
+<meta name="description" content="" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>ldict.core.ldict_</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">#  Copyright (c) 2021. Davi Pereira dos Santos
+#  This file is part of the ldict project.
+#  Please respect the license - more about this in the section (*) below.
+#
+#  ldict is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  ldict is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with ldict.  If not, see &lt;http://www.gnu.org/licenses/&gt;.
+#
+#  (*) Removing authorship by any means, e.g. by distribution of derived
+#  works or verbatim, obfuscated, compiled or rewritten versions of any
+#  part of this work is illegal and unethical regarding the effort and
+#  time spent here.
+#
+import operator
+from functools import reduce
+from random import Random
+from typing import Dict, TypeVar, Union, Callable
+
+from ldict.core.base import AbstractMutableLazyDict, AbstractLazyDict
+from ldict.core.rshift import handle_dict, lazify
+from ldict.exception import WrongKeyType
+from ldict.frozenlazydict import FrozenLazyDict
+from ldict.parameter.functionspace import FunctionSpace
+from ldict.parameter.let import Let
+
+VT = TypeVar(&#34;VT&#34;)
+
+
+class Ldict(AbstractMutableLazyDict):
+    &#34;&#34;&#34;Mutable lazy dict for serializable (picklable) pairs str-&gt;value
+
+    Usage:
+
+    &gt;&gt;&gt; from ldict import ldict
+    &gt;&gt;&gt; ldict()
+    {}
+    &gt;&gt;&gt; d = ldict(x=5, y=3)
+    &gt;&gt;&gt; d
+    {
+        &#34;x&#34;: 5,
+        &#34;y&#34;: 3
+    }
+    &gt;&gt;&gt; d[&#34;y&#34;]
+    3
+    &gt;&gt;&gt; ldict(x=123123, y=88)
+    {
+        &#34;x&#34;: 123123,
+        &#34;y&#34;: 88
+    }
+    &gt;&gt;&gt; ldict(y=88, x=123123)
+    {
+        &#34;y&#34;: 88,
+        &#34;x&#34;: 123123
+    }
+    &gt;&gt;&gt; d = ldict(x=123123, y=88)
+    &gt;&gt;&gt; e = d &gt;&gt; (lambda x: {&#34;z&#34;: x**2}) &gt;&gt; (lambda x,y: {&#34;w&#34;: x/y})
+    &gt;&gt;&gt; e
+    {
+        &#34;x&#34;: 123123,
+        &#34;y&#34;: 88,
+        &#34;z&#34;: &#34;→(x)&#34;,
+        &#34;w&#34;: &#34;→(x y)&#34;
+    }
+    &gt;&gt;&gt; a = d &gt;&gt; (lambda x: {&#34;z&#34;: x**2}) &gt;&gt; (lambda x, y: {&#34;w&#34;: x/y})
+    &gt;&gt;&gt; b = d &gt;&gt; (lambda x, y: {&#34;w&#34;: x/y}) &gt;&gt; (lambda x: {&#34;z&#34;: x**2})
+    &gt;&gt;&gt; dic = d.asdict  # Converting to dict
+    &gt;&gt;&gt; dic
+    {&#39;x&#39;: 123123, &#39;y&#39;: 88}
+    &gt;&gt;&gt; d2 = ldict(dic)  # Reconstructing from a dict
+    &gt;&gt;&gt; print(d2)
+    {
+        &#34;x&#34;: 123123,
+        &#34;y&#34;: 88
+    }
+    &gt;&gt;&gt; from ldict import empty
+    &gt;&gt;&gt; d = empty &gt;&gt; {&#34;x&#34;: &#34;more content&#34;}
+    &gt;&gt;&gt; d
+    {
+        &#34;x&#34;: &#34;more content&#34;
+    }
+    &#34;&#34;&#34;
+
+    # noinspection PyMissingConstructor
+    def __init__(self, /, _dictionary=None, rnd=None, **kwargs):
+        self.frozen: FrozenLazyDict = FrozenLazyDict(_dictionary or kwargs, rnd=rnd)
+
+    def __delitem__(self, key):
+        if not isinstance(key, str):
+            raise WrongKeyType(f&#34;Key must be string, not {type(key)}.&#34;, key)
+        data = self.frozen.data.copy()
+        del data[key]
+        self.frozen = self.frozen.clone(data)
+
+    def __getattr__(self, item):
+        return self.frozen[item]
+
+    def __repr__(self):
+        return repr(self.frozen)
+
+    __str__ = __repr__
+
+    def evaluate(self):
+        &#34;&#34;&#34;
+        &gt;&gt;&gt; from ldict import ldict
+        &gt;&gt;&gt; f = lambda x: {&#34;y&#34;: x+2}
+        &gt;&gt;&gt; d = ldict(x=3)
+        &gt;&gt;&gt; a = d &gt;&gt; f
+        &gt;&gt;&gt; a
+        {
+            &#34;x&#34;: 3,
+            &#34;y&#34;: &#34;→(x)&#34;
+        }
+        &gt;&gt;&gt; a.evaluate()
+        &gt;&gt;&gt; a
+        {
+            &#34;x&#34;: 3,
+            &#34;y&#34;: 5
+        }
+        &#34;&#34;&#34;
+        self.frozen.evaluate()
+
+    @property
+    def asdict(self):
+        &#34;&#34;&#34;
+        &gt;&gt;&gt; from ldict import ldict
+        &gt;&gt;&gt; d = ldict(x=3, y=5)
+        &gt;&gt;&gt; ldict(x=7, y=8, d=d).asdict
+        {&#39;x&#39;: 7, &#39;y&#39;: 8, &#39;d&#39;: {&#39;x&#39;: 3, &#39;y&#39;: 5}}
+        &#34;&#34;&#34;
+        return self.frozen.asdict
+
+    def clone(self, data=None, rnd=None):
+        &#34;&#34;&#34;Same lazy content with (optional) new data or rnd object.&#34;&#34;&#34;
+        return Ldict(self.frozen.data if data is None else data, rnd=rnd or self.rnd)
+
+    def __rrshift__(self, other: Union[Dict, Callable, FunctionSpace]):
+        if isinstance(other, Dict):
+            return Ldict(other) &gt;&gt; self
+        if callable(other):
+            return FunctionSpace(other, self)
+        return NotImplemented
+
+    def __rshift__(self, other: Union[Dict, AbstractLazyDict, Callable, Let, FunctionSpace, Random]):
+        from ldict import Empty
+        if isinstance(other, Random):
+            return self.clone(rnd=other)
+        if isinstance(other, Empty):
+            return self
+        if isinstance(other, Ldict):
+            return self.clone(handle_dict(self.frozen.data, other, other.rnd), other.rnd)
+        if isinstance(other, Dict):
+            return self.clone(handle_dict(self.frozen.data, other, self.rnd))
+        if isinstance(other, FunctionSpace):
+            return reduce(operator.rshift, (self,) + other.functions)
+        if callable(other) or isinstance(other, Let):
+            lazies = lazify(self.frozen.data, output_field=&#34;extract&#34;, f=other, rnd=self.rnd, multi_output=True)
+            data = self.frozen.data.copy()
+            data.update(lazies)
+            return self.clone(data)
+        return NotImplemented
+
+    def __ne__(self, other):
+        return not (self == other)
+
+    def __eq__(self, other):
+        # REMINDER: idict and cdict should compared ids
+        self.evaluate()
+        if isinstance(other, (FrozenLazyDict, Ldict)):
+            other.evaluate()
+            return self.data == other.data
+        if isinstance(other, Dict):
+            return self.frozen.data == other
+        raise TypeError(f&#34;Cannot compare {type(self)} and {type(other)}&#34;)</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="ldict.core.ldict_.Ldict"><code class="flex name class">
+<span>class <span class="ident">Ldict</span></span>
+<span>(</span><span>rnd=None, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Mutable lazy dict for serializable (picklable) pairs str-&gt;value</p>
+<p>Usage:</p>
+<pre><code class="language-python-repl">&gt;&gt;&gt; from ldict import ldict
+&gt;&gt;&gt; ldict()
+{}
+&gt;&gt;&gt; d = ldict(x=5, y=3)
+&gt;&gt;&gt; d
+{
+    &quot;x&quot;: 5,
+    &quot;y&quot;: 3
+}
+&gt;&gt;&gt; d[&quot;y&quot;]
+3
+&gt;&gt;&gt; ldict(x=123123, y=88)
+{
+    &quot;x&quot;: 123123,
+    &quot;y&quot;: 88
+}
+&gt;&gt;&gt; ldict(y=88, x=123123)
+{
+    &quot;y&quot;: 88,
+    &quot;x&quot;: 123123
+}
+&gt;&gt;&gt; d = ldict(x=123123, y=88)
+&gt;&gt;&gt; e = d &gt;&gt; (lambda x: {&quot;z&quot;: x**2}) &gt;&gt; (lambda x,y: {&quot;w&quot;: x/y})
+&gt;&gt;&gt; e
+{
+    &quot;x&quot;: 123123,
+    &quot;y&quot;: 88,
+    &quot;z&quot;: &quot;→(x)&quot;,
+    &quot;w&quot;: &quot;→(x y)&quot;
+}
+&gt;&gt;&gt; a = d &gt;&gt; (lambda x: {&quot;z&quot;: x**2}) &gt;&gt; (lambda x, y: {&quot;w&quot;: x/y})
+&gt;&gt;&gt; b = d &gt;&gt; (lambda x, y: {&quot;w&quot;: x/y}) &gt;&gt; (lambda x: {&quot;z&quot;: x**2})
+&gt;&gt;&gt; dic = d.asdict  # Converting to dict
+&gt;&gt;&gt; dic
+{'x': 123123, 'y': 88}
+&gt;&gt;&gt; d2 = ldict(dic)  # Reconstructing from a dict
+&gt;&gt;&gt; print(d2)
+{
+    &quot;x&quot;: 123123,
+    &quot;y&quot;: 88
+}
+&gt;&gt;&gt; from ldict import empty
+&gt;&gt;&gt; d = empty &gt;&gt; {&quot;x&quot;: &quot;more content&quot;}
+&gt;&gt;&gt; d
+{
+    &quot;x&quot;: &quot;more content&quot;
+}
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Ldict(AbstractMutableLazyDict):
+    &#34;&#34;&#34;Mutable lazy dict for serializable (picklable) pairs str-&gt;value
+
+    Usage:
+
+    &gt;&gt;&gt; from ldict import ldict
+    &gt;&gt;&gt; ldict()
+    {}
+    &gt;&gt;&gt; d = ldict(x=5, y=3)
+    &gt;&gt;&gt; d
+    {
+        &#34;x&#34;: 5,
+        &#34;y&#34;: 3
+    }
+    &gt;&gt;&gt; d[&#34;y&#34;]
+    3
+    &gt;&gt;&gt; ldict(x=123123, y=88)
+    {
+        &#34;x&#34;: 123123,
+        &#34;y&#34;: 88
+    }
+    &gt;&gt;&gt; ldict(y=88, x=123123)
+    {
+        &#34;y&#34;: 88,
+        &#34;x&#34;: 123123
+    }
+    &gt;&gt;&gt; d = ldict(x=123123, y=88)
+    &gt;&gt;&gt; e = d &gt;&gt; (lambda x: {&#34;z&#34;: x**2}) &gt;&gt; (lambda x,y: {&#34;w&#34;: x/y})
+    &gt;&gt;&gt; e
+    {
+        &#34;x&#34;: 123123,
+        &#34;y&#34;: 88,
+        &#34;z&#34;: &#34;→(x)&#34;,
+        &#34;w&#34;: &#34;→(x y)&#34;
+    }
+    &gt;&gt;&gt; a = d &gt;&gt; (lambda x: {&#34;z&#34;: x**2}) &gt;&gt; (lambda x, y: {&#34;w&#34;: x/y})
+    &gt;&gt;&gt; b = d &gt;&gt; (lambda x, y: {&#34;w&#34;: x/y}) &gt;&gt; (lambda x: {&#34;z&#34;: x**2})
+    &gt;&gt;&gt; dic = d.asdict  # Converting to dict
+    &gt;&gt;&gt; dic
+    {&#39;x&#39;: 123123, &#39;y&#39;: 88}
+    &gt;&gt;&gt; d2 = ldict(dic)  # Reconstructing from a dict
+    &gt;&gt;&gt; print(d2)
+    {
+        &#34;x&#34;: 123123,
+        &#34;y&#34;: 88
+    }
+    &gt;&gt;&gt; from ldict import empty
+    &gt;&gt;&gt; d = empty &gt;&gt; {&#34;x&#34;: &#34;more content&#34;}
+    &gt;&gt;&gt; d
+    {
+        &#34;x&#34;: &#34;more content&#34;
+    }
+    &#34;&#34;&#34;
+
+    # noinspection PyMissingConstructor
+    def __init__(self, /, _dictionary=None, rnd=None, **kwargs):
+        self.frozen: FrozenLazyDict = FrozenLazyDict(_dictionary or kwargs, rnd=rnd)
+
+    def __delitem__(self, key):
+        if not isinstance(key, str):
+            raise WrongKeyType(f&#34;Key must be string, not {type(key)}.&#34;, key)
+        data = self.frozen.data.copy()
+        del data[key]
+        self.frozen = self.frozen.clone(data)
+
+    def __getattr__(self, item):
+        return self.frozen[item]
+
+    def __repr__(self):
+        return repr(self.frozen)
+
+    __str__ = __repr__
+
+    def evaluate(self):
+        &#34;&#34;&#34;
+        &gt;&gt;&gt; from ldict import ldict
+        &gt;&gt;&gt; f = lambda x: {&#34;y&#34;: x+2}
+        &gt;&gt;&gt; d = ldict(x=3)
+        &gt;&gt;&gt; a = d &gt;&gt; f
+        &gt;&gt;&gt; a
+        {
+            &#34;x&#34;: 3,
+            &#34;y&#34;: &#34;→(x)&#34;
+        }
+        &gt;&gt;&gt; a.evaluate()
+        &gt;&gt;&gt; a
+        {
+            &#34;x&#34;: 3,
+            &#34;y&#34;: 5
+        }
+        &#34;&#34;&#34;
+        self.frozen.evaluate()
+
+    @property
+    def asdict(self):
+        &#34;&#34;&#34;
+        &gt;&gt;&gt; from ldict import ldict
+        &gt;&gt;&gt; d = ldict(x=3, y=5)
+        &gt;&gt;&gt; ldict(x=7, y=8, d=d).asdict
+        {&#39;x&#39;: 7, &#39;y&#39;: 8, &#39;d&#39;: {&#39;x&#39;: 3, &#39;y&#39;: 5}}
+        &#34;&#34;&#34;
+        return self.frozen.asdict
+
+    def clone(self, data=None, rnd=None):
+        &#34;&#34;&#34;Same lazy content with (optional) new data or rnd object.&#34;&#34;&#34;
+        return Ldict(self.frozen.data if data is None else data, rnd=rnd or self.rnd)
+
+    def __rrshift__(self, other: Union[Dict, Callable, FunctionSpace]):
+        if isinstance(other, Dict):
+            return Ldict(other) &gt;&gt; self
+        if callable(other):
+            return FunctionSpace(other, self)
+        return NotImplemented
+
+    def __rshift__(self, other: Union[Dict, AbstractLazyDict, Callable, Let, FunctionSpace, Random]):
+        from ldict import Empty
+        if isinstance(other, Random):
+            return self.clone(rnd=other)
+        if isinstance(other, Empty):
+            return self
+        if isinstance(other, Ldict):
+            return self.clone(handle_dict(self.frozen.data, other, other.rnd), other.rnd)
+        if isinstance(other, Dict):
+            return self.clone(handle_dict(self.frozen.data, other, self.rnd))
+        if isinstance(other, FunctionSpace):
+            return reduce(operator.rshift, (self,) + other.functions)
+        if callable(other) or isinstance(other, Let):
+            lazies = lazify(self.frozen.data, output_field=&#34;extract&#34;, f=other, rnd=self.rnd, multi_output=True)
+            data = self.frozen.data.copy()
+            data.update(lazies)
+            return self.clone(data)
+        return NotImplemented
+
+    def __ne__(self, other):
+        return not (self == other)
+
+    def __eq__(self, other):
+        # REMINDER: idict and cdict should compared ids
+        self.evaluate()
+        if isinstance(other, (FrozenLazyDict, Ldict)):
+            other.evaluate()
+            return self.data == other.data
+        if isinstance(other, Dict):
+            return self.frozen.data == other
+        raise TypeError(f&#34;Cannot compare {type(self)} and {type(other)}&#34;)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="ldict.core.base.AbstractMutableLazyDict" href="base.html#ldict.core.base.AbstractMutableLazyDict">AbstractMutableLazyDict</a></li>
+<li><a title="ldict.core.base.AbstractLazyDict" href="base.html#ldict.core.base.AbstractLazyDict">AbstractLazyDict</a></li>
+<li>collections.UserDict</li>
+<li>collections.abc.MutableMapping</li>
+<li>collections.abc.Mapping</li>
+<li>collections.abc.Collection</li>
+<li>collections.abc.Sized</li>
+<li>collections.abc.Iterable</li>
+<li>collections.abc.Container</li>
+<li>builtins.dict</li>
+<li>typing.Generic</li>
+<li>abc.ABC</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="ldict.core.ldict_.Ldict.frozen"><code class="name">var <span class="ident">frozen</span> : <a title="ldict.core.base.AbstractLazyDict" href="base.html#ldict.core.base.AbstractLazyDict">AbstractLazyDict</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Instance variables</h3>
+<dl>
+<dt id="ldict.core.ldict_.Ldict.asdict"><code class="name">var <span class="ident">asdict</span></code></dt>
+<dd>
+<div class="desc"><pre><code class="language-python-repl">&gt;&gt;&gt; from ldict import ldict
+&gt;&gt;&gt; d = ldict(x=3, y=5)
+&gt;&gt;&gt; ldict(x=7, y=8, d=d).asdict
+{'x': 7, 'y': 8, 'd': {'x': 3, 'y': 5}}
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def asdict(self):
+    &#34;&#34;&#34;
+    &gt;&gt;&gt; from ldict import ldict
+    &gt;&gt;&gt; d = ldict(x=3, y=5)
+    &gt;&gt;&gt; ldict(x=7, y=8, d=d).asdict
+    {&#39;x&#39;: 7, &#39;y&#39;: 8, &#39;d&#39;: {&#39;x&#39;: 3, &#39;y&#39;: 5}}
+    &#34;&#34;&#34;
+    return self.frozen.asdict</code></pre>
+</details>
+</dd>
+<dt id="ldict.core.ldict_.Ldict.rnd"><code class="name">var <span class="ident">rnd</span> : random.Random</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def rnd(self):
+    return self.frozen.rnd</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="ldict.core.ldict_.Ldict.clone"><code class="name flex">
+<span>def <span class="ident">clone</span></span>(<span>self, data=None, rnd=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Same lazy content with (optional) new data or rnd object.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def clone(self, data=None, rnd=None):
+    &#34;&#34;&#34;Same lazy content with (optional) new data or rnd object.&#34;&#34;&#34;
+    return Ldict(self.frozen.data if data is None else data, rnd=rnd or self.rnd)</code></pre>
+</details>
+</dd>
+<dt id="ldict.core.ldict_.Ldict.evaluate"><code class="name flex">
+<span>def <span class="ident">evaluate</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><pre><code class="language-python-repl">&gt;&gt;&gt; from ldict import ldict
+&gt;&gt;&gt; f = lambda x: {&quot;y&quot;: x+2}
+&gt;&gt;&gt; d = ldict(x=3)
+&gt;&gt;&gt; a = d &gt;&gt; f
+&gt;&gt;&gt; a
+{
+    &quot;x&quot;: 3,
+    &quot;y&quot;: &quot;→(x)&quot;
+}
+&gt;&gt;&gt; a.evaluate()
+&gt;&gt;&gt; a
+{
+    &quot;x&quot;: 3,
+    &quot;y&quot;: 5
+}
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def evaluate(self):
+    &#34;&#34;&#34;
+    &gt;&gt;&gt; from ldict import ldict
+    &gt;&gt;&gt; f = lambda x: {&#34;y&#34;: x+2}
+    &gt;&gt;&gt; d = ldict(x=3)
+    &gt;&gt;&gt; a = d &gt;&gt; f
+    &gt;&gt;&gt; a
+    {
+        &#34;x&#34;: 3,
+        &#34;y&#34;: &#34;→(x)&#34;
+    }
+    &gt;&gt;&gt; a.evaluate()
+    &gt;&gt;&gt; a
+    {
+        &#34;x&#34;: 3,
+        &#34;y&#34;: 5
+    }
+    &#34;&#34;&#34;
+    self.frozen.evaluate()</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="ldict.core" href="index.html">ldict.core</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="ldict.core.ldict_.Ldict" href="#ldict.core.ldict_.Ldict">Ldict</a></code></h4>
+<ul class="">
+<li><code><a title="ldict.core.ldict_.Ldict.asdict" href="#ldict.core.ldict_.Ldict.asdict">asdict</a></code></li>
+<li><code><a title="ldict.core.ldict_.Ldict.clone" href="#ldict.core.ldict_.Ldict.clone">clone</a></code></li>
+<li><code><a title="ldict.core.ldict_.Ldict.evaluate" href="#ldict.core.ldict_.Ldict.evaluate">evaluate</a></code></li>
+<li><code><a title="ldict.core.ldict_.Ldict.frozen" href="#ldict.core.ldict_.Ldict.frozen">frozen</a></code></li>
+<li><code><a title="ldict.core.ldict_.Ldict.rnd" href="#ldict.core.ldict_.Ldict.rnd">rnd</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
+</footer>
+</body>
+</html>

@@ -25,7 +25,7 @@ from functools import reduce
 from random import Random
 from typing import Dict, TypeVar, Union, Callable
 
-from ldict.core.base import AbstractMutableLazyDict
+from ldict.core.base import AbstractMutableLazyDict, AbstractLazyDict
 from ldict.core.rshift import handle_dict, lazify
 from ldict.exception import WrongKeyType
 from ldict.frozenlazydict import FrozenLazyDict
@@ -149,8 +149,9 @@ class Ldict(AbstractMutableLazyDict):
             return FunctionSpace(other, self)
         return NotImplemented
 
-    def __rshift__(self, other: Union[Dict, 'Ldict', Callable, Let, FunctionSpace, Random]):
+    def __rshift__(self, other: Union[Dict, AbstractLazyDict, Callable, Let, FunctionSpace, Random]):
         from ldict import Empty
+
         if isinstance(other, Random):
             return self.clone(rnd=other)
         if isinstance(other, Empty):

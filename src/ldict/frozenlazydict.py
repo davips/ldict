@@ -120,7 +120,7 @@ class FrozenLazyDict(AbstractLazyDict):
 
     def __repr__(self):
         txt = json.dumps(self.data, indent=4, ensure_ascii=False, cls=CustomJSONEncoder)
-        return txt.replace("\"«", "").replace("»\"", "")
+        return txt.replace('"«', "").replace('»"', "")
 
     __str__ = __repr__
 
@@ -172,7 +172,7 @@ class FrozenLazyDict(AbstractLazyDict):
             return FunctionSpace(other, self)
         return NotImplemented
 
-    def __rshift__(self, other: Union[Dict, 'Ldict', Callable, Let, FunctionSpace, Random]):
+    def __rshift__(self, other: Union[Dict, AbstractLazyDict, Callable, Let, FunctionSpace, Random]):
         if isinstance(other, Random):
             return self.clone(rnd=other)
         if isinstance(other, FrozenLazyDict):

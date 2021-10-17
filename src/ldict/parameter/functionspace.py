@@ -82,6 +82,7 @@ class FunctionSpace:
     def __rshift__(self, other):
         from ldict.core.ldict_ import Ldict
         from ldict.empty import Empty
+
         if isinstance(other, Empty):
             return self
         if isinstance(other, Dict) and not isinstance(other, Ldict):
@@ -95,6 +96,7 @@ class FunctionSpace:
 
     def __rrshift__(self, other):
         from ldict.core.ldict_ import Ldict
+
         if isinstance(other, Random):
             return FunctionSpace(other, *self.functions)
         if not isinstance(other, Dict) or isinstance(other, Ldict):

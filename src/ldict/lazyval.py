@@ -20,6 +20,7 @@
 #  part of this work is illegal and unethical regarding the effort and
 #  time spent here.
 
+
 class LazyVal:
     def __init__(self, field, f, deps, multi_output):
         self.field = field
@@ -39,4 +40,3 @@ class LazyVal:
         for k, v in self.deps.items():
             dic[k] = v if isinstance(v, LazyVal) else ""
         return f"→({' '.join([f'{k}{v}' for k, v in dic.items()])})"
-

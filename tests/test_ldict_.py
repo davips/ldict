@@ -34,7 +34,7 @@ class TestLdict(TestCase):
         self.assertEqual(a, b)
         self.assertFalse(a == {"a": 3})
         self.assertNotEqual(a, {"a": 3})
-        d = {'x': 1, 'y': 2}
+        d = {"x": 1, "y": 2}
         self.assertEqual(a.asdict, d)
 
     def test_illdefined_function(self):
