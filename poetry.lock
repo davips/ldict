@@ -700,7 +700,7 @@ full = ["pandas"]
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.8,<3.10"
-content-hash = "dd20f883014efee6ec04948169c7277b3f210a5269f83bffa60d6c080e91062b"
+content-hash = "fbe7823d404f336a8e4112d9dcfe407e88e6cd27a205b55899caa429ee29b015"
 
 [metadata.files]
 ansi2html = [
