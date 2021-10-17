@@ -126,6 +126,15 @@ class Let(AbstractLet):
     }
     &gt;&gt;&gt; d.z
     23
+    &gt;&gt;&gt; d &gt;&gt;= Random(0) &gt;&gt; let(f, a=[1,2,3]) &gt;&gt; let(f, a=[9,8,7])
+    &gt;&gt;&gt; d
+    {
+        &#34;x&#34;: 3,
+        &#34;y&#34;: 8,
+        &#34;z&#34;: &#34;→(a x y)&#34;
+    }
+    &gt;&gt;&gt; d.z
+    32
     &#34;&#34;&#34;
 
     def __init__(self, f, **kwargs):
@@ -218,6 +227,15 @@ class Let(AbstractLet):
 }
 &gt;&gt;&gt; d.z
 23
+&gt;&gt;&gt; d &gt;&gt;= Random(0) &gt;&gt; let(f, a=[1,2,3]) &gt;&gt; let(f, a=[9,8,7])
+&gt;&gt;&gt; d
+{
+    &quot;x&quot;: 3,
+    &quot;y&quot;: 8,
+    &quot;z&quot;: &quot;→(a x y)&quot;
+}
+&gt;&gt;&gt; d.z
+32
 </code></pre></div>
 <details class="source">
 <summary>
@@ -297,6 +315,15 @@ class Let(AbstractLet):
     }
     &gt;&gt;&gt; d.z
     23
+    &gt;&gt;&gt; d &gt;&gt;= Random(0) &gt;&gt; let(f, a=[1,2,3]) &gt;&gt; let(f, a=[9,8,7])
+    &gt;&gt;&gt; d
+    {
+        &#34;x&#34;: 3,
+        &#34;y&#34;: 8,
+        &#34;z&#34;: &#34;→(a x y)&#34;
+    }
+    &gt;&gt;&gt; d.z
+    32
     &#34;&#34;&#34;
 
     def __init__(self, f, **kwargs):
