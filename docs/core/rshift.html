@@ -74,6 +74,7 @@ from ldict.core.inspection import extract_implicit_input, extract_output, extrac
 from ldict.core.inspection import extract_input
 from ldict.exception import InconsistentLange, UndefinedSeed, DependenceException
 from ldict.lazyval import LazyVal
+from ldict.parameter.base import AbstractLet
 
 
 def handle_dict(data, dictlike, rnd):
@@ -103,9 +104,7 @@ def handle_dict(data, dictlike, rnd):
 
 
 def lazify(data, output_field: Union[list, str], f, rnd, multi_output) -&gt; Union[dict, LazyVal]:
-    from ldict.parameter.let import Let
-
-    config, f = (f.config, f.f) if isinstance(f, Let) else ({}, f)
+    config, f = (f.config, f.f) if isinstance(f, AbstractLet) else ({}, f)
     input_fields, parameters = extract_input(f)
     returnstr = extract_returnstr(f)
     if multi_output:
@@ -295,9 +294,7 @@ def list2progression(lst):
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def lazify(data, output_field: Union[list, str], f, rnd, multi_output) -&gt; Union[dict, LazyVal]:
-    from ldict.parameter.let import Let
-
-    config, f = (f.config, f.f) if isinstance(f, Let) else ({}, f)
+    config, f = (f.config, f.f) if isinstance(f, AbstractLet) else ({}, f)
     input_fields, parameters = extract_input(f)
     returnstr = extract_returnstr(f)
     if multi_output:

@@ -217,7 +217,7 @@ class FrozenLazyDict(AbstractLazyDict):
             return self.clone(handle_dict(self.data, other, self.rnd))
         if isinstance(other, FunctionSpace):
             return reduce(operator.rshift, (self,) + other.functions)
-        if callable(other) or isinstance(other, Let):
+        if callable(other) or isinstance(other, AbstractLet):
             lazies = lazify(self.data, output_field=&#34;extract&#34;, f=other, rnd=self.rnd, multi_output=True)
             data = self.data.copy()
             data.update(lazies)
@@ -459,7 +459,7 @@ class FrozenLazyDict(AbstractLazyDict):
             return self.clone(handle_dict(self.data, other, self.rnd))
         if isinstance(other, FunctionSpace):
             return reduce(operator.rshift, (self,) + other.functions)
-        if callable(other) or isinstance(other, Let):
+        if callable(other) or isinstance(other, AbstractLet):
             lazies = lazify(self.data, output_field=&#34;extract&#34;, f=other, rnd=self.rnd, multi_output=True)
             data = self.data.copy()
             data.update(lazies)
