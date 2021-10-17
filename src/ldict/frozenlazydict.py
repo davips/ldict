@@ -166,6 +166,14 @@ class FrozenLazyDict(AbstractLazyDict):
         return FrozenLazyDict(self.data if data is None else data, rnd=rnd or self.rnd, _returned=_returned)
 
     def __rrshift__(self, other: Union[Dict, Callable, FunctionSpace]):
+        """
+        >>> {"x":5} >> FrozenLazyDict()
+        {
+            "x": 5
+        }
+        >>> (lambda x:x*2) >> FrozenLazyDict()
+        «λ × {}»
+        """
         if isinstance(other, Dict):
             return FrozenLazyDict(other) >> self
         if callable(other):
