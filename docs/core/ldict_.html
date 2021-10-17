@@ -198,17 +198,24 @@ class Ldict(AbstractMutableLazyDict):
         return NotImplemented
 
     def __ne__(self, other):
+        &#34;&#34;&#34;
+        &gt;&gt;&gt; {&#34;x&#34;: 5} == Ldict({&#34;x&#34;: 5})
+        True
+        &gt;&gt;&gt; {&#34;w&#34;: 5} == Ldict({&#34;x&#34;: 5})
+        False
+        &gt;&gt;&gt; {&#34;x&#34;: 4} == Ldict({&#34;x&#34;: 5})
+        False
+        &gt;&gt;&gt; {&#34;x&#34;: 5} == FrozenLazyDict({&#34;x&#34;: 5})
+        True
+        &gt;&gt;&gt; {&#34;w&#34;: 5} == FrozenLazyDict({&#34;x&#34;: 5})
+        False
+        &gt;&gt;&gt; {&#34;x&#34;: 4} == FrozenLazyDict({&#34;x&#34;: 5})
+        False
+        &#34;&#34;&#34;
         return not (self == other)
 
     def __eq__(self, other):
-        # REMINDER: idict and cdict should compared ids
-        self.evaluate()
-        if isinstance(other, (FrozenLazyDict, Ldict)):
-            other.evaluate()
-            return self.data == other.data
-        if isinstance(other, Dict):
-            return self.frozen.data == other
-        raise TypeError(f&#34;Cannot compare {type(self)} and {type(other)}&#34;)</code></pre>
+        return self.frozen == other</code></pre>
 </details>
 </section>
 <section>
@@ -414,17 +421,24 @@ class Ldict(AbstractMutableLazyDict):
         return NotImplemented
 
     def __ne__(self, other):
+        &#34;&#34;&#34;
+        &gt;&gt;&gt; {&#34;x&#34;: 5} == Ldict({&#34;x&#34;: 5})
+        True
+        &gt;&gt;&gt; {&#34;w&#34;: 5} == Ldict({&#34;x&#34;: 5})
+        False
+        &gt;&gt;&gt; {&#34;x&#34;: 4} == Ldict({&#34;x&#34;: 5})
+        False
+        &gt;&gt;&gt; {&#34;x&#34;: 5} == FrozenLazyDict({&#34;x&#34;: 5})
+        True
+        &gt;&gt;&gt; {&#34;w&#34;: 5} == FrozenLazyDict({&#34;x&#34;: 5})
+        False
+        &gt;&gt;&gt; {&#34;x&#34;: 4} == FrozenLazyDict({&#34;x&#34;: 5})
+        False
+        &#34;&#34;&#34;
         return not (self == other)
 
     def __eq__(self, other):
-        # REMINDER: idict and cdict should compared ids
-        self.evaluate()
-        if isinstance(other, (FrozenLazyDict, Ldict)):
-            other.evaluate()
-            return self.data == other.data
-        if isinstance(other, Dict):
-            return self.frozen.data == other
-        raise TypeError(f&#34;Cannot compare {type(self)} and {type(other)}&#34;)</code></pre>
+        return self.frozen == other</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
