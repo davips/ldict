@@ -40,14 +40,15 @@ class CustomJSONEncoder(JSONEncoder):
        0  1
     0  1  2
     1  3  4
-    >>> b = ldict(d=a, y=5, df=df)
+    >>> b = ldict(d=a, y=5, df=df, ell=...)
     >>> b
     {
         "d": {
             "x": 3
         },
         "y": 5,
-        "df": {0: {0: 1, 1: 3}, 1: {0: 2, 1: 4}}
+        "df": {0: {0: 1, 1: 3}, 1: {0: 2, 1: 4}},
+        "ell": "..."
     }
     >>> from numpy import array
     >>> ldict(b=b, z=9, c=(c:=array([1,2,3])), d=Series(c), dd=array([[1, 2], [3, 4]]))
@@ -57,7 +58,8 @@ class CustomJSONEncoder(JSONEncoder):
                 "x": 3
             },
             "y": 5,
-            "df": {0: {0: 1, 1: 3}, 1: {0: 2, 1: 4}}
+            "df": {0: {0: 1, 1: 3}, 1: {0: 2, 1: 4}},
+            "ell": "..."
         },
         "z": 9,
         "c": [1 2 3],
