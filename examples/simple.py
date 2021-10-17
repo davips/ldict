@@ -1,4 +1,4 @@
-# Identity example
+# Simple usage example
 from ldict import ldict
 
 a = ldict(x=3)
