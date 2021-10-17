@@ -386,7 +386,7 @@ def h(z, c=[1, 2, 3]):
 fun = empty >> g >> h  # empty enable the cartesian product of the subsequent sets of functions within the expression.
 print(fun)
 """
-«<function g at 0x7fb1fbc559d0> × <function h at 0x7fb1fc13c8b0>»
+«<function g at 0x7f971d8229d0> × <function h at 0x7f971dd088b0>»
 """
 ```
 
