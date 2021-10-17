@@ -22,9 +22,8 @@ fun = empty >> g >> h  # empty enable the cartesian product of the subsequent se
 print(fun)
 # ...
 
-# The difference between 'ø * g * h' and 'ldict(x=3) >> g >> h' is that the functions in the latter are already applied
-# (resulting in an ldict object). The former still has its free parameters unsampled,
-# and results in an ordered set of composite functions.
+# An unnapplied function has its free parameters unsampled.
+# A compostition of functions results in an ordered set (Cartesian product of sets).
 # It is a set because the parameter values of the functions are still undefined.
 d = {"x": 5, "y": 7} >> (Random(0) >> fun)
 print(d)

@@ -1,9 +1,6 @@
 # Laziness example
 from ldict import ldict
 
-# We disable 'ids' here just for the sake of clarity.
-# setup(ids=False)
-
 a = ldict(x=3)
 print(a)
 # ...

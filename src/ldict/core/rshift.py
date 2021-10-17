@@ -88,7 +88,7 @@ def lazify(data, output_field: Union[list, str], f, rnd, multi_output) -> Union[
         input_fields.append(config[par])
     deps = prepare_deps(data, input_fields, parameters, config, rnd)
     if output_field == "extract":
-        return {k: LazyVal(k, f, deps, multi_output=True) for k in extract_output(f, returnstr, parameters)}
+        return {k: LazyVal(k, f, deps, multi_output=True) for k in extract_output(f, returnstr, deps)}
     else:
         return LazyVal(output_field, f, deps, multi_output=False)
 

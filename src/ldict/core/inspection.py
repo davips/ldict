@@ -84,7 +84,7 @@ def extract_dictstr(returnstr):
     return dict_strs[0]
 
 
-def extract_output(f, dictstr, parameters):
+def extract_output(f, dictstr, deps):
     """Extract output fields. They cannot contain underscores.
 
     https://stackoverflow.com/a/68753149/9681577
@@ -97,9 +97,9 @@ def extract_output(f, dictstr, parameters):
     for field in implicit:
         if "_" in field:  # pragma: no cover
             raise UnderscoreInField("Field names cannot contain underscores:", field, dictstr)
-        if field not in parameters:
-            raise Exception("Missing parameter providing implicit field", field, parameters)
-        explicit.append(parameters[field])
+        if field not in deps:
+            raise Exception("Missing parameter providing implicit field", field, deps)
+        explicit.append(deps[field])
     if not explicit:
         pprint(dictstr)
         raise BadOutput("Could not find output fields that are valid identifiers (or kwargs[...]):")
