@@ -135,11 +135,15 @@ def prepare_deps(data, input, parameters, config, rnd):
             if rnd is None:  # pragma: no cover
                 raise UndefinedSeed(&#34;Missing Random object before parameterized function application.&#34;)
             deps[k] = rnd.choice(expand(v))
+        elif v is None:  # pragma: no cover
+            raise DependenceException(f&#34;&#39;None&#39; value for parameter {k}.&#34;, deps.keys())
         else:
             deps[k] = v
     for k in input:
         if k not in data:  # pragma: no cover
             raise DependenceException(f&#34;Missing field {k}.&#34;, data.keys())
+        if data[k] is None:  # pragma: no cover
+            raise DependenceException(f&#34;&#39;None&#39; value for field {k}.&#34;, data.keys())
         deps[k] = data[k]
     return deps
 
@@ -384,11 +388,15 @@ A range is specified as the default value of the parameter in the function signa
             if rnd is None:  # pragma: no cover
                 raise UndefinedSeed(&#34;Missing Random object before parameterized function application.&#34;)
             deps[k] = rnd.choice(expand(v))
+        elif v is None:  # pragma: no cover
+            raise DependenceException(f&#34;&#39;None&#39; value for parameter {k}.&#34;, deps.keys())
         else:
             deps[k] = v
     for k in input:
         if k not in data:  # pragma: no cover
             raise DependenceException(f&#34;Missing field {k}.&#34;, data.keys())
+        if data[k] is None:  # pragma: no cover
+            raise DependenceException(f&#34;&#39;None&#39; value for field {k}.&#34;, data.keys())
         deps[k] = data[k]
     return deps</code></pre>
 </details>

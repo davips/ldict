@@ -19,14 +19,12 @@
 #  works or verbatim, obfuscated, compiled or rewritten versions of any
 #  part of this work is illegal and unethical regarding the effort and
 #  time spent here.
-from functools import cached_property
-from json import dumps
 
-from ldict.customjson import CustomJSONEncoder
+from ldict.parameter.base import AbstractLet
 from ldict.parameter.functionspace import FunctionSpace
 
 
-class Let:
+class Let(AbstractLet):
     """
     Set values or sampling intervals for parameterized functions
 
@@ -91,35 +89,17 @@ class Let:
     «λ{'a': 5}»
     >>> (lambda x: {"z": x*8}) >> let(f, a=5)
     «λ × λ{'a': 5}»
+    >>> d = {"x":3, "y": 8} >> let(f, a=5)
+    >>> d
+    {
+        "x": 3,
+        "y": 8,
+        "z": "→(a x y)"
+    }
+    >>> d.z
+    23
     """
 
     def __init__(self, f, **kwargs):
-        self.f = f
-        self.config = kwargs
-
-    @cached_property
-    def asdict(self):
-        return dumps(self.config, sort_keys=True, cls=CustomJSONEncoder)
-
-    def __rshift__(self, other):
         from ldict.core.ldict_ import Ldict
-
-        if isinstance(other, dict):
-            other = Ldict(other)
-        if callable(other) or isinstance(other, (list, Ldict)):
-            return FunctionSpace(self, other)
-        if isinstance(other, FunctionSpace):
-            return FunctionSpace(self, *other.functions)
-        return NotImplemented  # pragma: no cover
-
-    def __rrshift__(self, other):
-        from ldict.core.ldict_ import Ldict
-
-        if callable(other) or isinstance(other, (list, Ldict)):
-            return FunctionSpace(other, self)
-        if isinstance(other, FunctionSpace):
-            return FunctionSpace(*other.functions, self)
-        return NotImplemented  # pragma: no cover
-
-    def __repr__(self):
-        return "λ" + str(self.config)
+        super().__init__(f, dict_type=Ldict, **kwargs)

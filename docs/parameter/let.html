@@ -47,14 +47,12 @@
 #  works or verbatim, obfuscated, compiled or rewritten versions of any
 #  part of this work is illegal and unethical regarding the effort and
 #  time spent here.
-from functools import cached_property
-from json import dumps
 
-from ldict.customjson import CustomJSONEncoder
+from ldict.parameter.base import AbstractLet
 from ldict.parameter.functionspace import FunctionSpace
 
 
-class Let:
+class Let(AbstractLet):
     &#34;&#34;&#34;
     Set values or sampling intervals for parameterized functions
 
@@ -119,38 +117,20 @@ class Let:
     «λ{&#39;a&#39;: 5}»
     &gt;&gt;&gt; (lambda x: {&#34;z&#34;: x*8}) &gt;&gt; let(f, a=5)
     «λ × λ{&#39;a&#39;: 5}»
+    &gt;&gt;&gt; d = {&#34;x&#34;:3, &#34;y&#34;: 8} &gt;&gt; let(f, a=5)
+    &gt;&gt;&gt; d
+    {
+        &#34;x&#34;: 3,
+        &#34;y&#34;: 8,
+        &#34;z&#34;: &#34;→(a x y)&#34;
+    }
+    &gt;&gt;&gt; d.z
+    23
     &#34;&#34;&#34;
 
     def __init__(self, f, **kwargs):
-        self.f = f
-        self.config = kwargs
-
-    @cached_property
-    def asdict(self):
-        return dumps(self.config, sort_keys=True, cls=CustomJSONEncoder)
-
-    def __rshift__(self, other):
         from ldict.core.ldict_ import Ldict
-
-        if isinstance(other, dict):
-            other = Ldict(other)
-        if callable(other) or isinstance(other, (list, Ldict)):
-            return FunctionSpace(self, other)
-        if isinstance(other, FunctionSpace):
-            return FunctionSpace(self, *other.functions)
-        return NotImplemented  # pragma: no cover
-
-    def __rrshift__(self, other):
-        from ldict.core.ldict_ import Ldict
-
-        if callable(other) or isinstance(other, (list, Ldict)):
-            return FunctionSpace(other, self)
-        if isinstance(other, FunctionSpace):
-            return FunctionSpace(*other.functions, self)
-        return NotImplemented  # pragma: no cover
-
-    def __repr__(self):
-        return &#34;λ&#34; + str(self.config)</code></pre>
+        super().__init__(f, dict_type=Ldict, **kwargs)</code></pre>
 </details>
 </section>
 <section>
@@ -229,12 +209,21 @@ class Let:
 «λ{'a': 5}»
 &gt;&gt;&gt; (lambda x: {&quot;z&quot;: x*8}) &gt;&gt; let(f, a=5)
 «λ × λ{'a': 5}»
+&gt;&gt;&gt; d = {&quot;x&quot;:3, &quot;y&quot;: 8} &gt;&gt; let(f, a=5)
+&gt;&gt;&gt; d
+{
+    &quot;x&quot;: 3,
+    &quot;y&quot;: 8,
+    &quot;z&quot;: &quot;→(a x y)&quot;
+}
+&gt;&gt;&gt; d.z
+23
 </code></pre></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class Let:
+<pre><code class="python">class Let(AbstractLet):
     &#34;&#34;&#34;
     Set values or sampling intervals for parameterized functions
 
@@ -299,81 +288,25 @@ class Let:
     «λ{&#39;a&#39;: 5}»
     &gt;&gt;&gt; (lambda x: {&#34;z&#34;: x*8}) &gt;&gt; let(f, a=5)
     «λ × λ{&#39;a&#39;: 5}»
+    &gt;&gt;&gt; d = {&#34;x&#34;:3, &#34;y&#34;: 8} &gt;&gt; let(f, a=5)
+    &gt;&gt;&gt; d
+    {
+        &#34;x&#34;: 3,
+        &#34;y&#34;: 8,
+        &#34;z&#34;: &#34;→(a x y)&#34;
+    }
+    &gt;&gt;&gt; d.z
+    23
     &#34;&#34;&#34;
 
     def __init__(self, f, **kwargs):
-        self.f = f
-        self.config = kwargs
-
-    @cached_property
-    def asdict(self):
-        return dumps(self.config, sort_keys=True, cls=CustomJSONEncoder)
-
-    def __rshift__(self, other):
         from ldict.core.ldict_ import Ldict
-
-        if isinstance(other, dict):
-            other = Ldict(other)
-        if callable(other) or isinstance(other, (list, Ldict)):
-            return FunctionSpace(self, other)
-        if isinstance(other, FunctionSpace):
-            return FunctionSpace(self, *other.functions)
-        return NotImplemented  # pragma: no cover
-
-    def __rrshift__(self, other):
-        from ldict.core.ldict_ import Ldict
-
-        if callable(other) or isinstance(other, (list, Ldict)):
-            return FunctionSpace(other, self)
-        if isinstance(other, FunctionSpace):
-            return FunctionSpace(*other.functions, self)
-        return NotImplemented  # pragma: no cover
-
-    def __repr__(self):
-        return &#34;λ&#34; + str(self.config)</code></pre>
+        super().__init__(f, dict_type=Ldict, **kwargs)</code></pre>
 </details>
-<h3>Instance variables</h3>
-<dl>
-<dt id="ldict.parameter.let.Let.asdict"><code class="name">var <span class="ident">asdict</span></code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def __get__(self, instance, owner=None):
-    if instance is None:
-        return self
-    if self.attrname is None:
-        raise TypeError(
-            &#34;Cannot use cached_property instance without calling __set_name__ on it.&#34;)
-    try:
-        cache = instance.__dict__
-    except AttributeError:  # not all objects have __dict__ (e.g. class defines slots)
-        msg = (
-            f&#34;No &#39;__dict__&#39; attribute on {type(instance).__name__!r} &#34;
-            f&#34;instance to cache {self.attrname!r} property.&#34;
-        )
-        raise TypeError(msg) from None
-    val = cache.get(self.attrname, _NOT_FOUND)
-    if val is _NOT_FOUND:
-        with self.lock:
-            # check if another thread filled cache while we awaited lock
-            val = cache.get(self.attrname, _NOT_FOUND)
-            if val is _NOT_FOUND:
-                val = self.func(instance)
-                try:
-                    cache[self.attrname] = val
-                except TypeError:
-                    msg = (
-                        f&#34;The &#39;__dict__&#39; attribute on {type(instance).__name__!r} instance &#34;
-                        f&#34;does not support item assignment for caching {self.attrname!r} property.&#34;
-                    )
-                    raise TypeError(msg) from None
-    return val</code></pre>
-</details>
-</dd>
-</dl>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="ldict.parameter.base.AbstractLet" href="base.html#ldict.parameter.base.AbstractLet">AbstractLet</a></li>
+</ul>
 </dd>
 </dl>
 </section>
@@ -393,9 +326,6 @@ class Let:
 <ul>
 <li>
 <h4><code><a title="ldict.parameter.let.Let" href="#ldict.parameter.let.Let">Let</a></code></h4>
-<ul class="">
-<li><code><a title="ldict.parameter.let.Let.asdict" href="#ldict.parameter.let.Let.asdict">asdict</a></code></li>
-</ul>
 </li>
 </ul>
 </li>

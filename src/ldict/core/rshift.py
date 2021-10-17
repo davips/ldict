@@ -46,6 +46,7 @@ from ldict.core.inspection import extract_implicit_input, extract_output, extrac
 from ldict.core.inspection import extract_input
 from ldict.exception import InconsistentLange, UndefinedSeed, DependenceException
 from ldict.lazyval import LazyVal
+from ldict.parameter.base import AbstractLet
 
 
 def handle_dict(data, dictlike, rnd):
@@ -75,9 +76,7 @@ def handle_dict(data, dictlike, rnd):
 
 
 def lazify(data, output_field: Union[list, str], f, rnd, multi_output) -> Union[dict, LazyVal]:
-    from ldict.parameter.let import Let
-
-    config, f = (f.config, f.f) if isinstance(f, Let) else ({}, f)
+    config, f = (f.config, f.f) if isinstance(f, AbstractLet) else ({}, f)
     input_fields, parameters = extract_input(f)
     returnstr = extract_returnstr(f)
     if multi_output:
@@ -107,11 +106,15 @@ def prepare_deps(data, input, parameters, config, rnd):
             if rnd is None:  # pragma: no cover
                 raise UndefinedSeed("Missing Random object before parameterized function application.")
             deps[k] = rnd.choice(expand(v))
+        elif v is None:  # pragma: no cover
+            raise DependenceException(f"'None' value for parameter {k}.", deps.keys())
         else:
             deps[k] = v
     for k in input:
         if k not in data:  # pragma: no cover
             raise DependenceException(f"Missing field {k}.", data.keys())
+        if data[k] is None:  # pragma: no cover
+            raise DependenceException(f"'None' value for field {k}.", data.keys())
         deps[k] = data[k]
     return deps
 

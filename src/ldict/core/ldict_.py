@@ -29,8 +29,8 @@ from ldict.core.base import AbstractMutableLazyDict, AbstractLazyDict
 from ldict.core.rshift import handle_dict, lazify
 from ldict.exception import WrongKeyType
 from ldict.frozenlazydict import FrozenLazyDict
+from ldict.parameter.base import AbstractLet
 from ldict.parameter.functionspace import FunctionSpace
-from ldict.parameter.let import Let
 
 VT = TypeVar("VT")
 
@@ -149,7 +149,7 @@ class Ldict(AbstractMutableLazyDict):
             return FunctionSpace(other, self)
         return NotImplemented
 
-    def __rshift__(self, other: Union[Dict, AbstractLazyDict, Callable, Let, FunctionSpace, Random]):
+    def __rshift__(self, other: Union[Dict, AbstractLazyDict, Callable, AbstractLet, FunctionSpace, Random]):
         from ldict import Empty
 
         if isinstance(other, Random):
@@ -162,7 +162,7 @@ class Ldict(AbstractMutableLazyDict):
             return self.clone(handle_dict(self.frozen.data, other, self.rnd))
         if isinstance(other, FunctionSpace):
             return reduce(operator.rshift, (self,) + other.functions)
-        if callable(other) or isinstance(other, Let):
+        if callable(other) or isinstance(other, AbstractLet):
             lazies = lazify(self.frozen.data, output_field="extract", f=other, rnd=self.rnd, multi_output=True)
             data = self.frozen.data.copy()
             data.update(lazies)

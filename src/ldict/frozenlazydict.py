@@ -31,8 +31,8 @@ from ldict.core.rshift import handle_dict, lazify
 from ldict.customjson import CustomJSONEncoder
 from ldict.exception import WrongKeyType, ReadOnlyLdict
 from ldict.lazyval import LazyVal
+from ldict.parameter.base import AbstractLet
 from ldict.parameter.functionspace import FunctionSpace
-from ldict.parameter.let import Let
 
 VT = TypeVar("VT")
 
@@ -180,7 +180,7 @@ class FrozenLazyDict(AbstractLazyDict):
             return FunctionSpace(other, self)
         return NotImplemented
 
-    def __rshift__(self, other: Union[Dict, AbstractLazyDict, Callable, Let, FunctionSpace, Random]):
+    def __rshift__(self, other: Union[Dict, AbstractLazyDict, Callable, AbstractLet, FunctionSpace, Random]):
         if isinstance(other, Random):
             return self.clone(rnd=other)
         if isinstance(other, FrozenLazyDict):
@@ -189,7 +189,7 @@ class FrozenLazyDict(AbstractLazyDict):
             return self.clone(handle_dict(self.data, other, self.rnd))
         if isinstance(other, FunctionSpace):
             return reduce(operator.rshift, (self,) + other.functions)
-        if callable(other) or isinstance(other, Let):
+        if callable(other) or isinstance(other, AbstractLet):
             lazies = lazify(self.data, output_field="extract", f=other, rnd=self.rnd, multi_output=True)
             data = self.data.copy()
             data.update(lazies)
