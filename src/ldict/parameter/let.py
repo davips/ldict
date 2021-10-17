@@ -98,6 +98,15 @@ class Let(AbstractLet):
     }
     >>> d.z
     23
+    >>> d >>= Random(0) >> let(f, a=[1,2,3]) >> let(f, a=[9,8,7])
+    >>> d
+    {
+        "x": 3,
+        "y": 8,
+        "z": "→(a x y)"
+    }
+    >>> d.z
+    32
     """
 
     def __init__(self, f, **kwargs):

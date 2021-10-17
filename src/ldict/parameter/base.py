@@ -21,6 +21,7 @@
 #  time spent here.
 from functools import cached_property
 from json import dumps
+from random import Random
 from typing import Dict
 
 from ldict.core.base import AbstractLazyDict
@@ -48,7 +49,7 @@ class AbstractLet:
         return NotImplemented  # pragma: no cover
 
     def __rrshift__(self, other):
-        if callable(other) or isinstance(other, (list, AbstractLazyDict)):
+        if callable(other) or isinstance(other, (list, AbstractLazyDict, Random, AbstractLet)):
             return FunctionSpace(other, self)
         if isinstance(other, FunctionSpace):
             return FunctionSpace(*other.functions, self)
