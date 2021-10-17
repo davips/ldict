@@ -34,12 +34,16 @@ class AbstractLazyDict(UserDict, Dict[str, VT]):
 
     @property
     @abstractmethod
-    def asdict(self):
+    def asdict(self):  # pragma: no cover
+        raise NotImplementedError
+
+    @property
+    @abstractmethod
+    def evaluate(self):  # pragma: no cover
         raise NotImplementedError
 
 
 class AbstractMutableLazyDict(AbstractLazyDict, ABC):
-    rnd: Random
     frozen: AbstractLazyDict
 
     @property
@@ -54,6 +58,6 @@ class AbstractMutableLazyDict(AbstractLazyDict, ABC):
         return self.frozen[item]
 
     def __setitem__(self, key: str, value):
-        if not isinstance(key, str):
+        if not isinstance(key, str):  # pragma: no cover
             raise WrongKeyType(f"Key must be string, not {type(key)}.", key)
         self.frozen >>= {key: value}
