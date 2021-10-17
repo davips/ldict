@@ -363,6 +363,29 @@ print(e.z)
 """
 ```
 
+```python3
+
+# Output fields can be defined dynamically through parameter values.
+# Input fields can be defined dynamically through kwargs.
+copy = lambda source=None, target=None, **kwargs: {target: kwargs[source]}
+d = empty >> {"x": 5}
+d >>= let(copy, source="x", target="y")
+print(d)
+d.evaluate()
+print(d)
+
+"""
+{
+    "x": 5,
+    "y": "→(source target x)"
+}
+{
+    "x": 5,
+    "y": 5
+}
+"""
+```
+
 
 </p>
 </details>
@@ -394,15 +417,14 @@ def h(z, c=[1, 2, 3]):
 fun = empty >> g >> h  # empty enable the cartesian product of the subsequent sets of functions within the expression.
 print(fun)
 """
-«<function g at 0x7fdc2b2b8e50> × <function h at 0x7fdc2b53b430>»
+«<function g at 0x7f856ab4c5e0> × <function h at 0x7f856aee14c0>»
 """
 ```
 
 ```python3
 
-# The difference between 'ø * g * h' and 'ldict(x=3) >> g >> h' is that the functions in the latter are already applied
-# (resulting in an ldict object). The former still has its free parameters unsampled,
-# and results in an ordered set of composite functions.
+# An unnapplied function has its free parameters unsampled.
+# A compostition of functions results in an ordered set (Cartesian product of sets).
 # It is a set because the parameter values of the functions are still undefined.
 d = {"x": 5, "y": 7} >> (Random(0) >> fun)
 print(d)

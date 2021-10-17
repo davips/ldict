@@ -112,7 +112,7 @@ def extract_dictstr(returnstr):
     return dict_strs[0]
 
 
-def extract_output(f, dictstr, parameters):
+def extract_output(f, dictstr, deps):
     &#34;&#34;&#34;Extract output fields. They cannot contain underscores.
 
     https://stackoverflow.com/a/68753149/9681577
@@ -125,9 +125,9 @@ def extract_output(f, dictstr, parameters):
     for field in implicit:
         if &#34;_&#34; in field:  # pragma: no cover
             raise UnderscoreInField(&#34;Field names cannot contain underscores:&#34;, field, dictstr)
-        if field not in parameters:
-            raise Exception(&#34;Missing parameter providing implicit field&#34;, field, parameters)
-        explicit.append(parameters[field])
+        if field not in deps:
+            raise Exception(&#34;Missing parameter providing implicit field&#34;, field, deps)
+        explicit.append(deps[field])
     if not explicit:
         pprint(dictstr)
         raise BadOutput(&#34;Could not find output fields that are valid identifiers (or kwargs[...]):&#34;)
@@ -222,7 +222,7 @@ def extract_implicit_input(dictstr):
 </details>
 </dd>
 <dt id="ldict.core.inspection.extract_output"><code class="name flex">
-<span>def <span class="ident">extract_output</span></span>(<span>f, dictstr, parameters)</span>
+<span>def <span class="ident">extract_output</span></span>(<span>f, dictstr, deps)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Extract output fields. They cannot contain underscores.</p>
@@ -234,7 +234,7 @@ def extract_implicit_input(dictstr):
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def extract_output(f, dictstr, parameters):
+<pre><code class="python">def extract_output(f, dictstr, deps):
     &#34;&#34;&#34;Extract output fields. They cannot contain underscores.
 
     https://stackoverflow.com/a/68753149/9681577
@@ -247,9 +247,9 @@ def extract_implicit_input(dictstr):
     for field in implicit:
         if &#34;_&#34; in field:  # pragma: no cover
             raise UnderscoreInField(&#34;Field names cannot contain underscores:&#34;, field, dictstr)
-        if field not in parameters:
-            raise Exception(&#34;Missing parameter providing implicit field&#34;, field, parameters)
-        explicit.append(parameters[field])
+        if field not in deps:
+            raise Exception(&#34;Missing parameter providing implicit field&#34;, field, deps)
+        explicit.append(deps[field])
     if not explicit:
         pprint(dictstr)
         raise BadOutput(&#34;Could not find output fields that are valid identifiers (or kwargs[...]):&#34;)

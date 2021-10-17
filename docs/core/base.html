@@ -62,12 +62,16 @@ class AbstractLazyDict(UserDict, Dict[str, VT]):
 
     @property
     @abstractmethod
-    def asdict(self):
+    def asdict(self):  # pragma: no cover
+        raise NotImplementedError
+
+    @property
+    @abstractmethod
+    def evaluate(self):  # pragma: no cover
         raise NotImplementedError
 
 
 class AbstractMutableLazyDict(AbstractLazyDict, ABC):
-    rnd: Random
     frozen: AbstractLazyDict
 
     @property
@@ -82,7 +86,7 @@ class AbstractMutableLazyDict(AbstractLazyDict, ABC):
         return self.frozen[item]
 
     def __setitem__(self, key: str, value):
-        if not isinstance(key, str):
+        if not isinstance(key, str):  # pragma: no cover
             raise WrongKeyType(f&#34;Key must be string, not {type(key)}.&#34;, key)
         self.frozen &gt;&gt;= {key: value}</code></pre>
 </details>
@@ -121,7 +125,12 @@ dict(one=1, two=2)</p></div>
 
     @property
     @abstractmethod
-    def asdict(self):
+    def asdict(self):  # pragma: no cover
+        raise NotImplementedError
+
+    @property
+    @abstractmethod
+    def evaluate(self):  # pragma: no cover
         raise NotImplementedError</code></pre>
 </details>
 <h3>Ancestors</h3>
@@ -159,7 +168,20 @@ dict(one=1, two=2)</p></div>
 </summary>
 <pre><code class="python">@property
 @abstractmethod
-def asdict(self):
+def asdict(self):  # pragma: no cover
+    raise NotImplementedError</code></pre>
+</details>
+</dd>
+<dt id="ldict.core.base.AbstractLazyDict.evaluate"><code class="name">var <span class="ident">evaluate</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+@abstractmethod
+def evaluate(self):  # pragma: no cover
     raise NotImplementedError</code></pre>
 </details>
 </dd>
@@ -186,7 +208,6 @@ dict(one=1, two=2)</p></div>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class AbstractMutableLazyDict(AbstractLazyDict, ABC):
-    rnd: Random
     frozen: AbstractLazyDict
 
     @property
@@ -201,7 +222,7 @@ dict(one=1, two=2)</p></div>
         return self.frozen[item]
 
     def __setitem__(self, key: str, value):
-        if not isinstance(key, str):
+        if not isinstance(key, str):  # pragma: no cover
             raise WrongKeyType(f&#34;Key must be string, not {type(key)}.&#34;, key)
         self.frozen &gt;&gt;= {key: value}</code></pre>
 </details>
@@ -278,6 +299,7 @@ def rnd(self):
 <h4><code><a title="ldict.core.base.AbstractLazyDict" href="#ldict.core.base.AbstractLazyDict">AbstractLazyDict</a></code></h4>
 <ul class="">
 <li><code><a title="ldict.core.base.AbstractLazyDict.asdict" href="#ldict.core.base.AbstractLazyDict.asdict">asdict</a></code></li>
+<li><code><a title="ldict.core.base.AbstractLazyDict.evaluate" href="#ldict.core.base.AbstractLazyDict.evaluate">evaluate</a></code></li>
 <li><code><a title="ldict.core.base.AbstractLazyDict.rnd" href="#ldict.core.base.AbstractLazyDict.rnd">rnd</a></code></li>
 </ul>
 </li>

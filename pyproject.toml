@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ldict"
-version = "3.211017.8"
+version = "3.211017.9"
 description = "Lazy dict"
 authors = ["davips <dpsabc@gmail.com>"]
 license = "GPL"
