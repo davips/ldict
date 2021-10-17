@@ -99,6 +99,8 @@ class CustomJSONEncoder(JSONEncoder):
             from ldict.frozenlazydict import FrozenLazyDict
             from ldict.lazyval import LazyVal
 
+            if obj is Ellipsis:
+                return &#34;...&#34;
             if isinstance(obj, FrozenLazyDict):
                 return self.data
             if isinstance(obj, LazyVal):
@@ -296,6 +298,8 @@ version of the object or raise a <code>TypeError</code>.</p></div>
             from ldict.frozenlazydict import FrozenLazyDict
             from ldict.lazyval import LazyVal
 
+            if obj is Ellipsis:
+                return &#34;...&#34;
             if isinstance(obj, FrozenLazyDict):
                 return self.data
             if isinstance(obj, LazyVal):
@@ -351,6 +355,8 @@ implement default like this::</p>
         from ldict.frozenlazydict import FrozenLazyDict
         from ldict.lazyval import LazyVal
 
+        if obj is Ellipsis:
+            return &#34;...&#34;
         if isinstance(obj, FrozenLazyDict):
             return self.data
         if isinstance(obj, LazyVal):

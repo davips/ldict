@@ -334,16 +334,24 @@ print(e.z)
 
 # All runs will yield the same result,
 # if starting from the same random number generator seed.
-e = e >> Random(0) >> let(fun, a=5)
-print(e.z)
+e = e >> Random(0) >> let(fun, a=[555, 777])
+print("Let 'a' be a list:", e.z)
 """
-725.0
+Let 'a' be a list: 700003885.0
 """
 ```
 
 ```python3
 
 # Reproducible different runs are achievable by using a single random number generator.
+e = e >> Random(0) >> let(fun, a=[5, 25, 125, ..., 10000])
+print("Let 'a' be a geometric progression:", e.z)
+"""
+Let 'a' be a geometric progression: 700003125.0
+"""
+```
+
+```python3
 rnd = Random(0)
 e = d >> rnd >> let(fun, a=5)
 print(e.z)
@@ -386,7 +394,7 @@ def h(z, c=[1, 2, 3]):
 fun = empty >> g >> h  # empty enable the cartesian product of the subsequent sets of functions within the expression.
 print(fun)
 """
-«<function g at 0x7f971d8229d0> × <function h at 0x7f971dd088b0>»
+«<function g at 0x7f4a99b86dc0> × <function h at 0x7f4a9a06cf70>»
 """
 ```
 
