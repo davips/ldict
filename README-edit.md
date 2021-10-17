@@ -95,8 +95,7 @@ Extra dependencies can be installed to support saving data to disk or to a serve
 ## Concept
 
 A ldict is like a common Python dict, with extra functionality and lazy. It is a mapping between string keys, called
-fields, and any serializable (pickable) object. The ldict `id` (identifier) and the field `ids` are also part of the
-mapping.
+fields, and any serializable (pickable protocol=5) object.
 
 ## Grants
 This work was partially supported by Fapesp under supervision of

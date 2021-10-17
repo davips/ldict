@@ -386,7 +386,7 @@ def h(z, c=[1, 2, 3]):
 fun = empty >> g >> h  # empty enable the cartesian product of the subsequent sets of functions within the expression.
 print(fun)
 """
-«<function g at 0x7f03eb1af9d0> × <function h at 0x7f03eb6968b0>»
+«<function g at 0x7fb1fbc559d0> × <function h at 0x7fb1fc13c8b0>»
 """
 ```
 
@@ -479,8 +479,7 @@ Extra dependencies can be installed to support saving data to disk or to a serve
 ## Concept
 
 A ldict is like a common Python dict, with extra functionality and lazy. It is a mapping between string keys, called
-fields, and any serializable (pickable) object. The ldict `id` (identifier) and the field `ids` are also part of the
-mapping.
+fields, and any serializable (pickable protocol=5) object.
 
 ## Grants
 This work was partially supported by Fapesp under supervision of
