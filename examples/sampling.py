@@ -62,11 +62,14 @@ print(e.z)
 
 # All runs will yield the same result,
 # if starting from the same random number generator seed.
-e = e >> Random(0) >> let(fun, a=5)
-print(e.z)
+e = e >> Random(0) >> let(fun, a=[555, 777])
+print("Let 'a' be a list:", e.z)
 # ...
 
 # Reproducible different runs are achievable by using a single random number generator.
+e = e >> Random(0) >> let(fun, a=[5, 25, 125, ..., 10000])
+print("Let 'a' be a geometric progression:", e.z)
+# ...
 rnd = Random(0)
 e = d >> rnd >> let(fun, a=5)
 print(e.z)

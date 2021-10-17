@@ -71,6 +71,8 @@ class CustomJSONEncoder(JSONEncoder):
             from ldict.frozenlazydict import FrozenLazyDict
             from ldict.lazyval import LazyVal
 
+            if obj is Ellipsis:
+                return "..."
             if isinstance(obj, FrozenLazyDict):
                 return self.data
             if isinstance(obj, LazyVal):
