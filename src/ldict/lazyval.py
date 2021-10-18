@@ -22,21 +22,49 @@
 
 
 class LazyVal:
-    def __init__(self, field, f, deps, multi_output):
+    """
+    >>> lazies = []
+    >>> f = lambda x: {"y":1, "z":2}
+    >>> a = LazyVal("y", f, {"x":0}, lazies)
+    >>> b = LazyVal("z", f, {"x":0}, lazies)
+    >>> lazies.extend([a, b])
+    >>> a
+    →(x)
+    >>> b
+    →(x)
+    >>> a()
+    1
+    >>> a
+    1
+    >>> b
+    2
+    """
+
+    def __init__(self, field, f, deps, lazies):
         self.field = field
         self.f = f
         self.deps = deps
-        self.multi_output = multi_output
+        self.lazies = lazies
+        self.result = None
 
     def __call__(self, *args, **kwargs):
-        for k, v in self.deps.items():
-            if isinstance(v, LazyVal):
-                self.deps[k] = v()
-        result = self.f(**self.deps)
-        return result[self.field] if self.multi_output else result
+        if self.result is None:
+            for k, v in self.deps.items():
+                if isinstance(v, LazyVal):
+                    self.deps[k] = v()
+            ret = self.f(**self.deps)
+            if self.lazies is None:
+                self.result = ret
+            else:
+                self.result = ret[self.field]
+                for lazy in self.lazies:
+                    lazy.result = ret[lazy.field]
+        return self.result
 
     def __repr__(self):
-        dic = {}
-        for k, v in self.deps.items():
-            dic[k] = v if isinstance(v, LazyVal) else ""
-        return f"→({' '.join([f'{k}{v}' for k, v in dic.items()])})"
+        if self.result is None:
+            dic = {}
+            for k, v in self.deps.items():
+                dic[k] = v if isinstance(v, LazyVal) else ""
+            return f"→({' '.join([f'{k}{v}' for k, v in dic.items()])})"
+        return str(self.result)
