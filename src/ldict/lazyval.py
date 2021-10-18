@@ -24,14 +24,15 @@
 class LazyVal:
     """
     >>> lazies = []
-    >>> f = lambda x: {"y":1, "z":2}
-    >>> a = LazyVal("y", f, {"x":0}, lazies)
-    >>> b = LazyVal("z", f, {"x":0}, lazies)
+    >>> f = lambda l: {"y":1, "z":2}
+    >>> deps = {"l":LazyVal("y", f, {"l":0}, None)}
+    >>> a = LazyVal("y", f, deps, lazies)
+    >>> b = LazyVal("z", f, deps, lazies)
     >>> lazies.extend([a, b])
     >>> a
-    →(x)
+    →(l→(l))
     >>> b
-    →(x)
+    →(l→(l))
     >>> a()
     1
     >>> a
