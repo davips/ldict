@@ -26,14 +26,15 @@ from typing import Dict
 
 from ldict.core.base import AbstractLazyDict
 from ldict.customjson import CustomJSONEncoder
-from ldict.parameter.functionspace import FunctionSpace
+from ldict.parameter.base.absfunctionspace import AbstractFunctionSpace
 
 
 class AbstractLet:
-    def __init__(self, f, config, dict_type):
+    def __init__(self, f, config, dict_type, fs_type):
         self.f = f
         self.config = config
         self.dict_type = dict_type
+        self.fs_type = fs_type
 
     @cached_property
     def asdict(self):
@@ -43,16 +44,16 @@ class AbstractLet:
         if isinstance(other, dict):
             other = self.dict_type(other)
         if callable(other) or isinstance(other, (list, AbstractLazyDict)):
-            return FunctionSpace(self, other)
-        if isinstance(other, FunctionSpace):
-            return FunctionSpace(self, *other.functions)
+            return self.fs_type(self, other)
+        if isinstance(other, AbstractFunctionSpace):
+            return other.__class__(self, *other.functions)
         return NotImplemented  # pragma: no cover
 
     def __rrshift__(self, other):
         if callable(other) or isinstance(other, (list, AbstractLazyDict, Random, AbstractLet)):
-            return FunctionSpace(other, self)
-        if isinstance(other, FunctionSpace):
-            return FunctionSpace(*other.functions, self)
+            return self.fs_type(other, self)
+        if isinstance(other, AbstractFunctionSpace):
+            return other.__class__(*other.functions, self)
         if isinstance(other, Dict):
             return self.dict_type(other) >> self
         return NotImplemented  # pragma: no cover
