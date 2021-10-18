@@ -29,7 +29,7 @@ from ldict.core.base import AbstractMutableLazyDict, AbstractLazyDict
 from ldict.core.rshift import handle_dict, lazify
 from ldict.exception import WrongKeyType
 from ldict.frozenlazydict import FrozenLazyDict
-from ldict.parameter.base import AbstractLet
+from ldict.parameter.base.abslet import AbstractLet
 from ldict.parameter.functionspace import FunctionSpace
 
 VT = TypeVar("VT")

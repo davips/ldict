@@ -19,8 +19,7 @@
 #  works or verbatim, obfuscated, compiled or rewritten versions of any
 #  part of this work is illegal and unethical regarding the effort and
 #  time spent here.
-
-from ldict.parameter.base import AbstractLet
+from ldict.parameter.base.abslet import AbstractLet
 from ldict.parameter.functionspace import FunctionSpace
 
 
@@ -111,4 +110,4 @@ class Let(AbstractLet):
 
     def __init__(self, f, **kwargs):
         from ldict.core.ldict_ import Ldict
-        super().__init__(f, dict_type=Ldict, **kwargs)
+        super().__init__(f, kwargs, dict_type=Ldict)

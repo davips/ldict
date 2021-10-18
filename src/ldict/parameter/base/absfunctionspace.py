@@ -19,43 +19,50 @@
 #  works or verbatim, obfuscated, compiled or rewritten versions of any
 #  part of this work is illegal and unethical regarding the effort and
 #  time spent here.
-from functools import cached_property
-from json import dumps
+
+import operator
+from functools import reduce
 from random import Random
 from typing import Dict
 
 from ldict.core.base import AbstractLazyDict
-from ldict.customjson import CustomJSONEncoder
-from ldict.parameter.functionspace import FunctionSpace
 
 
-class AbstractLet:
-    def __init__(self, f, dict_type, **kwargs):
-        self.f = f
-        self.config = kwargs
+class AbstractFunctionSpace:
+    def __init__(self, args, dict_type, empty_type):
         self.dict_type = dict_type
-
-    @cached_property
-    def asdict(self):
-        return dumps(self.config, sort_keys=True, cls=CustomJSONEncoder)
+        self.empty_type = empty_type
+        self.functions = args
 
     def __rshift__(self, other):
-        if isinstance(other, dict):
+        if isinstance(other, self.empty_type):
+            return self
+        if isinstance(other, Dict) and not isinstance(other, AbstractLazyDict):
             other = self.dict_type(other)
-        if callable(other) or isinstance(other, (list, AbstractLazyDict)):
-            return FunctionSpace(self, other)
-        if isinstance(other, FunctionSpace):
-            return FunctionSpace(self, *other.functions)
+        if callable(other) or isinstance(other, (AbstractLazyDict, AbstractFunctionSpace, list)):
+            new_functions = other.functions if isinstance(other, AbstractFunctionSpace) else (other,)
+            return self.__class__(*self.functions, *new_functions)
         return NotImplemented  # pragma: no cover
+
+    __mul__ = __rshift__
 
     def __rrshift__(self, other):
-        if callable(other) or isinstance(other, (list, AbstractLazyDict, Random, AbstractLet)):
-            return FunctionSpace(other, self)
-        if isinstance(other, FunctionSpace):
-            return FunctionSpace(*other.functions, self)
-        if isinstance(other, Dict):
-            return self.dict_type(other) >> self
-        return NotImplemented  # pragma: no cover
+        if isinstance(other, self.empty_type):
+            return {} >> self
+        if isinstance(other, Random):
+            return self.__class__(other, *self.functions)
+        if not isinstance(other, Dict) or isinstance(other, AbstractLazyDict):  # pragma: no cover
+            return NotImplemented
+        return reduce(operator.rshift, (self.dict_type(other),) + self.functions)
 
     def __repr__(self):
-        return "λ" + str(self.config)
+        txt = []
+        for f in self.functions:
+            if isinstance(f, list):
+                s = "^"
+            elif str(f).startswith("<function <lambda> at "):
+                s = "λ"
+            else:
+                s = str(f)
+            txt.append(s)
+        return "«" + " × ".join(txt) + "»"
