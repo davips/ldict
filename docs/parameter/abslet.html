@@ -68,13 +68,21 @@ class AbstractLet:
         return dumps(self.config, sort_keys=True, cls=CustomJSONEncoder)
 
     def __rrshift__(self, left: Union[Dict, Callable, &#39;AbstractLet&#39;]):
+        &#34;&#34;&#34;
+        &gt;&gt;&gt; from ldict import empty
+        &gt;&gt;&gt; {&#34;x&#34;: 5, &#34;y&#34;: 7} &gt;&gt; (Random(0) &gt;&gt; (empty &gt;&gt; (lambda x:{&#34;y&#34;: 0})))
+        {
+            &#34;x&#34;: 5,
+            &#34;y&#34;: &#34;→(x)&#34;
+        }
+        &#34;&#34;&#34;
         if isinstance(left, dict) and not isinstance(left, AbstractLazyDict):
             return self.dict_type(left) &gt;&gt; self
         if callable(left):
             # noinspection PyArgumentList
             return FunctionSpace(self.__class__(left), self)
         if isinstance(left, (Random, list)):
-            return FunctionSpace(left, self)
+            return FunctionSpace(self.dict_type(), left, self)
         return NotImplemented  # pragma: no cover
 
     def __rshift__(self, other: Union[Dict, Callable]):
@@ -118,13 +126,21 @@ class AbstractLet:
         return dumps(self.config, sort_keys=True, cls=CustomJSONEncoder)
 
     def __rrshift__(self, left: Union[Dict, Callable, &#39;AbstractLet&#39;]):
+        &#34;&#34;&#34;
+        &gt;&gt;&gt; from ldict import empty
+        &gt;&gt;&gt; {&#34;x&#34;: 5, &#34;y&#34;: 7} &gt;&gt; (Random(0) &gt;&gt; (empty &gt;&gt; (lambda x:{&#34;y&#34;: 0})))
+        {
+            &#34;x&#34;: 5,
+            &#34;y&#34;: &#34;→(x)&#34;
+        }
+        &#34;&#34;&#34;
         if isinstance(left, dict) and not isinstance(left, AbstractLazyDict):
             return self.dict_type(left) &gt;&gt; self
         if callable(left):
             # noinspection PyArgumentList
             return FunctionSpace(self.__class__(left), self)
         if isinstance(left, (Random, list)):
-            return FunctionSpace(left, self)
+            return FunctionSpace(self.dict_type(), left, self)
         return NotImplemented  # pragma: no cover
 
     def __rshift__(self, other: Union[Dict, Callable]):
