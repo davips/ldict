@@ -82,7 +82,7 @@ def lazify(data, output_field: Union[list, str], f, rnd, multi_output) -> Union[
     if multi_output:
         returnstr = extract_dictstr(returnstr)
     for par in extract_implicit_input(returnstr):
-        if par not in config:
+        if par not in config:  # pragma: no cover
             raise Exception(f"Parameter '{par}' value is not available:", config)
         input_fields.append(config[par])
     deps = prepare_deps(data, input_fields, parameters, config, rnd)

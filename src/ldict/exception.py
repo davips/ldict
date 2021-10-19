@@ -24,7 +24,7 @@ import importlib
 
 
 def check_access(id, readonly, key):
-    if readonly:
+    if readonly:  # pragma: no cover
         raise ReadOnlyLdict(f"Cannot change a readonly ldict ({id}).", key)
     if not isinstance(key, str):
         raise WrongKeyType(f"Key must be string, not {type(key)}.", key)

@@ -97,10 +97,10 @@ def extract_output(f, dictstr, deps):
     for field in implicit:
         if "_" in field:  # pragma: no cover
             raise UnderscoreInField("Field names cannot contain underscores:", field, dictstr)
-        if field not in deps:
+        if field not in deps:  # pragma: no cover
             raise Exception("Missing parameter providing implicit field", field, deps)
         explicit.append(deps[field])
-    if not explicit:
+    if not explicit:  # pragma: no cover
         pprint(dictstr)
         raise BadOutput("Could not find output fields that are valid identifiers (or kwargs[...]):")
     return explicit
