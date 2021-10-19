@@ -12,7 +12,7 @@
 
 # ldict
 
-A lazy dict.
+A lazy `dict`.
 
 [Latest release](https://pypi.org/project/ldict) |
 [Current code](https://github.com/davips/ldict) |
@@ -20,8 +20,7 @@ A lazy dict.
 
 ## See also
 
-* laziness+identity ([idict](https://pypi.org/project/idict))
-* laziness+identity+persistence ([cdict](https://pypi.org/project/cdict))
+* laziness+identity+persistence ([idict](https://pypi.org/project/idict))
 
 ## Overview
 

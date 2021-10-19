@@ -158,7 +158,7 @@ pyflakes = ">=2.4.0,<2.5.0"
 
 [[package]]
 name = "garoupa"
-version = "2.211017.3"
+version = "2.211019.3"
 description = "Predictable operable hash-based identifiers and abstract algebra groups"
 category = "main"
 optional = false
@@ -699,7 +699,7 @@ full = ["pandas"]
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.8,<3.10"
-content-hash = "8781458228b5c23917b80eca1a995441268cb4982547ae3c62bc9b328cae0b8d"
+content-hash = "e04c04080d3b5faa64ebc1a34fd7290a4f0e9e715f0a1c0359475daac2f2ea08"
 
 [metadata.files]
 ansi2html = [
@@ -808,8 +808,8 @@ flake8 = [
     {file = "flake8-4.0.1.tar.gz", hash = "sha256:806e034dda44114815e23c16ef92f95c91e4c71100ff52813adf7132a6ad870d"},
 ]
 garoupa = [
-    {file = "garoupa-2.211017.3-py3-none-any.whl", hash = "sha256:8e94f093fc791864129db1bcc8098286d6c068aae3d1daeee7f9d73645c17286"},
-    {file = "garoupa-2.211017.3.tar.gz", hash = "sha256:9701e61b854fd635a7b84ce41c290a62c56b071f3a80fb7e6ab4b875eb9ab12d"},
+    {file = "garoupa-2.211019.3-py3-none-any.whl", hash = "sha256:91415de7e9127284da86d988f5778231ceb1943c7b852b52c4dcd20a67d108aa"},
+    {file = "garoupa-2.211019.3.tar.gz", hash = "sha256:843401fa59312d4212befb45ca60d64f4a84be6678cab81fd400b860216fff8c"},
 ]
 iniconfig = [
     {file = "iniconfig-1.1.1-py2.py3-none-any.whl", hash = "sha256:011e24c64b7f47f6ebd835bb12a743f2fbe9a26d4cecaa7f53bc4f35ee9da8b3"},
