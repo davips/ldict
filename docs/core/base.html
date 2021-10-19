@@ -58,6 +58,22 @@ VT = TypeVar(&#34;VT&#34;)
 
 
 class AbstractLazyDict(UserDict, Dict[str, VT]):
+    &#34;&#34;&#34;
+    &gt;&gt;&gt; from ldict.core.ldict_ import Ldict
+    &gt;&gt;&gt; from ldict.frozenlazydict import FrozenLazyDict
+    &gt;&gt;&gt; {&#34;x&#34;: 5} == Ldict({&#34;x&#34;: 5})
+    True
+    &gt;&gt;&gt; {&#34;w&#34;: 5} == Ldict({&#34;x&#34;: 5})
+    False
+    &gt;&gt;&gt; {&#34;x&#34;: 4} == Ldict({&#34;x&#34;: 5})
+    False
+    &gt;&gt;&gt; {&#34;x&#34;: 5} == FrozenLazyDict({&#34;x&#34;: 5})
+    True
+    &gt;&gt;&gt; {&#34;w&#34;: 5} == FrozenLazyDict({&#34;x&#34;: 5})
+    False
+    &gt;&gt;&gt; {&#34;x&#34;: 4} == FrozenLazyDict({&#34;x&#34;: 5})
+    False
+    &#34;&#34;&#34;
     rnd: Random
 
     @property
@@ -69,6 +85,9 @@ class AbstractLazyDict(UserDict, Dict[str, VT]):
     @abstractmethod
     def evaluate(self):  # pragma: no cover
         raise NotImplementedError
+
+    def __ne__(self, other):
+        return not (self == other)
 
 
 class AbstractMutableLazyDict(AbstractLazyDict, ABC):
@@ -88,7 +107,49 @@ class AbstractMutableLazyDict(AbstractLazyDict, ABC):
     def __setitem__(self, key: str, value):
         if not isinstance(key, str):  # pragma: no cover
             raise WrongKeyType(f&#34;Key must be string, not {type(key)}.&#34;, key)
-        self.frozen &gt;&gt;= {key: value}</code></pre>
+        self.frozen &gt;&gt;= {key: value}
+
+    def __getattr__(self, item):
+        return self.frozen[item]
+
+    def __repr__(self):
+        return repr(self.frozen)
+
+    def __str__(self):
+        return str(self.frozen)
+
+    def evaluate(self):
+        &#34;&#34;&#34;
+        &gt;&gt;&gt; from ldict import ldict
+        &gt;&gt;&gt; f = lambda x: {&#34;y&#34;: x+2}
+        &gt;&gt;&gt; d = ldict(x=3)
+        &gt;&gt;&gt; a = d &gt;&gt; f
+        &gt;&gt;&gt; a
+        {
+            &#34;x&#34;: 3,
+            &#34;y&#34;: &#34;→(x)&#34;
+        }
+        &gt;&gt;&gt; a.evaluate()
+        &gt;&gt;&gt; a
+        {
+            &#34;x&#34;: 3,
+            &#34;y&#34;: 5
+        }
+        &#34;&#34;&#34;
+        self.frozen.evaluate()
+
+    @property
+    def asdict(self):
+        &#34;&#34;&#34;
+        &gt;&gt;&gt; from ldict import ldict
+        &gt;&gt;&gt; d = ldict(x=3, y=5)
+        &gt;&gt;&gt; ldict(x=7, y=8, d=d).asdict
+        {&#39;x&#39;: 7, &#39;y&#39;: 8, &#39;d&#39;: {&#39;x&#39;: 3, &#39;y&#39;: 5}}
+        &#34;&#34;&#34;
+        return self.frozen.asdict
+
+    def __eq__(self, other):
+        return self.frozen == other</code></pre>
 </details>
 </section>
 <section>
@@ -105,22 +166,42 @@ class AbstractMutableLazyDict(AbstractLazyDict, ABC):
 <span>(</span><span>dict=None, /, **kwargs)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>dict() -&gt; new empty dictionary
-dict(mapping) -&gt; new dictionary initialized from a mapping object's
-(key, value) pairs
-dict(iterable) -&gt; new dictionary initialized as if via:
-d = {}
-for k, v in iterable:
-d[k] = v
-dict(**kwargs) -&gt; new dictionary initialized with the name=value pairs
-in the keyword argument list.
-For example:
-dict(one=1, two=2)</p></div>
+<div class="desc"><pre><code class="language-python-repl">&gt;&gt;&gt; from ldict.core.ldict_ import Ldict
+&gt;&gt;&gt; from ldict.frozenlazydict import FrozenLazyDict
+&gt;&gt;&gt; {&quot;x&quot;: 5} == Ldict({&quot;x&quot;: 5})
+True
+&gt;&gt;&gt; {&quot;w&quot;: 5} == Ldict({&quot;x&quot;: 5})
+False
+&gt;&gt;&gt; {&quot;x&quot;: 4} == Ldict({&quot;x&quot;: 5})
+False
+&gt;&gt;&gt; {&quot;x&quot;: 5} == FrozenLazyDict({&quot;x&quot;: 5})
+True
+&gt;&gt;&gt; {&quot;w&quot;: 5} == FrozenLazyDict({&quot;x&quot;: 5})
+False
+&gt;&gt;&gt; {&quot;x&quot;: 4} == FrozenLazyDict({&quot;x&quot;: 5})
+False
+</code></pre></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class AbstractLazyDict(UserDict, Dict[str, VT]):
+    &#34;&#34;&#34;
+    &gt;&gt;&gt; from ldict.core.ldict_ import Ldict
+    &gt;&gt;&gt; from ldict.frozenlazydict import FrozenLazyDict
+    &gt;&gt;&gt; {&#34;x&#34;: 5} == Ldict({&#34;x&#34;: 5})
+    True
+    &gt;&gt;&gt; {&#34;w&#34;: 5} == Ldict({&#34;x&#34;: 5})
+    False
+    &gt;&gt;&gt; {&#34;x&#34;: 4} == Ldict({&#34;x&#34;: 5})
+    False
+    &gt;&gt;&gt; {&#34;x&#34;: 5} == FrozenLazyDict({&#34;x&#34;: 5})
+    True
+    &gt;&gt;&gt; {&#34;w&#34;: 5} == FrozenLazyDict({&#34;x&#34;: 5})
+    False
+    &gt;&gt;&gt; {&#34;x&#34;: 4} == FrozenLazyDict({&#34;x&#34;: 5})
+    False
+    &#34;&#34;&#34;
     rnd: Random
 
     @property
@@ -131,7 +212,10 @@ dict(one=1, two=2)</p></div>
     @property
     @abstractmethod
     def evaluate(self):  # pragma: no cover
-        raise NotImplementedError</code></pre>
+        raise NotImplementedError
+
+    def __ne__(self, other):
+        return not (self == other)</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -192,17 +276,21 @@ def evaluate(self):  # pragma: no cover
 <span>(</span><span>dict=None, /, **kwargs)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>dict() -&gt; new empty dictionary
-dict(mapping) -&gt; new dictionary initialized from a mapping object's
-(key, value) pairs
-dict(iterable) -&gt; new dictionary initialized as if via:
-d = {}
-for k, v in iterable:
-d[k] = v
-dict(**kwargs) -&gt; new dictionary initialized with the name=value pairs
-in the keyword argument list.
-For example:
-dict(one=1, two=2)</p></div>
+<div class="desc"><pre><code class="language-python-repl">&gt;&gt;&gt; from ldict.core.ldict_ import Ldict
+&gt;&gt;&gt; from ldict.frozenlazydict import FrozenLazyDict
+&gt;&gt;&gt; {&quot;x&quot;: 5} == Ldict({&quot;x&quot;: 5})
+True
+&gt;&gt;&gt; {&quot;w&quot;: 5} == Ldict({&quot;x&quot;: 5})
+False
+&gt;&gt;&gt; {&quot;x&quot;: 4} == Ldict({&quot;x&quot;: 5})
+False
+&gt;&gt;&gt; {&quot;x&quot;: 5} == FrozenLazyDict({&quot;x&quot;: 5})
+True
+&gt;&gt;&gt; {&quot;w&quot;: 5} == FrozenLazyDict({&quot;x&quot;: 5})
+False
+&gt;&gt;&gt; {&quot;x&quot;: 4} == FrozenLazyDict({&quot;x&quot;: 5})
+False
+</code></pre></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -224,7 +312,49 @@ dict(one=1, two=2)</p></div>
     def __setitem__(self, key: str, value):
         if not isinstance(key, str):  # pragma: no cover
             raise WrongKeyType(f&#34;Key must be string, not {type(key)}.&#34;, key)
-        self.frozen &gt;&gt;= {key: value}</code></pre>
+        self.frozen &gt;&gt;= {key: value}
+
+    def __getattr__(self, item):
+        return self.frozen[item]
+
+    def __repr__(self):
+        return repr(self.frozen)
+
+    def __str__(self):
+        return str(self.frozen)
+
+    def evaluate(self):
+        &#34;&#34;&#34;
+        &gt;&gt;&gt; from ldict import ldict
+        &gt;&gt;&gt; f = lambda x: {&#34;y&#34;: x+2}
+        &gt;&gt;&gt; d = ldict(x=3)
+        &gt;&gt;&gt; a = d &gt;&gt; f
+        &gt;&gt;&gt; a
+        {
+            &#34;x&#34;: 3,
+            &#34;y&#34;: &#34;→(x)&#34;
+        }
+        &gt;&gt;&gt; a.evaluate()
+        &gt;&gt;&gt; a
+        {
+            &#34;x&#34;: 3,
+            &#34;y&#34;: 5
+        }
+        &#34;&#34;&#34;
+        self.frozen.evaluate()
+
+    @property
+    def asdict(self):
+        &#34;&#34;&#34;
+        &gt;&gt;&gt; from ldict import ldict
+        &gt;&gt;&gt; d = ldict(x=3, y=5)
+        &gt;&gt;&gt; ldict(x=7, y=8, d=d).asdict
+        {&#39;x&#39;: 7, &#39;y&#39;: 8, &#39;d&#39;: {&#39;x&#39;: 3, &#39;y&#39;: 5}}
+        &#34;&#34;&#34;
+        return self.frozen.asdict
+
+    def __eq__(self, other):
+        return self.frozen == other</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -253,6 +383,28 @@ dict(one=1, two=2)</p></div>
 </dl>
 <h3>Instance variables</h3>
 <dl>
+<dt id="ldict.core.base.AbstractMutableLazyDict.asdict"><code class="name">var <span class="ident">asdict</span></code></dt>
+<dd>
+<div class="desc"><pre><code class="language-python-repl">&gt;&gt;&gt; from ldict import ldict
+&gt;&gt;&gt; d = ldict(x=3, y=5)
+&gt;&gt;&gt; ldict(x=7, y=8, d=d).asdict
+{'x': 7, 'y': 8, 'd': {'x': 3, 'y': 5}}
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def asdict(self):
+    &#34;&#34;&#34;
+    &gt;&gt;&gt; from ldict import ldict
+    &gt;&gt;&gt; d = ldict(x=3, y=5)
+    &gt;&gt;&gt; ldict(x=7, y=8, d=d).asdict
+    {&#39;x&#39;: 7, &#39;y&#39;: 8, &#39;d&#39;: {&#39;x&#39;: 3, &#39;y&#39;: 5}}
+    &#34;&#34;&#34;
+    return self.frozen.asdict</code></pre>
+</details>
+</dd>
 <dt id="ldict.core.base.AbstractMutableLazyDict.data"><code class="name">var <span class="ident">data</span></code></dt>
 <dd>
 <div class="desc"></div>
@@ -275,6 +427,54 @@ def data(self):
 <pre><code class="python">@property
 def rnd(self):
     return self.frozen.rnd</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="ldict.core.base.AbstractMutableLazyDict.evaluate"><code class="name flex">
+<span>def <span class="ident">evaluate</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><pre><code class="language-python-repl">&gt;&gt;&gt; from ldict import ldict
+&gt;&gt;&gt; f = lambda x: {&quot;y&quot;: x+2}
+&gt;&gt;&gt; d = ldict(x=3)
+&gt;&gt;&gt; a = d &gt;&gt; f
+&gt;&gt;&gt; a
+{
+    &quot;x&quot;: 3,
+    &quot;y&quot;: &quot;→(x)&quot;
+}
+&gt;&gt;&gt; a.evaluate()
+&gt;&gt;&gt; a
+{
+    &quot;x&quot;: 3,
+    &quot;y&quot;: 5
+}
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def evaluate(self):
+    &#34;&#34;&#34;
+    &gt;&gt;&gt; from ldict import ldict
+    &gt;&gt;&gt; f = lambda x: {&#34;y&#34;: x+2}
+    &gt;&gt;&gt; d = ldict(x=3)
+    &gt;&gt;&gt; a = d &gt;&gt; f
+    &gt;&gt;&gt; a
+    {
+        &#34;x&#34;: 3,
+        &#34;y&#34;: &#34;→(x)&#34;
+    }
+    &gt;&gt;&gt; a.evaluate()
+    &gt;&gt;&gt; a
+    {
+        &#34;x&#34;: 3,
+        &#34;y&#34;: 5
+    }
+    &#34;&#34;&#34;
+    self.frozen.evaluate()</code></pre>
 </details>
 </dd>
 </dl>
@@ -306,7 +506,9 @@ def rnd(self):
 <li>
 <h4><code><a title="ldict.core.base.AbstractMutableLazyDict" href="#ldict.core.base.AbstractMutableLazyDict">AbstractMutableLazyDict</a></code></h4>
 <ul class="">
+<li><code><a title="ldict.core.base.AbstractMutableLazyDict.asdict" href="#ldict.core.base.AbstractMutableLazyDict.asdict">asdict</a></code></li>
 <li><code><a title="ldict.core.base.AbstractMutableLazyDict.data" href="#ldict.core.base.AbstractMutableLazyDict.data">data</a></code></li>
+<li><code><a title="ldict.core.base.AbstractMutableLazyDict.evaluate" href="#ldict.core.base.AbstractMutableLazyDict.evaluate">evaluate</a></code></li>
 <li><code><a title="ldict.core.base.AbstractMutableLazyDict.frozen" href="#ldict.core.base.AbstractMutableLazyDict.frozen">frozen</a></code></li>
 <li><code><a title="ldict.core.base.AbstractMutableLazyDict.rnd" href="#ldict.core.base.AbstractMutableLazyDict.rnd">rnd</a></code></li>
 </ul>

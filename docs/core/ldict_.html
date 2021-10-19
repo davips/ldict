@@ -125,44 +125,6 @@ class Ldict(AbstractMutableLazyDict):
         del data[key]
         self.frozen = self.frozen.clone(data)
 
-    def __getattr__(self, item):
-        return self.frozen[item]
-
-    def __repr__(self):
-        return repr(self.frozen)
-
-    __str__ = __repr__
-
-    def evaluate(self):
-        &#34;&#34;&#34;
-        &gt;&gt;&gt; from ldict import ldict
-        &gt;&gt;&gt; f = lambda x: {&#34;y&#34;: x+2}
-        &gt;&gt;&gt; d = ldict(x=3)
-        &gt;&gt;&gt; a = d &gt;&gt; f
-        &gt;&gt;&gt; a
-        {
-            &#34;x&#34;: 3,
-            &#34;y&#34;: &#34;→(x)&#34;
-        }
-        &gt;&gt;&gt; a.evaluate()
-        &gt;&gt;&gt; a
-        {
-            &#34;x&#34;: 3,
-            &#34;y&#34;: 5
-        }
-        &#34;&#34;&#34;
-        self.frozen.evaluate()
-
-    @property
-    def asdict(self):
-        &#34;&#34;&#34;
-        &gt;&gt;&gt; from ldict import ldict
-        &gt;&gt;&gt; d = ldict(x=3, y=5)
-        &gt;&gt;&gt; ldict(x=7, y=8, d=d).asdict
-        {&#39;x&#39;: 7, &#39;y&#39;: 8, &#39;d&#39;: {&#39;x&#39;: 3, &#39;y&#39;: 5}}
-        &#34;&#34;&#34;
-        return self.frozen.asdict
-
     def clone(self, data=None, rnd=None):
         &#34;&#34;&#34;Same lazy content with (optional) new data or rnd object.&#34;&#34;&#34;
         return self.__class__(self.frozen.data if data is None else data, rnd=rnd or self.rnd)
@@ -193,27 +155,7 @@ class Ldict(AbstractMutableLazyDict):
        &#34;&#34;&#34;
         clone = self.__class__()
         clone.frozen = self.frozen &gt;&gt; other
-        return clone
-
-    def __ne__(self, other):
-        &#34;&#34;&#34;
-        &gt;&gt;&gt; {&#34;x&#34;: 5} == Ldict({&#34;x&#34;: 5})
-        True
-        &gt;&gt;&gt; {&#34;w&#34;: 5} == Ldict({&#34;x&#34;: 5})
-        False
-        &gt;&gt;&gt; {&#34;x&#34;: 4} == Ldict({&#34;x&#34;: 5})
-        False
-        &gt;&gt;&gt; {&#34;x&#34;: 5} == FrozenLazyDict({&#34;x&#34;: 5})
-        True
-        &gt;&gt;&gt; {&#34;w&#34;: 5} == FrozenLazyDict({&#34;x&#34;: 5})
-        False
-        &gt;&gt;&gt; {&#34;x&#34;: 4} == FrozenLazyDict({&#34;x&#34;: 5})
-        False
-        &#34;&#34;&#34;
-        return not (self == other)
-
-    def __eq__(self, other):
-        return self.frozen == other</code></pre>
+        return clone</code></pre>
 </details>
 </section>
 <section>
@@ -349,44 +291,6 @@ class Ldict(AbstractMutableLazyDict):
         del data[key]
         self.frozen = self.frozen.clone(data)
 
-    def __getattr__(self, item):
-        return self.frozen[item]
-
-    def __repr__(self):
-        return repr(self.frozen)
-
-    __str__ = __repr__
-
-    def evaluate(self):
-        &#34;&#34;&#34;
-        &gt;&gt;&gt; from ldict import ldict
-        &gt;&gt;&gt; f = lambda x: {&#34;y&#34;: x+2}
-        &gt;&gt;&gt; d = ldict(x=3)
-        &gt;&gt;&gt; a = d &gt;&gt; f
-        &gt;&gt;&gt; a
-        {
-            &#34;x&#34;: 3,
-            &#34;y&#34;: &#34;→(x)&#34;
-        }
-        &gt;&gt;&gt; a.evaluate()
-        &gt;&gt;&gt; a
-        {
-            &#34;x&#34;: 3,
-            &#34;y&#34;: 5
-        }
-        &#34;&#34;&#34;
-        self.frozen.evaluate()
-
-    @property
-    def asdict(self):
-        &#34;&#34;&#34;
-        &gt;&gt;&gt; from ldict import ldict
-        &gt;&gt;&gt; d = ldict(x=3, y=5)
-        &gt;&gt;&gt; ldict(x=7, y=8, d=d).asdict
-        {&#39;x&#39;: 7, &#39;y&#39;: 8, &#39;d&#39;: {&#39;x&#39;: 3, &#39;y&#39;: 5}}
-        &#34;&#34;&#34;
-        return self.frozen.asdict
-
     def clone(self, data=None, rnd=None):
         &#34;&#34;&#34;Same lazy content with (optional) new data or rnd object.&#34;&#34;&#34;
         return self.__class__(self.frozen.data if data is None else data, rnd=rnd or self.rnd)
@@ -417,27 +321,7 @@ class Ldict(AbstractMutableLazyDict):
        &#34;&#34;&#34;
         clone = self.__class__()
         clone.frozen = self.frozen &gt;&gt; other
-        return clone
-
-    def __ne__(self, other):
-        &#34;&#34;&#34;
-        &gt;&gt;&gt; {&#34;x&#34;: 5} == Ldict({&#34;x&#34;: 5})
-        True
-        &gt;&gt;&gt; {&#34;w&#34;: 5} == Ldict({&#34;x&#34;: 5})
-        False
-        &gt;&gt;&gt; {&#34;x&#34;: 4} == Ldict({&#34;x&#34;: 5})
-        False
-        &gt;&gt;&gt; {&#34;x&#34;: 5} == FrozenLazyDict({&#34;x&#34;: 5})
-        True
-        &gt;&gt;&gt; {&#34;w&#34;: 5} == FrozenLazyDict({&#34;x&#34;: 5})
-        False
-        &gt;&gt;&gt; {&#34;x&#34;: 4} == FrozenLazyDict({&#34;x&#34;: 5})
-        False
-        &#34;&#34;&#34;
-        return not (self == other)
-
-    def __eq__(self, other):
-        return self.frozen == other</code></pre>
+        return clone</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -461,31 +345,6 @@ class Ldict(AbstractMutableLazyDict):
 <div class="desc"></div>
 </dd>
 </dl>
-<h3>Instance variables</h3>
-<dl>
-<dt id="ldict.core.ldict_.Ldict.asdict"><code class="name">var <span class="ident">asdict</span></code></dt>
-<dd>
-<div class="desc"><pre><code class="language-python-repl">&gt;&gt;&gt; from ldict import ldict
-&gt;&gt;&gt; d = ldict(x=3, y=5)
-&gt;&gt;&gt; ldict(x=7, y=8, d=d).asdict
-{'x': 7, 'y': 8, 'd': {'x': 3, 'y': 5}}
-</code></pre></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@property
-def asdict(self):
-    &#34;&#34;&#34;
-    &gt;&gt;&gt; from ldict import ldict
-    &gt;&gt;&gt; d = ldict(x=3, y=5)
-    &gt;&gt;&gt; ldict(x=7, y=8, d=d).asdict
-    {&#39;x&#39;: 7, &#39;y&#39;: 8, &#39;d&#39;: {&#39;x&#39;: 3, &#39;y&#39;: 5}}
-    &#34;&#34;&#34;
-    return self.frozen.asdict</code></pre>
-</details>
-</dd>
-</dl>
 <h3>Methods</h3>
 <dl>
 <dt id="ldict.core.ldict_.Ldict.clone"><code class="name flex">
@@ -502,52 +361,16 @@ def asdict(self):
     return self.__class__(self.frozen.data if data is None else data, rnd=rnd or self.rnd)</code></pre>
 </details>
 </dd>
-<dt id="ldict.core.ldict_.Ldict.evaluate"><code class="name flex">
-<span>def <span class="ident">evaluate</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<div class="desc"><pre><code class="language-python-repl">&gt;&gt;&gt; from ldict import ldict
-&gt;&gt;&gt; f = lambda x: {&quot;y&quot;: x+2}
-&gt;&gt;&gt; d = ldict(x=3)
-&gt;&gt;&gt; a = d &gt;&gt; f
-&gt;&gt;&gt; a
-{
-    &quot;x&quot;: 3,
-    &quot;y&quot;: &quot;→(x)&quot;
-}
-&gt;&gt;&gt; a.evaluate()
-&gt;&gt;&gt; a
-{
-    &quot;x&quot;: 3,
-    &quot;y&quot;: 5
-}
-</code></pre></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def evaluate(self):
-    &#34;&#34;&#34;
-    &gt;&gt;&gt; from ldict import ldict
-    &gt;&gt;&gt; f = lambda x: {&#34;y&#34;: x+2}
-    &gt;&gt;&gt; d = ldict(x=3)
-    &gt;&gt;&gt; a = d &gt;&gt; f
-    &gt;&gt;&gt; a
-    {
-        &#34;x&#34;: 3,
-        &#34;y&#34;: &#34;→(x)&#34;
-    }
-    &gt;&gt;&gt; a.evaluate()
-    &gt;&gt;&gt; a
-    {
-        &#34;x&#34;: 3,
-        &#34;y&#34;: 5
-    }
-    &#34;&#34;&#34;
-    self.frozen.evaluate()</code></pre>
-</details>
-</dd>
 </dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="ldict.core.base.AbstractMutableLazyDict" href="base.html#ldict.core.base.AbstractMutableLazyDict">AbstractMutableLazyDict</a></b></code>:
+<ul class="hlist">
+<li><code><a title="ldict.core.base.AbstractMutableLazyDict.asdict" href="base.html#ldict.core.base.AbstractMutableLazyDict.asdict">asdict</a></code></li>
+<li><code><a title="ldict.core.base.AbstractMutableLazyDict.evaluate" href="base.html#ldict.core.base.AbstractMutableLazyDict.evaluate">evaluate</a></code></li>
+</ul>
+</li>
+</ul>
 </dd>
 </dl>
 </section>
@@ -568,9 +391,7 @@ def asdict(self):
 <li>
 <h4><code><a title="ldict.core.ldict_.Ldict" href="#ldict.core.ldict_.Ldict">Ldict</a></code></h4>
 <ul class="">
-<li><code><a title="ldict.core.ldict_.Ldict.asdict" href="#ldict.core.ldict_.Ldict.asdict">asdict</a></code></li>
 <li><code><a title="ldict.core.ldict_.Ldict.clone" href="#ldict.core.ldict_.Ldict.clone">clone</a></code></li>
-<li><code><a title="ldict.core.ldict_.Ldict.evaluate" href="#ldict.core.ldict_.Ldict.evaluate">evaluate</a></code></li>
 <li><code><a title="ldict.core.ldict_.Ldict.frozen" href="#ldict.core.ldict_.Ldict.frozen">frozen</a></code></li>
 </ul>
 </li>
