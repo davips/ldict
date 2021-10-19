@@ -31,8 +31,8 @@ from ldict.core.rshift import handle_dict, lazify
 from ldict.customjson import CustomJSONEncoder
 from ldict.exception import WrongKeyType, ReadOnlyLdict
 from ldict.lazyval import LazyVal
-from ldict.parameter.base.abslet import AbstractLet
 from ldict.parameter.functionspace import FunctionSpace
+from ldict.parameter.let import AbstractLet
 
 VT = TypeVar("VT")
 
@@ -165,7 +165,7 @@ class FrozenLazyDict(AbstractLazyDict):
         """Same lazy content with (optional) new data or rnd object."""
         return FrozenLazyDict(self.data if data is None else data, rnd=rnd or self.rnd, _returned=_returned)
 
-    def __rrshift__(self, other: Union[Dict, Callable, FunctionSpace]):
+    def __rrshift__(self, left: Union[Random, Dict, Callable, FunctionSpace]):
         """
         >>> {"x":5} >> FrozenLazyDict()
         {
@@ -173,11 +173,15 @@ class FrozenLazyDict(AbstractLazyDict):
         }
         >>> (lambda x:x*2) >> FrozenLazyDict()
         «λ × {}»
+        >>> Random() >> FrozenLazyDict()
+        {}
         """
-        if isinstance(other, Dict):
-            return FrozenLazyDict(other) >> self
-        if callable(other):
-            return FunctionSpace(other, self)
+        if isinstance(left, Random):
+            return self.clone(rnd=left)
+        if isinstance(left, Dict) and not isinstance(left, AbstractLazyDict):
+            return FrozenLazyDict(left) >> self
+        if callable(left):
+            return FunctionSpace(left, self)
         return NotImplemented
 
     def __rshift__(self, other: Union[Dict, AbstractLazyDict, Callable, AbstractLet, FunctionSpace, Random]):

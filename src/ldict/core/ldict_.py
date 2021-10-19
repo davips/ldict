@@ -20,17 +20,14 @@
 #  part of this work is illegal and unethical regarding the effort and
 #  time spent here.
 #
-import operator
-from functools import reduce
 from random import Random
 from typing import Dict, TypeVar, Union, Callable
 
 from ldict.core.base import AbstractMutableLazyDict, AbstractLazyDict
-from ldict.core.rshift import handle_dict, lazify
 from ldict.exception import WrongKeyType
 from ldict.frozenlazydict import FrozenLazyDict
-from ldict.parameter.base.abslet import AbstractLet
 from ldict.parameter.functionspace import FunctionSpace
+from ldict.parameter.let import AbstractLet
 
 VT = TypeVar("VT")
 
@@ -142,31 +139,33 @@ class Ldict(AbstractMutableLazyDict):
         """Same lazy content with (optional) new data or rnd object."""
         return self.__class__(self.frozen.data if data is None else data, rnd=rnd or self.rnd)
 
-    def __rrshift__(self, other: Union[Dict, Callable, FunctionSpace]):
-        if isinstance(other, Dict):
-            return self.__class__(other) >> self
-        if callable(other):
-            return FunctionSpace(other, self)
-        return NotImplemented
+    def __rrshift__(self, left: Union[Random, Dict, Callable, FunctionSpace]):
+        """
+        >>> {"x":5} >> Ldict()
+        {
+            "x": 5
+        }
+        >>> (lambda x:x*2) >> Ldict()
+        «λ × {}»
+        >>> Random() >> Ldict()
+        {}
+        """
+        clone = self.__class__()
+        clone.frozen = left >> self.frozen
+        return clone
 
     def __rshift__(self, other: Union[Dict, AbstractLazyDict, Callable, AbstractLet, FunctionSpace, Random]):
-        from ldict import Empty
-        if isinstance(other, Random):
-            return self.clone(rnd=other)
-        if isinstance(other, Empty):
-            return self
-        if isinstance(other, Ldict):
-            return self.clone(handle_dict(self.frozen.data, other, other.rnd), other.rnd)
-        if isinstance(other, Dict):
-            return self.clone(handle_dict(self.frozen.data, other, self.rnd))
-        if isinstance(other, FunctionSpace):
-            return reduce(operator.rshift, (self,) + other.functions)
-        if callable(other) or isinstance(other, AbstractLet):
-            lazies = lazify(self.frozen.data, output_field="extract", f=other, rnd=self.rnd, multi_output=True)
-            data = self.frozen.data.copy()
-            data.update(lazies)
-            return self.clone(data)
-        return NotImplemented
+        """
+        >>> d = Ldict(x=2) >> (lambda x: {"y": 2 * x})
+        >>> d
+        {
+            "x": 2,
+            "y": "→(x)"
+        }
+       """
+        clone = self.__class__()
+        clone.frozen = self.frozen >> other
+        return clone
 
     def __ne__(self, other):
         """

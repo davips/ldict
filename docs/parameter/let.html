@@ -47,11 +47,13 @@
 #  works or verbatim, obfuscated, compiled or rewritten versions of any
 #  part of this work is illegal and unethical regarding the effort and
 #  time spent here.
-from ldict.parameter.base.abslet import AbstractLet
+from random import Random
+
+from ldict.parameter.abslet import AbstractLet
 from ldict.parameter.functionspace import FunctionSpace
 
 
-class Let(AbstractLet):
+class lLet(AbstractLet):
     &#34;&#34;&#34;
     Set values or sampling intervals for parameterized functions
 
@@ -91,10 +93,7 @@ class Let(AbstractLet):
         &#34;z&#34;: 52
     }
     &gt;&gt;&gt; let(f, a=5) &gt;&gt; {&#34;x&#34;: 5, &#34;y&#34;: 7}
-    «λ{&#39;a&#39;: 5} × {
-        &#34;x&#34;: 5,
-        &#34;y&#34;: 7
-    }»
+    «λ{&#39;a&#39;: 5} × {&#39;x&#39;: 5, &#39;y&#39;: 7}»
     &gt;&gt;&gt; ldict({&#34;x&#34;: 5, &#34;y&#34;: 7}) &gt;&gt; let(f, a=5)
     {
         &#34;x&#34;: 5,
@@ -107,15 +106,15 @@ class Let(AbstractLet):
         &#34;y&#34;: 7
     }»
     &gt;&gt;&gt; from random import Random
-    &gt;&gt;&gt; let(f, a=5) &gt;&gt; [&#34;mycache&#34;]
+    &gt;&gt;&gt; let(f, a=5) &gt;&gt; [&#34;mycache&#34;]  # Cache implemented in package &#39;cdict&#39;.
     «λ{&#39;a&#39;: 5} × ^»
     &gt;&gt;&gt; from ldict.parameter.functionspace import FunctionSpace
     &gt;&gt;&gt; let(f, a=5) &gt;&gt; FunctionSpace()
-    «λ{&#39;a&#39;: 5}»
+    λ{&#39;a&#39;: 5}
     &gt;&gt;&gt; FunctionSpace() &gt;&gt; let(f, a=5)
     «λ{&#39;a&#39;: 5}»
     &gt;&gt;&gt; (lambda x: {&#34;z&#34;: x*8}) &gt;&gt; let(f, a=5)
-    «λ × λ{&#39;a&#39;: 5}»
+    «λ{} × λ{&#39;a&#39;: 5}»
     &gt;&gt;&gt; d = {&#34;x&#34;:3, &#34;y&#34;: 8} &gt;&gt; let(f, a=5)
     &gt;&gt;&gt; d
     {
@@ -138,7 +137,7 @@ class Let(AbstractLet):
 
     def __init__(self, f, **kwargs):
         from ldict.core.ldict_ import Ldict
-        super().__init__(f, kwargs, dict_type=Ldict, fs_type=FunctionSpace)</code></pre>
+        super().__init__(f, Ldict, **kwargs)</code></pre>
 </details>
 </section>
 <section>
@@ -150,8 +149,8 @@ class Let(AbstractLet):
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
-<dt id="ldict.parameter.let.Let"><code class="flex name class">
-<span>class <span class="ident">Let</span></span>
+<dt id="ldict.parameter.let.lLet"><code class="flex name class">
+<span>class <span class="ident">lLet</span></span>
 <span>(</span><span>f, **kwargs)</span>
 </code></dt>
 <dd>
@@ -192,10 +191,7 @@ class Let(AbstractLet):
     &quot;z&quot;: 52
 }
 &gt;&gt;&gt; let(f, a=5) &gt;&gt; {&quot;x&quot;: 5, &quot;y&quot;: 7}
-«λ{'a': 5} × {
-    &quot;x&quot;: 5,
-    &quot;y&quot;: 7
-}»
+«λ{'a': 5} × {'x': 5, 'y': 7}»
 &gt;&gt;&gt; ldict({&quot;x&quot;: 5, &quot;y&quot;: 7}) &gt;&gt; let(f, a=5)
 {
     &quot;x&quot;: 5,
@@ -208,15 +204,15 @@ class Let(AbstractLet):
     &quot;y&quot;: 7
 }»
 &gt;&gt;&gt; from random import Random
-&gt;&gt;&gt; let(f, a=5) &gt;&gt; [&quot;mycache&quot;]
+&gt;&gt;&gt; let(f, a=5) &gt;&gt; [&quot;mycache&quot;]  # Cache implemented in package 'cdict'.
 «λ{'a': 5} × ^»
 &gt;&gt;&gt; from ldict.parameter.functionspace import FunctionSpace
 &gt;&gt;&gt; let(f, a=5) &gt;&gt; FunctionSpace()
-«λ{'a': 5}»
+λ{'a': 5}
 &gt;&gt;&gt; FunctionSpace() &gt;&gt; let(f, a=5)
 «λ{'a': 5}»
 &gt;&gt;&gt; (lambda x: {&quot;z&quot;: x*8}) &gt;&gt; let(f, a=5)
-«λ × λ{'a': 5}»
+«λ{} × λ{'a': 5}»
 &gt;&gt;&gt; d = {&quot;x&quot;:3, &quot;y&quot;: 8} &gt;&gt; let(f, a=5)
 &gt;&gt;&gt; d
 {
@@ -240,7 +236,7 @@ class Let(AbstractLet):
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class Let(AbstractLet):
+<pre><code class="python">class lLet(AbstractLet):
     &#34;&#34;&#34;
     Set values or sampling intervals for parameterized functions
 
@@ -280,10 +276,7 @@ class Let(AbstractLet):
         &#34;z&#34;: 52
     }
     &gt;&gt;&gt; let(f, a=5) &gt;&gt; {&#34;x&#34;: 5, &#34;y&#34;: 7}
-    «λ{&#39;a&#39;: 5} × {
-        &#34;x&#34;: 5,
-        &#34;y&#34;: 7
-    }»
+    «λ{&#39;a&#39;: 5} × {&#39;x&#39;: 5, &#39;y&#39;: 7}»
     &gt;&gt;&gt; ldict({&#34;x&#34;: 5, &#34;y&#34;: 7}) &gt;&gt; let(f, a=5)
     {
         &#34;x&#34;: 5,
@@ -296,15 +289,15 @@ class Let(AbstractLet):
         &#34;y&#34;: 7
     }»
     &gt;&gt;&gt; from random import Random
-    &gt;&gt;&gt; let(f, a=5) &gt;&gt; [&#34;mycache&#34;]
+    &gt;&gt;&gt; let(f, a=5) &gt;&gt; [&#34;mycache&#34;]  # Cache implemented in package &#39;cdict&#39;.
     «λ{&#39;a&#39;: 5} × ^»
     &gt;&gt;&gt; from ldict.parameter.functionspace import FunctionSpace
     &gt;&gt;&gt; let(f, a=5) &gt;&gt; FunctionSpace()
-    «λ{&#39;a&#39;: 5}»
+    λ{&#39;a&#39;: 5}
     &gt;&gt;&gt; FunctionSpace() &gt;&gt; let(f, a=5)
     «λ{&#39;a&#39;: 5}»
     &gt;&gt;&gt; (lambda x: {&#34;z&#34;: x*8}) &gt;&gt; let(f, a=5)
-    «λ × λ{&#39;a&#39;: 5}»
+    «λ{} × λ{&#39;a&#39;: 5}»
     &gt;&gt;&gt; d = {&#34;x&#34;:3, &#34;y&#34;: 8} &gt;&gt; let(f, a=5)
     &gt;&gt;&gt; d
     {
@@ -327,11 +320,11 @@ class Let(AbstractLet):
 
     def __init__(self, f, **kwargs):
         from ldict.core.ldict_ import Ldict
-        super().__init__(f, kwargs, dict_type=Ldict, fs_type=FunctionSpace)</code></pre>
+        super().__init__(f, Ldict, **kwargs)</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
-<li><a title="ldict.parameter.base.abslet.AbstractLet" href="base/abslet.html#ldict.parameter.base.abslet.AbstractLet">AbstractLet</a></li>
+<li><a title="ldict.parameter.abslet.AbstractLet" href="abslet.html#ldict.parameter.abslet.AbstractLet">AbstractLet</a></li>
 </ul>
 </dd>
 </dl>
@@ -351,7 +344,7 @@ class Let(AbstractLet):
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
-<h4><code><a title="ldict.parameter.let.Let" href="#ldict.parameter.let.Let">Let</a></code></h4>
+<h4><code><a title="ldict.parameter.let.lLet" href="#ldict.parameter.let.lLet">lLet</a></code></h4>
 </li>
 </ul>
 </li>

@@ -47,11 +47,12 @@
 #  works or verbatim, obfuscated, compiled or rewritten versions of any
 #  part of this work is illegal and unethical regarding the effort and
 #  time spent here.
+import operator
+from functools import reduce
+from random import Random
 
-from ldict.parameter.base.absfunctionspace import AbstractFunctionSpace
 
-
-class FunctionSpace(AbstractFunctionSpace):
+class FunctionSpace:
     &#34;&#34;&#34;Aglutination for future application
 
     &gt;&gt;&gt; from ldict import ldict, empty
@@ -60,9 +61,7 @@ class FunctionSpace(AbstractFunctionSpace):
     &gt;&gt;&gt; fs = FunctionSpace() &gt;&gt; empty
     &gt;&gt;&gt; fs &gt;&gt;= {&#34;x&#34;: 5}
     &gt;&gt;&gt; fs
-    «{
-        &#34;x&#34;: 5
-    }»
+    «{} × {&#39;x&#39;: 5}»
     &gt;&gt;&gt; ldict(y=7) &gt;&gt; fs
     {
         &#34;y&#34;: 7,
@@ -70,24 +69,42 @@ class FunctionSpace(AbstractFunctionSpace):
     }
     &gt;&gt;&gt; fs &gt;&gt;= ldict(y=7)
     &gt;&gt;&gt; fs
-    «{
-        &#34;x&#34;: 5
-    } × {
+    «{} × {&#39;x&#39;: 5} × {
         &#34;y&#34;: 7
     }»
     &gt;&gt;&gt; fs &gt;&gt;= lambda x,y: {&#34;z&#34;: x*y}
     &gt;&gt;&gt; fs
-    «{
-        &#34;x&#34;: 5
-    } × {
+    «{} × {&#39;x&#39;: 5} × {
         &#34;y&#34;: 7
     } × λ»
     &#34;&#34;&#34;
 
     def __init__(self, *args):
-        from ldict.empty import Empty
-        from ldict.core.ldict_ import Ldict
-        super().__init__(args, dict_type=Ldict, empty_type=Empty)</code></pre>
+        self.functions = args
+
+    def __rrshift__(self, left):
+        return reduce(operator.rshift, (left,) + self.functions)
+
+    def __rshift__(self, other):
+        if isinstance(other, FunctionSpace):
+            return FunctionSpace(*self.functions, *other.functions)
+        return FunctionSpace(*self.functions, other)
+
+    __mul__ = __rshift__
+
+    def __repr__(self):
+        txt = []
+        for f in self.functions:
+            if isinstance(f, list):
+                s = &#34;^&#34;
+            elif isinstance(f, Random):
+                s = &#34;~&#34;
+            elif str(f).startswith(&#34;&lt;function &#34;):
+                s = &#34;λ&#34;
+            else:
+                s = str(f)
+            txt.append(s)
+        return &#34;«&#34; + &#34; × &#34;.join(txt) + &#34;»&#34;</code></pre>
 </details>
 </section>
 <section>
@@ -111,9 +128,7 @@ class FunctionSpace(AbstractFunctionSpace):
 &gt;&gt;&gt; fs = FunctionSpace() &gt;&gt; empty
 &gt;&gt;&gt; fs &gt;&gt;= {&quot;x&quot;: 5}
 &gt;&gt;&gt; fs
-«{
-    &quot;x&quot;: 5
-}»
+«{} × {'x': 5}»
 &gt;&gt;&gt; ldict(y=7) &gt;&gt; fs
 {
     &quot;y&quot;: 7,
@@ -121,16 +136,12 @@ class FunctionSpace(AbstractFunctionSpace):
 }
 &gt;&gt;&gt; fs &gt;&gt;= ldict(y=7)
 &gt;&gt;&gt; fs
-«{
-    &quot;x&quot;: 5
-} × {
+«{} × {'x': 5} × {
     &quot;y&quot;: 7
 }»
 &gt;&gt;&gt; fs &gt;&gt;= lambda x,y: {&quot;z&quot;: x*y}
 &gt;&gt;&gt; fs
-«{
-    &quot;x&quot;: 5
-} × {
+«{} × {'x': 5} × {
     &quot;y&quot;: 7
 } × λ»
 </code></pre></div>
@@ -138,7 +149,7 @@ class FunctionSpace(AbstractFunctionSpace):
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class FunctionSpace(AbstractFunctionSpace):
+<pre><code class="python">class FunctionSpace:
     &#34;&#34;&#34;Aglutination for future application
 
     &gt;&gt;&gt; from ldict import ldict, empty
@@ -147,9 +158,7 @@ class FunctionSpace(AbstractFunctionSpace):
     &gt;&gt;&gt; fs = FunctionSpace() &gt;&gt; empty
     &gt;&gt;&gt; fs &gt;&gt;= {&#34;x&#34;: 5}
     &gt;&gt;&gt; fs
-    «{
-        &#34;x&#34;: 5
-    }»
+    «{} × {&#39;x&#39;: 5}»
     &gt;&gt;&gt; ldict(y=7) &gt;&gt; fs
     {
         &#34;y&#34;: 7,
@@ -157,29 +166,43 @@ class FunctionSpace(AbstractFunctionSpace):
     }
     &gt;&gt;&gt; fs &gt;&gt;= ldict(y=7)
     &gt;&gt;&gt; fs
-    «{
-        &#34;x&#34;: 5
-    } × {
+    «{} × {&#39;x&#39;: 5} × {
         &#34;y&#34;: 7
     }»
     &gt;&gt;&gt; fs &gt;&gt;= lambda x,y: {&#34;z&#34;: x*y}
     &gt;&gt;&gt; fs
-    «{
-        &#34;x&#34;: 5
-    } × {
+    «{} × {&#39;x&#39;: 5} × {
         &#34;y&#34;: 7
     } × λ»
     &#34;&#34;&#34;
 
     def __init__(self, *args):
-        from ldict.empty import Empty
-        from ldict.core.ldict_ import Ldict
-        super().__init__(args, dict_type=Ldict, empty_type=Empty)</code></pre>
+        self.functions = args
+
+    def __rrshift__(self, left):
+        return reduce(operator.rshift, (left,) + self.functions)
+
+    def __rshift__(self, other):
+        if isinstance(other, FunctionSpace):
+            return FunctionSpace(*self.functions, *other.functions)
+        return FunctionSpace(*self.functions, other)
+
+    __mul__ = __rshift__
+
+    def __repr__(self):
+        txt = []
+        for f in self.functions:
+            if isinstance(f, list):
+                s = &#34;^&#34;
+            elif isinstance(f, Random):
+                s = &#34;~&#34;
+            elif str(f).startswith(&#34;&lt;function &#34;):
+                s = &#34;λ&#34;
+            else:
+                s = str(f)
+            txt.append(s)
+        return &#34;«&#34; + &#34; × &#34;.join(txt) + &#34;»&#34;</code></pre>
 </details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li><a title="ldict.parameter.base.absfunctionspace.AbstractFunctionSpace" href="base/absfunctionspace.html#ldict.parameter.base.absfunctionspace.AbstractFunctionSpace">AbstractFunctionSpace</a></li>
-</ul>
 </dd>
 </dl>
 </section>

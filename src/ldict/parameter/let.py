@@ -19,11 +19,13 @@
 #  works or verbatim, obfuscated, compiled or rewritten versions of any
 #  part of this work is illegal and unethical regarding the effort and
 #  time spent here.
-from ldict.parameter.base.abslet import AbstractLet
+from random import Random
+
+from ldict.parameter.abslet import AbstractLet
 from ldict.parameter.functionspace import FunctionSpace
 
 
-class Let(AbstractLet):
+class lLet(AbstractLet):
     """
     Set values or sampling intervals for parameterized functions
 
@@ -63,10 +65,7 @@ class Let(AbstractLet):
         "z": 52
     }
     >>> let(f, a=5) >> {"x": 5, "y": 7}
-    «λ{'a': 5} × {
-        "x": 5,
-        "y": 7
-    }»
+    «λ{'a': 5} × {'x': 5, 'y': 7}»
     >>> ldict({"x": 5, "y": 7}) >> let(f, a=5)
     {
         "x": 5,
@@ -79,15 +78,15 @@ class Let(AbstractLet):
         "y": 7
     }»
     >>> from random import Random
-    >>> let(f, a=5) >> ["mycache"]
+    >>> let(f, a=5) >> ["mycache"]  # Cache implemented in package 'cdict'.
     «λ{'a': 5} × ^»
     >>> from ldict.parameter.functionspace import FunctionSpace
     >>> let(f, a=5) >> FunctionSpace()
-    «λ{'a': 5}»
+    λ{'a': 5}
     >>> FunctionSpace() >> let(f, a=5)
     «λ{'a': 5}»
     >>> (lambda x: {"z": x*8}) >> let(f, a=5)
-    «λ × λ{'a': 5}»
+    «λ{} × λ{'a': 5}»
     >>> d = {"x":3, "y": 8} >> let(f, a=5)
     >>> d
     {
@@ -110,4 +109,4 @@ class Let(AbstractLet):
 
     def __init__(self, f, **kwargs):
         from ldict.core.ldict_ import Ldict
-        super().__init__(f, kwargs, dict_type=Ldict, fs_type=FunctionSpace)
+        super().__init__(f, Ldict, **kwargs)

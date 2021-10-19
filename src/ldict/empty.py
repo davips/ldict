@@ -24,25 +24,29 @@ from typing import Callable, Dict, Union
 from ldict.core.base import AbstractLazyDict
 from ldict.core.ldict_ import Ldict
 from ldict.frozenlazydict import FrozenLazyDict
-from ldict.parameter.functionspace import FunctionSpace
+from ldict.parameter.let import lLet
 
 
 class Empty(FrozenLazyDict):
     def __init__(self):
         super().__init__()
 
-    def __rrshift__(self, other: Union[Dict, Callable, FunctionSpace]):
-        if isinstance(other, (FunctionSpace, AbstractLazyDict)):
-            return other
+    def __rrshift__(self, left: Union[Dict, Callable, lLet]):
+        if isinstance(left, dict) and not isinstance(left, AbstractLazyDict):
+            return Ldict(left)
+        if callable(left):
+            return lLet(left)
+        if isinstance(left, lLet):
+            return left
         return NotImplemented  # pragma: no cover
 
-    def __rshift__(self, other: Union[Dict, Callable, FunctionSpace]):
-        from ldict.parameter.let import Let
-
-        if callable(other):
-            return FunctionSpace(other)
-        if isinstance(other, (Let, Ldict)):
+    def __rshift__(self, other: Union[Dict, Callable]):
+        if isinstance(other, AbstractLazyDict):
             return other
         if isinstance(other, dict):
             return Ldict(other)
+        if callable(other):
+            return lLet(other)
         return NotImplemented  # pragma: no cover
+
+    __mul__ = __rshift__

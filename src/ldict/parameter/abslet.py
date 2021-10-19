@@ -22,41 +22,47 @@
 from functools import cached_property
 from json import dumps
 from random import Random
-from typing import Dict
+from typing import Callable, Dict, Union
 
 from ldict.core.base import AbstractLazyDict
 from ldict.customjson import CustomJSONEncoder
-from ldict.parameter.base.absfunctionspace import AbstractFunctionSpace
+from ldict.parameter.functionspace import FunctionSpace
 
 
 class AbstractLet:
-    def __init__(self, f, config, dict_type, fs_type):
+    def __init__(self, f, dict_type, **kwargs):
         self.f = f
-        self.config = config
         self.dict_type = dict_type
-        self.fs_type = fs_type
+        self.config = kwargs
 
     @cached_property
     def asdict(self):
         return dumps(self.config, sort_keys=True, cls=CustomJSONEncoder)
 
-    def __rshift__(self, other):
-        if isinstance(other, dict):
-            other = self.dict_type(other)
-        if callable(other) or isinstance(other, (list, AbstractLazyDict)):
-            return self.fs_type(self, other)
-        if isinstance(other, AbstractFunctionSpace):
-            return other.__class__(self, *other.functions)
+    def __rrshift__(self, left: Union[Dict, Callable, 'AbstractLet']):
+        """
+        >>> from ldict import empty
+        >>> {"x": 5, "y": 7} >> (Random(0) >> (empty >> (lambda x:{"y": 0})))
+        {
+            "x": 5,
+            "y": "→(x)"
+        }
+        """
+        if isinstance(left, dict) and not isinstance(left, AbstractLazyDict):
+            return self.dict_type(left) >> self
+        if callable(left):
+            # noinspection PyArgumentList
+            return FunctionSpace(self.__class__(left), self)
+        if isinstance(left, (Random, list)):
+            return FunctionSpace(self.dict_type(), left, self)
         return NotImplemented  # pragma: no cover
 
-    def __rrshift__(self, other):
-        if callable(other) or isinstance(other, (list, AbstractLazyDict, Random, AbstractLet)):
-            return self.fs_type(other, self)
-        if isinstance(other, AbstractFunctionSpace):
-            return other.__class__(*other.functions, self)
-        if isinstance(other, Dict):
-            return self.dict_type(other) >> self
+    def __rshift__(self, other: Union[Dict, Callable]):
+        if callable(other) or isinstance(other, (list, Random, AbstractLet, Dict)):
+            return FunctionSpace(self, other)
         return NotImplemented  # pragma: no cover
+
+    __mul__ = __rshift__
 
     def __repr__(self):
         return "λ" + str(self.config)
