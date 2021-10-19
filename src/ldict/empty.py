@@ -21,6 +21,7 @@
 #  time spent here.
 from typing import Callable, Dict, Union
 
+from ldict.core.base import AbstractLazyDict
 from ldict.core.ldict_ import Ldict
 from ldict.frozenlazydict import FrozenLazyDict
 from ldict.parameter.functionspace import FunctionSpace
@@ -30,7 +31,12 @@ class Empty(FrozenLazyDict):
     def __init__(self):
         super().__init__()
 
-    def __rshift__(self, other: Union[Dict, Callable, FunctionSpace], config={}):
+    def __rrshift__(self, other: Union[Dict, Callable, FunctionSpace]):
+        if isinstance(other, (FunctionSpace, AbstractLazyDict)):
+            return other
+        return NotImplemented  # pragma: no cover
+
+    def __rshift__(self, other: Union[Dict, Callable, FunctionSpace]):
         from ldict.parameter.let import Let
 
         if callable(other):
@@ -39,4 +45,4 @@ class Empty(FrozenLazyDict):
             return other
         if isinstance(other, dict):
             return Ldict(other)
-        return NotImplemented
+        return NotImplemented  # pragma: no cover

@@ -140,18 +140,17 @@ class Ldict(AbstractMutableLazyDict):
 
     def clone(self, data=None, rnd=None):
         """Same lazy content with (optional) new data or rnd object."""
-        return Ldict(self.frozen.data if data is None else data, rnd=rnd or self.rnd)
+        return self.__class__(self.frozen.data if data is None else data, rnd=rnd or self.rnd)
 
     def __rrshift__(self, other: Union[Dict, Callable, FunctionSpace]):
         if isinstance(other, Dict):
-            return Ldict(other) >> self
+            return self.__class__(other) >> self
         if callable(other):
             return FunctionSpace(other, self)
         return NotImplemented
 
     def __rshift__(self, other: Union[Dict, AbstractLazyDict, Callable, AbstractLet, FunctionSpace, Random]):
         from ldict import Empty
-
         if isinstance(other, Random):
             return self.clone(rnd=other)
         if isinstance(other, Empty):
