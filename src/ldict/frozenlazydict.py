@@ -91,10 +91,10 @@ class FrozenLazyDict(AbstractLazyDict):
     }
     """
 
+    # noinspection PyMissingConstructor
     def __init__(self, /, _dictionary=None, rnd=None, _returned=None, **kwargs):
         self.rnd = rnd
         self.returned = _returned
-        super().__init__()
         self.data = _dictionary or {}
         self.data.update(kwargs)
 
@@ -185,6 +185,9 @@ class FrozenLazyDict(AbstractLazyDict):
         return NotImplemented
 
     def __rshift__(self, other: Union[Dict, AbstractLazyDict, Callable, AbstractLet, FunctionSpace, Random]):
+        from ldict import Empty
+        if isinstance(other, Empty):
+            return self
         if isinstance(other, Random):
             return self.clone(rnd=other)
         if isinstance(other, FrozenLazyDict):
@@ -199,9 +202,6 @@ class FrozenLazyDict(AbstractLazyDict):
             data.update(lazies)
             return self.clone(data, _returned=list(lazies.keys()))
         return NotImplemented
-
-    def __ne__(self, other):
-        return not (self == other)
 
     def __eq__(self, other):
         if self.keys() != other.keys():

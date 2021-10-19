@@ -97,44 +97,6 @@ class Ldict(AbstractMutableLazyDict):
         del data[key]
         self.frozen = self.frozen.clone(data)
 
-    def __getattr__(self, item):
-        return self.frozen[item]
-
-    def __repr__(self):
-        return repr(self.frozen)
-
-    __str__ = __repr__
-
-    def evaluate(self):
-        """
-        >>> from ldict import ldict
-        >>> f = lambda x: {"y": x+2}
-        >>> d = ldict(x=3)
-        >>> a = d >> f
-        >>> a
-        {
-            "x": 3,
-            "y": "→(x)"
-        }
-        >>> a.evaluate()
-        >>> a
-        {
-            "x": 3,
-            "y": 5
-        }
-        """
-        self.frozen.evaluate()
-
-    @property
-    def asdict(self):
-        """
-        >>> from ldict import ldict
-        >>> d = ldict(x=3, y=5)
-        >>> ldict(x=7, y=8, d=d).asdict
-        {'x': 7, 'y': 8, 'd': {'x': 3, 'y': 5}}
-        """
-        return self.frozen.asdict
-
     def clone(self, data=None, rnd=None):
         """Same lazy content with (optional) new data or rnd object."""
         return self.__class__(self.frozen.data if data is None else data, rnd=rnd or self.rnd)
@@ -166,23 +128,3 @@ class Ldict(AbstractMutableLazyDict):
         clone = self.__class__()
         clone.frozen = self.frozen >> other
         return clone
-
-    def __ne__(self, other):
-        """
-        >>> {"x": 5} == Ldict({"x": 5})
-        True
-        >>> {"w": 5} == Ldict({"x": 5})
-        False
-        >>> {"x": 4} == Ldict({"x": 5})
-        False
-        >>> {"x": 5} == FrozenLazyDict({"x": 5})
-        True
-        >>> {"w": 5} == FrozenLazyDict({"x": 5})
-        False
-        >>> {"x": 4} == FrozenLazyDict({"x": 5})
-        False
-        """
-        return not (self == other)
-
-    def __eq__(self, other):
-        return self.frozen == other
