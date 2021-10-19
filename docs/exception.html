@@ -52,7 +52,7 @@ import importlib
 
 
 def check_access(id, readonly, key):
-    if readonly:
+    if readonly:  # pragma: no cover
         raise ReadOnlyLdict(f&#34;Cannot change a readonly ldict ({id}).&#34;, key)
     if not isinstance(key, str):
         raise WrongKeyType(f&#34;Key must be string, not {type(key)}.&#34;, key)
@@ -175,7 +175,7 @@ class ReadOnlyLdict(Exception):
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def check_access(id, readonly, key):
-    if readonly:
+    if readonly:  # pragma: no cover
         raise ReadOnlyLdict(f&#34;Cannot change a readonly ldict ({id}).&#34;, key)
     if not isinstance(key, str):
         raise WrongKeyType(f&#34;Key must be string, not {type(key)}.&#34;, key)</code></pre>
