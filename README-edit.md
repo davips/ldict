@@ -62,6 +62,7 @@ source venv/bin/activate
 # Install from PyPI...
 pip install --upgrade pip
 pip install -U ldict
+pip install -U ldict[full]  # use this for extra functionality (recommended)
 
 # ...or, install from updated source code.
 pip install git+https://github.com/davips/ldict
