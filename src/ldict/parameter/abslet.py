@@ -37,7 +37,7 @@ class AbstractLet:
 
     @cached_property
     def asdict(self):
-        return dumps(self.config, sort_keys=True, cls=CustomJSONEncoder)
+        return self.config
 
     def __rrshift__(self, left: Union[Dict, Callable, 'AbstractLet']):
         """
