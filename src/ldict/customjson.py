@@ -95,7 +95,12 @@ class CustomJSONEncoder(JSONEncoder):
                         return truncate("«" + str(obj).replace("\n", "") + "»", self.width)
                 except ImportError:  # pragma: no cover
                     print("Pandas or numpy may be missing.")
-                return obj.asdict if hasattr(obj, "asdict") else obj.aslist
+                if hasattr(obj, "asdict"):
+                    return obj.asdict
+                elif hasattr(obj, "aslist"):
+                    return obj.aslist
+                else:
+                    return str(obj)
         return JSONEncoder.default(self, obj)
 
 
