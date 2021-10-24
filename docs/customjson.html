@@ -123,7 +123,12 @@ class CustomJSONEncoder(JSONEncoder):
                         return truncate(&#34;«&#34; + str(obj).replace(&#34;\n&#34;, &#34;&#34;) + &#34;»&#34;, self.width)
                 except ImportError:  # pragma: no cover
                     print(&#34;Pandas or numpy may be missing.&#34;)
-                return obj.asdict if hasattr(obj, &#34;asdict&#34;) else obj.aslist
+                if hasattr(obj, &#34;asdict&#34;):
+                    return obj.asdict
+                elif hasattr(obj, &#34;aslist&#34;):
+                    return obj.aslist
+                else:
+                    return str(obj)
         return JSONEncoder.default(self, obj)
 
 
@@ -328,7 +333,12 @@ version of the object or raise a <code>TypeError</code>.</p></div>
                         return truncate(&#34;«&#34; + str(obj).replace(&#34;\n&#34;, &#34;&#34;) + &#34;»&#34;, self.width)
                 except ImportError:  # pragma: no cover
                     print(&#34;Pandas or numpy may be missing.&#34;)
-                return obj.asdict if hasattr(obj, &#34;asdict&#34;) else obj.aslist
+                if hasattr(obj, &#34;asdict&#34;):
+                    return obj.asdict
+                elif hasattr(obj, &#34;aslist&#34;):
+                    return obj.aslist
+                else:
+                    return str(obj)
         return JSONEncoder.default(self, obj)</code></pre>
 </details>
 <h3>Ancestors</h3>
@@ -393,7 +403,12 @@ implement default like this::</p>
                     return truncate(&#34;«&#34; + str(obj).replace(&#34;\n&#34;, &#34;&#34;) + &#34;»&#34;, self.width)
             except ImportError:  # pragma: no cover
                 print(&#34;Pandas or numpy may be missing.&#34;)
-            return obj.asdict if hasattr(obj, &#34;asdict&#34;) else obj.aslist
+            if hasattr(obj, &#34;asdict&#34;):
+                return obj.asdict
+            elif hasattr(obj, &#34;aslist&#34;):
+                return obj.aslist
+            else:
+                return str(obj)
     return JSONEncoder.default(self, obj)</code></pre>
 </details>
 </dd>
