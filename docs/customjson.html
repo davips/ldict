@@ -95,6 +95,7 @@ class CustomJSONEncoder(JSONEncoder):
         &#34;dd&#34;: [[1 2] [3 4]]
     }
     &#34;&#34;&#34;
+    width = None
 
     def default(self, obj):
         if obj is not None:
@@ -114,11 +115,12 @@ class CustomJSONEncoder(JSONEncoder):
                     from pandas.core.frame import DataFrame, Series
 
                     if isinstance(obj, (DataFrame, Series)):
-                        return truncate(&#34;«&#34; + str(obj.to_dict()) + &#34;»&#34;)  # «str()» is to avoid nested identation
+                        # «str()» is to avoid nested identation
+                        return truncate(&#34;«&#34; + str(obj.to_dict()) + &#34;»&#34;, self.width)
                     from numpy import ndarray
 
                     if isinstance(obj, ndarray):
-                        return truncate(&#34;«&#34; + str(obj).replace(&#34;\n&#34;, &#34;&#34;) + &#34;»&#34;)
+                        return truncate(&#34;«&#34; + str(obj).replace(&#34;\n&#34;, &#34;&#34;) + &#34;»&#34;, self.width)
                 except ImportError:  # pragma: no cover
                     print(&#34;Pandas or numpy may be missing.&#34;)
                 return obj.asdict if hasattr(obj, &#34;asdict&#34;) else obj.aslist
@@ -136,8 +138,8 @@ class CustomJSONEncoder(JSONEncoder):
 #         return obj
 
 
-def truncate(txt):
-    return txt + &#34;...&#34; if len(txt) == 1000 else txt</code></pre>
+def truncate(txt, width):
+    return txt[:width] + &#34;...&#34; if width and len(txt) &gt; width else txt</code></pre>
 </details>
 </section>
 <section>
@@ -148,7 +150,7 @@ def truncate(txt):
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="ldict.customjson.truncate"><code class="name flex">
-<span>def <span class="ident">truncate</span></span>(<span>txt)</span>
+<span>def <span class="ident">truncate</span></span>(<span>txt, width)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -156,8 +158,8 @@ def truncate(txt):
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def truncate(txt):
-    return txt + &#34;...&#34; if len(txt) == 1000 else txt</code></pre>
+<pre><code class="python">def truncate(txt, width):
+    return txt[:width] + &#34;...&#34; if width and len(txt) &gt; width else txt</code></pre>
 </details>
 </dd>
 </dl>
@@ -298,6 +300,7 @@ version of the object or raise a <code>TypeError</code>.</p></div>
         &#34;dd&#34;: [[1 2] [3 4]]
     }
     &#34;&#34;&#34;
+    width = None
 
     def default(self, obj):
         if obj is not None:
@@ -317,11 +320,12 @@ version of the object or raise a <code>TypeError</code>.</p></div>
                     from pandas.core.frame import DataFrame, Series
 
                     if isinstance(obj, (DataFrame, Series)):
-                        return truncate(&#34;«&#34; + str(obj.to_dict()) + &#34;»&#34;)  # «str()» is to avoid nested identation
+                        # «str()» is to avoid nested identation
+                        return truncate(&#34;«&#34; + str(obj.to_dict()) + &#34;»&#34;, self.width)
                     from numpy import ndarray
 
                     if isinstance(obj, ndarray):
-                        return truncate(&#34;«&#34; + str(obj).replace(&#34;\n&#34;, &#34;&#34;) + &#34;»&#34;)
+                        return truncate(&#34;«&#34; + str(obj).replace(&#34;\n&#34;, &#34;&#34;) + &#34;»&#34;, self.width)
                 except ImportError:  # pragma: no cover
                     print(&#34;Pandas or numpy may be missing.&#34;)
                 return obj.asdict if hasattr(obj, &#34;asdict&#34;) else obj.aslist
@@ -331,6 +335,13 @@ version of the object or raise a <code>TypeError</code>.</p></div>
 <ul class="hlist">
 <li>json.encoder.JSONEncoder</li>
 </ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="ldict.customjson.CustomJSONEncoder.width"><code class="name">var <span class="ident">width</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
 <h3>Methods</h3>
 <dl>
 <dt id="ldict.customjson.CustomJSONEncoder.default"><code class="name flex">
@@ -374,11 +385,12 @@ implement default like this::</p>
                 from pandas.core.frame import DataFrame, Series
 
                 if isinstance(obj, (DataFrame, Series)):
-                    return truncate(&#34;«&#34; + str(obj.to_dict()) + &#34;»&#34;)  # «str()» is to avoid nested identation
+                    # «str()» is to avoid nested identation
+                    return truncate(&#34;«&#34; + str(obj.to_dict()) + &#34;»&#34;, self.width)
                 from numpy import ndarray
 
                 if isinstance(obj, ndarray):
-                    return truncate(&#34;«&#34; + str(obj).replace(&#34;\n&#34;, &#34;&#34;) + &#34;»&#34;)
+                    return truncate(&#34;«&#34; + str(obj).replace(&#34;\n&#34;, &#34;&#34;) + &#34;»&#34;, self.width)
             except ImportError:  # pragma: no cover
                 print(&#34;Pandas or numpy may be missing.&#34;)
             return obj.asdict if hasattr(obj, &#34;asdict&#34;) else obj.aslist
@@ -412,6 +424,7 @@ implement default like this::</p>
 <h4><code><a title="ldict.customjson.CustomJSONEncoder" href="#ldict.customjson.CustomJSONEncoder">CustomJSONEncoder</a></code></h4>
 <ul class="">
 <li><code><a title="ldict.customjson.CustomJSONEncoder.default" href="#ldict.customjson.CustomJSONEncoder.default">default</a></code></li>
+<li><code><a title="ldict.customjson.CustomJSONEncoder.width" href="#ldict.customjson.CustomJSONEncoder.width">width</a></code></li>
 </ul>
 </li>
 </ul>
