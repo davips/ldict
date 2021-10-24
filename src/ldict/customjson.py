@@ -67,6 +67,7 @@ class CustomJSONEncoder(JSONEncoder):
         "dd": [[1 2] [3 4]]
     }
     """
+    width = None
 
     def default(self, obj):
         if obj is not None:
@@ -86,11 +87,12 @@ class CustomJSONEncoder(JSONEncoder):
                     from pandas.core.frame import DataFrame, Series
 
                     if isinstance(obj, (DataFrame, Series)):
-                        return truncate("«" + str(obj.to_dict()) + "»")  # «str()» is to avoid nested identation
+                        # «str()» is to avoid nested identation
+                        return truncate("«" + str(obj.to_dict()) + "»", self.width)
                     from numpy import ndarray
 
                     if isinstance(obj, ndarray):
-                        return truncate("«" + str(obj).replace("\n", "") + "»")
+                        return truncate("«" + str(obj).replace("\n", "") + "»", self.width)
                 except ImportError:  # pragma: no cover
                     print("Pandas or numpy may be missing.")
                 return obj.asdict if hasattr(obj, "asdict") else obj.aslist
@@ -108,5 +110,5 @@ class CustomJSONEncoder(JSONEncoder):
 #         return obj
 
 
-def truncate(txt):
-    return txt + "..." if len(txt) == 1000 else txt
+def truncate(txt, width):
+    return txt[:width] + "..." if width and len(txt) > width else txt
