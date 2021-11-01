@@ -52,7 +52,7 @@ def extract_returnstr(f):
     '(x * y, x + y, x / y)'
     """
     out = StringIO()
-    decompile(bytecode_version=3.8, co=f.__code__, out=out)
+    decompile(bytecode_version=(3, 8, 10), co=f.__code__, out=out)
     code = "".join([line for line in out.getvalue().split("\n") if not line.startswith("#")])
     if "return" not in code:
         raise NoReturnException(f"Missing return statement:", code)
