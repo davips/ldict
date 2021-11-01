@@ -80,7 +80,7 @@ def extract_returnstr(f):
     &#39;(x * y, x + y, x / y)&#39;
     &#34;&#34;&#34;
     out = StringIO()
-    decompile(bytecode_version=3.8, co=f.__code__, out=out)
+    decompile(bytecode_version=(3, 8, 10), co=f.__code__, out=out)
     code = &#34;&#34;.join([line for line in out.getvalue().split(&#34;\n&#34;) if not line.startswith(&#34;#&#34;)])
     if &#34;return&#34; not in code:
         raise NoReturnException(f&#34;Missing return statement:&#34;, code)
@@ -277,7 +277,7 @@ def extract_implicit_input(dictstr):
     &#39;(x * y, x + y, x / y)&#39;
     &#34;&#34;&#34;
     out = StringIO()
-    decompile(bytecode_version=3.8, co=f.__code__, out=out)
+    decompile(bytecode_version=(3, 8, 10), co=f.__code__, out=out)
     code = &#34;&#34;.join([line for line in out.getvalue().split(&#34;\n&#34;) if not line.startswith(&#34;#&#34;)])
     if &#34;return&#34; not in code:
         raise NoReturnException(f&#34;Missing return statement:&#34;, code)
