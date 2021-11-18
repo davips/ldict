@@ -85,18 +85,21 @@ def extract_dictstr(returnstr):
 
 
 def extract_output(f, dictstr, deps):
-    """Extract output fields. They cannot contain underscores.
+    """Extract output fields.
 
     https://stackoverflow.com/a/68753149/9681577
 
     >>> extract_output(lambda:None, "{'z': x*y, 'w': x+y, implicitfield: y**2}", {"implicitfield":"k"})
     ['z', 'w', 'k']
     """
-    explicit = re.findall(r"[\"']([a-zA-Z]+[a-zA-Z0-9]*)[\"']:", dictstr)
+    explicit = re.findall(r"[\"']([_a-zA-Z]+[_a-zA-Z0-9]*)[\"']:", dictstr)
+
+    # REMINDER: seems to be only about field deps like 'input_field="x"', not a parameter dep.
     implicit = re.findall(r"[ {]([_a-zA-Z]+[_a-zA-Z0-9]*):", dictstr)
+
     for field in implicit:
-        if "_" in field:  # pragma: no cover
-            raise UnderscoreInField("Field names cannot contain underscores:", field, dictstr)
+        # if "_" in field:  # pragma: no cover
+        #     raise UnderscoreInField("Field names cannot contain underscores:", field, dictstr)
         if field not in deps:  # pragma: no cover
             raise Exception("Missing parameter providing implicit field", field, deps)
         explicit.append(deps[field])
