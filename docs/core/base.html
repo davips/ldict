@@ -110,6 +110,8 @@ class AbstractMutableLazyDict(AbstractLazyDict, ABC):
         self.frozen &gt;&gt;= {key: value}
 
     def __getattr__(self, item):
+        if (metafield := &#34;_&#34; + item) in self.frozen:
+            return self.frozen[metafield]
         return self.frozen[item]
 
     def __repr__(self):
@@ -315,6 +317,8 @@ False
         self.frozen &gt;&gt;= {key: value}
 
     def __getattr__(self, item):
+        if (metafield := &#34;_&#34; + item) in self.frozen:
+            return self.frozen[metafield]
         return self.frozen[item]
 
     def __repr__(self):
