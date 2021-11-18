@@ -113,18 +113,21 @@ def extract_dictstr(returnstr):
 
 
 def extract_output(f, dictstr, deps):
-    &#34;&#34;&#34;Extract output fields. They cannot contain underscores.
+    &#34;&#34;&#34;Extract output fields.
 
     https://stackoverflow.com/a/68753149/9681577
 
     &gt;&gt;&gt; extract_output(lambda:None, &#34;{&#39;z&#39;: x*y, &#39;w&#39;: x+y, implicitfield: y**2}&#34;, {&#34;implicitfield&#34;:&#34;k&#34;})
     [&#39;z&#39;, &#39;w&#39;, &#39;k&#39;]
     &#34;&#34;&#34;
-    explicit = re.findall(r&#34;[\&#34;&#39;]([a-zA-Z]+[a-zA-Z0-9]*)[\&#34;&#39;]:&#34;, dictstr)
+    explicit = re.findall(r&#34;[\&#34;&#39;]([_a-zA-Z]+[_a-zA-Z0-9]*)[\&#34;&#39;]:&#34;, dictstr)
+
+    # REMINDER: seems to be only about field deps like &#39;input_field=&#34;x&#34;&#39;, not a parameter dep.
     implicit = re.findall(r&#34;[ {]([_a-zA-Z]+[_a-zA-Z0-9]*):&#34;, dictstr)
+
     for field in implicit:
-        if &#34;_&#34; in field:  # pragma: no cover
-            raise UnderscoreInField(&#34;Field names cannot contain underscores:&#34;, field, dictstr)
+        # if &#34;_&#34; in field:  # pragma: no cover
+        #     raise UnderscoreInField(&#34;Field names cannot contain underscores:&#34;, field, dictstr)
         if field not in deps:  # pragma: no cover
             raise Exception(&#34;Missing parameter providing implicit field&#34;, field, deps)
         explicit.append(deps[field])
@@ -225,7 +228,7 @@ def extract_implicit_input(dictstr):
 <span>def <span class="ident">extract_output</span></span>(<span>f, dictstr, deps)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Extract output fields. They cannot contain underscores.</p>
+<div class="desc"><p>Extract output fields.</p>
 <p><a href="https://stackoverflow.com/a/68753149/9681577">https://stackoverflow.com/a/68753149/9681577</a></p>
 <pre><code class="language-python-repl">&gt;&gt;&gt; extract_output(lambda:None, &quot;{'z': x*y, 'w': x+y, implicitfield: y**2}&quot;, {&quot;implicitfield&quot;:&quot;k&quot;})
 ['z', 'w', 'k']
@@ -235,18 +238,21 @@ def extract_implicit_input(dictstr):
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def extract_output(f, dictstr, deps):
-    &#34;&#34;&#34;Extract output fields. They cannot contain underscores.
+    &#34;&#34;&#34;Extract output fields.
 
     https://stackoverflow.com/a/68753149/9681577
 
     &gt;&gt;&gt; extract_output(lambda:None, &#34;{&#39;z&#39;: x*y, &#39;w&#39;: x+y, implicitfield: y**2}&#34;, {&#34;implicitfield&#34;:&#34;k&#34;})
     [&#39;z&#39;, &#39;w&#39;, &#39;k&#39;]
     &#34;&#34;&#34;
-    explicit = re.findall(r&#34;[\&#34;&#39;]([a-zA-Z]+[a-zA-Z0-9]*)[\&#34;&#39;]:&#34;, dictstr)
+    explicit = re.findall(r&#34;[\&#34;&#39;]([_a-zA-Z]+[_a-zA-Z0-9]*)[\&#34;&#39;]:&#34;, dictstr)
+
+    # REMINDER: seems to be only about field deps like &#39;input_field=&#34;x&#34;&#39;, not a parameter dep.
     implicit = re.findall(r&#34;[ {]([_a-zA-Z]+[_a-zA-Z0-9]*):&#34;, dictstr)
+
     for field in implicit:
-        if &#34;_&#34; in field:  # pragma: no cover
-            raise UnderscoreInField(&#34;Field names cannot contain underscores:&#34;, field, dictstr)
+        # if &#34;_&#34; in field:  # pragma: no cover
+        #     raise UnderscoreInField(&#34;Field names cannot contain underscores:&#34;, field, dictstr)
         if field not in deps:  # pragma: no cover
             raise Exception(&#34;Missing parameter providing implicit field&#34;, field, deps)
         explicit.append(deps[field])
