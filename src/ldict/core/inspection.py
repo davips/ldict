@@ -75,7 +75,7 @@ def extract_returnstr(code):
     return strs[0]
 
 
-def extract_dictstr(returnstr):
+def extract_dictstr(returnstr: str) -> str:
     """
     >>> def f(x, y, implicit=["a", "b", "c"]):
     ...     return {
@@ -83,7 +83,7 @@ def extract_dictstr(returnstr):
     ...         "w": x+y,
     ...         implicit: x/y
     ...     }
-    >>> extract_dictstr(extract_returnstr(f))
+    >>> extract_dictstr(extract_returnstr(extract_body(f)))
     "{'z': x * y,  'w': x + y,  implicit: x / y}"
     """
     dict_strs = re.findall("(?={)(.+?)(?<=})", returnstr)
