@@ -37,12 +37,12 @@
 #  works or verbatim, obfuscated, compiled or rewritten versions of any
 #  part of this work is illegal and unethical regarding the effort and
 #  time spent here.
-
+from inspect import signature
 from typing import Union
 
 from lange import AP, GP
-
-from ldict.core.inspection import extract_implicit_input, extract_output, extract_returnstr, extract_dictstr
+from ldict.core.inspection import extract_implicit_input, extract_output, extract_returnstr, extract_dictstr, \
+    extract_body
 from ldict.core.inspection import extract_input
 from ldict.exception import InconsistentLange, UndefinedSeed, DependenceException
 from ldict.lazyval import LazyVal
@@ -76,9 +76,21 @@ def handle_dict(data, dictlike, rnd):
 
 
 def lazify(data, output_field: Union[list, str], f, rnd, multi_output) -> Union[dict, LazyVal]:
+    """
+    >>> def g(x, _history):
+    ...     return {"y": x**2,
+    ...         "_function": {
+    ...             "name": "squared",
+    ...             "description": "This description of 'g(x)' will appear in history",
+    ...             "code": ...
+    ...         },
+    ...         "_history": ...
+    ...     }
+    """
     config, f = (f.config, f.f) if isinstance(f, AbstractLet) else ({}, f)
     input_fields, parameters = extract_input(f)
-    returnstr = extract_returnstr(f)
+    body = extract_body(f)
+    returnstr = extract_returnstr(body)
     if multi_output:
         returnstr = extract_dictstr(returnstr)
     for par in extract_implicit_input(returnstr):

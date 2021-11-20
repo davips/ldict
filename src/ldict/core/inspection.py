@@ -24,12 +24,15 @@ from inspect import signature
 from io import StringIO
 from pprint import pprint
 
+from ldict.exception import NoInputException, NoReturnException, BadOutput, MultipleDicts
 from uncompyle6.main import decompile
-
-from ldict.exception import NoInputException, NoReturnException, BadOutput, UnderscoreInField, MultipleDicts
 
 
 def extract_input(f):
+    """
+    >>> extract_input(lambda x, y, z=5: None)
+    (['x', 'y'], {'z': 5})
+    """
     pars = dict(signature(f).parameters)
     input, parameters = [], {}
     if "kwargs" in pars:
@@ -44,16 +47,26 @@ def extract_input(f):
     return input, parameters
 
 
-def extract_returnstr(f):
+def extract_body(f):
     """
     >>> def f(x, y, implicit=["a", "b", "c"]):
     ...     return x*y, x+y, x/y
-    >>> extract_returnstr(f)
-    '(x * y, x + y, x / y)'
+    >>> extract_body(f)
+    'return (x * y, x + y, x / y)'
     """
     out = StringIO()
     decompile(bytecode_version=(3, 8, 10), co=f.__code__, out=out)
     code = "".join([line for line in out.getvalue().split("\n") if not line.startswith("#")])
+    return code
+
+
+def extract_returnstr(code):
+    """
+    >>> def f(x, y, implicit=["a", "b", "c"]):
+    ...     return x*y, x+y, x/y
+    >>> extract_returnstr(extract_body(f))
+    '(x * y, x + y, x / y)'
+    """
     if "return" not in code:
         raise NoReturnException(f"Missing return statement:", code)
     strs = re.findall("(?<=return )(.+)", code)

@@ -116,8 +116,6 @@ class FrozenLazyDict(AbstractLazyDict):
     def __getattr__(self, item):
         if item in self:
             return self[item]
-        if (metafield := "_" + item) in self:
-            return self[metafield]
         return self.__getattribute__(item)
 
     def __repr__(self):
