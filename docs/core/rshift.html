@@ -65,12 +65,13 @@
 #  works or verbatim, obfuscated, compiled or rewritten versions of any
 #  part of this work is illegal and unethical regarding the effort and
 #  time spent here.
-
+from inspect import signature
 from typing import Union
 
 from lange import AP, GP
 
-from ldict.core.inspection import extract_implicit_input, extract_output, extract_returnstr, extract_dictstr
+from ldict.core.inspection import extract_implicit_input, extract_output, extract_returnstr, extract_dictstr, \
+    extract_body
 from ldict.core.inspection import extract_input
 from ldict.exception import InconsistentLange, UndefinedSeed, DependenceException
 from ldict.lazyval import LazyVal
@@ -104,9 +105,13 @@ def handle_dict(data, dictlike, rnd):
 
 
 def lazify(data, output_field: Union[list, str], f, rnd, multi_output) -&gt; Union[dict, LazyVal]:
+    &#34;&#34;&#34;
+    Create lazy values and handle meafields.
+    &#34;&#34;&#34;
     config, f = (f.config, f.f) if isinstance(f, AbstractLet) else ({}, f)
     input_fields, parameters = extract_input(f)
-    returnstr = extract_returnstr(f)
+    body = extract_body(f)
+    returnstr = extract_returnstr(body)
     if multi_output:
         returnstr = extract_dictstr(returnstr)
     for par in extract_implicit_input(returnstr):
@@ -115,9 +120,33 @@ def lazify(data, output_field: Union[list, str], f, rnd, multi_output) -&gt; Uni
         input_fields.append(config[par])
     deps = prepare_deps(data, input_fields, parameters, config, rnd)
     if output_field == &#34;extract&#34;:
+        explicit, meta, meta_ellipsed = extract_output(f, returnstr, deps)
         lazies = []
-        dic = {k: LazyVal(k, f, deps, lazies) for k in extract_output(f, returnstr, deps)}
+        dic = {k: LazyVal(k, f, deps, lazies) for k in explicit + meta}
         lazies.extend(dic.values())
+        for metaf in meta_ellipsed:
+            if metaf == &#34;code&#34;:
+                head = f&#34;def f{str(signature(f))}:&#34;
+                dic[&#34;_code&#34;] = head + &#34;\n&#34; + body
+            elif metaf == &#34;history&#34;:
+                newidx = 0
+                if &#34;_history&#34; in data:
+                    last = list(data[&#34;_history&#34;].keys())[-1]
+                    if isinstance(last, int):
+                        newidx = last + 1
+                    dic[&#34;_history&#34;] = data[&#34;_history&#34;].copy()
+                else:
+                    dic[&#34;_history&#34;] = {}
+                if hasattr(f, &#34;metadata&#34;):
+                    step = f.metadata
+                    if &#34;id&#34; in f.metadata:
+                        newidx = f.metadata[&#34;id&#34;]
+
+                else:
+                    step = {}
+                dic[&#34;_history&#34;][newidx] = step
+            else:
+                raise Exception(f&#34;&#39;...&#39; is not defined for {metaf}.&#34;)
         return dic
     else:
         return LazyVal(output_field, f, deps, None)
@@ -291,15 +320,19 @@ def list2progression(lst):
 <span>def <span class="ident">lazify</span></span>(<span>data, output_field: Union[list, str], f, rnd, multi_output) ‑> Union[dict, <a title="ldict.lazyval.LazyVal" href="../lazyval.html#ldict.lazyval.LazyVal">LazyVal</a>]</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Create lazy values and handle meafields.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def lazify(data, output_field: Union[list, str], f, rnd, multi_output) -&gt; Union[dict, LazyVal]:
+    &#34;&#34;&#34;
+    Create lazy values and handle meafields.
+    &#34;&#34;&#34;
     config, f = (f.config, f.f) if isinstance(f, AbstractLet) else ({}, f)
     input_fields, parameters = extract_input(f)
-    returnstr = extract_returnstr(f)
+    body = extract_body(f)
+    returnstr = extract_returnstr(body)
     if multi_output:
         returnstr = extract_dictstr(returnstr)
     for par in extract_implicit_input(returnstr):
@@ -308,9 +341,33 @@ def list2progression(lst):
         input_fields.append(config[par])
     deps = prepare_deps(data, input_fields, parameters, config, rnd)
     if output_field == &#34;extract&#34;:
+        explicit, meta, meta_ellipsed = extract_output(f, returnstr, deps)
         lazies = []
-        dic = {k: LazyVal(k, f, deps, lazies) for k in extract_output(f, returnstr, deps)}
+        dic = {k: LazyVal(k, f, deps, lazies) for k in explicit + meta}
         lazies.extend(dic.values())
+        for metaf in meta_ellipsed:
+            if metaf == &#34;code&#34;:
+                head = f&#34;def f{str(signature(f))}:&#34;
+                dic[&#34;_code&#34;] = head + &#34;\n&#34; + body
+            elif metaf == &#34;history&#34;:
+                newidx = 0
+                if &#34;_history&#34; in data:
+                    last = list(data[&#34;_history&#34;].keys())[-1]
+                    if isinstance(last, int):
+                        newidx = last + 1
+                    dic[&#34;_history&#34;] = data[&#34;_history&#34;].copy()
+                else:
+                    dic[&#34;_history&#34;] = {}
+                if hasattr(f, &#34;metadata&#34;):
+                    step = f.metadata
+                    if &#34;id&#34; in f.metadata:
+                        newidx = f.metadata[&#34;id&#34;]
+
+                else:
+                    step = {}
+                dic[&#34;_history&#34;][newidx] = step
+            else:
+                raise Exception(f&#34;&#39;...&#39; is not defined for {metaf}.&#34;)
         return dic
     else:
         return LazyVal(output_field, f, deps, None)</code></pre>

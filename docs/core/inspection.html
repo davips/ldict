@@ -52,12 +52,15 @@ from inspect import signature
 from io import StringIO
 from pprint import pprint
 
+from ldict.exception import NoInputException, NoReturnException, BadOutput, MultipleDicts
 from uncompyle6.main import decompile
-
-from ldict.exception import NoInputException, NoReturnException, BadOutput, UnderscoreInField, MultipleDicts
 
 
 def extract_input(f):
+    &#34;&#34;&#34;
+    &gt;&gt;&gt; extract_input(lambda x, y, z=5: None)
+    ([&#39;x&#39;, &#39;y&#39;], {&#39;z&#39;: 5})
+    &#34;&#34;&#34;
     pars = dict(signature(f).parameters)
     input, parameters = [], {}
     if &#34;kwargs&#34; in pars:
@@ -72,16 +75,26 @@ def extract_input(f):
     return input, parameters
 
 
-def extract_returnstr(f):
+def extract_body(f):
     &#34;&#34;&#34;
     &gt;&gt;&gt; def f(x, y, implicit=[&#34;a&#34;, &#34;b&#34;, &#34;c&#34;]):
     ...     return x*y, x+y, x/y
-    &gt;&gt;&gt; extract_returnstr(f)
-    &#39;(x * y, x + y, x / y)&#39;
+    &gt;&gt;&gt; extract_body(f)
+    &#39;return (x * y, x + y, x / y)&#39;
     &#34;&#34;&#34;
     out = StringIO()
     decompile(bytecode_version=(3, 8, 10), co=f.__code__, out=out)
     code = &#34;&#34;.join([line for line in out.getvalue().split(&#34;\n&#34;) if not line.startswith(&#34;#&#34;)])
+    return code
+
+
+def extract_returnstr(code):
+    &#34;&#34;&#34;
+    &gt;&gt;&gt; def f(x, y, implicit=[&#34;a&#34;, &#34;b&#34;, &#34;c&#34;]):
+    ...     return x*y, x+y, x/y
+    &gt;&gt;&gt; extract_returnstr(extract_body(f))
+    &#39;(x * y, x + y, x / y)&#39;
+    &#34;&#34;&#34;
     if &#34;return&#34; not in code:
         raise NoReturnException(f&#34;Missing return statement:&#34;, code)
     strs = re.findall(&#34;(?&lt;=return )(.+)&#34;, code)
@@ -90,7 +103,7 @@ def extract_returnstr(f):
     return strs[0]
 
 
-def extract_dictstr(returnstr):
+def extract_dictstr(returnstr: str) -&gt; str:
     &#34;&#34;&#34;
     &gt;&gt;&gt; def f(x, y, implicit=[&#34;a&#34;, &#34;b&#34;, &#34;c&#34;]):
     ...     return {
@@ -98,7 +111,7 @@ def extract_dictstr(returnstr):
     ...         &#34;w&#34;: x+y,
     ...         implicit: x/y
     ...     }
-    &gt;&gt;&gt; extract_dictstr(extract_returnstr(f))
+    &gt;&gt;&gt; extract_dictstr(extract_returnstr(extract_body(f)))
     &#34;{&#39;z&#39;: x * y,  &#39;w&#39;: x + y,  implicit: x / y}&#34;
     &#34;&#34;&#34;
     dict_strs = re.findall(&#34;(?={)(.+?)(?&lt;=})&#34;, returnstr)
@@ -117,10 +130,14 @@ def extract_output(f, dictstr, deps):
 
     https://stackoverflow.com/a/68753149/9681577
 
-    &gt;&gt;&gt; extract_output(lambda:None, &#34;{&#39;z&#39;: x*y, &#39;w&#39;: x+y, implicitfield: y**2}&#34;, {&#34;implicitfield&#34;:&#34;k&#34;})
-    [&#39;z&#39;, &#39;w&#39;, &#39;k&#39;]
+    &gt;&gt;&gt; extract_output(lambda:None, &#34;{&#39;z&#39;: x*y, &#39;w&#39;: x+y, implicitfield: y**2, &#39;_history&#39;: ..., &#39;_code&#39;: ..., &#39;_metafield2&#39;: &#39;some text&#39;}&#34;, {&#34;implicitfield&#34;: &#34;k&#34;})
+    ([&#39;z&#39;, &#39;w&#39;, &#39;k&#39;], [&#39;metafield2&#39;], [&#39;history&#39;, &#39;code&#39;])
     &#34;&#34;&#34;
-    explicit = re.findall(r&#34;[\&#34;&#39;]([_a-zA-Z]+[_a-zA-Z0-9]*)[\&#34;&#39;]:&#34;, dictstr)
+    explicit = re.findall(r&#34;[\&#34;&#39;]([a-zA-Z]+[_a-zA-Z0-9]*)[\&#34;&#39;]:&#34;, dictstr)
+    meta = re.findall(r&#34;[\&#34;&#39;]_([_a-zA-Z]+[_a-zA-Z0-9]*)[\&#34;&#39;]:&#34;, dictstr)
+    meta_ellipsed = re.findall(r&#34;[\&#34;&#39;]_([_a-zA-Z]+[_a-zA-Z0-9]*)[\&#34;&#39;]:[ ]*?\.\.\.[,}]&#34;, dictstr)
+    meta_ellipsed.extend(re.findall(r&#34;[\&#34;&#39;]_([_a-zA-Z]+[_a-zA-Z0-9]*)[\&#34;&#39;]:[ ]*?Ellipsis[,}]&#34;, dictstr))
+    meta = [item for item in meta if item not in meta_ellipsed]
 
     # REMINDER: seems to be only about field deps like &#39;input_field=&#34;x&#34;&#39;, not a parameter dep.
     implicit = re.findall(r&#34;[ {]([_a-zA-Z]+[_a-zA-Z0-9]*):&#34;, dictstr)
@@ -134,7 +151,7 @@ def extract_output(f, dictstr, deps):
     if not explicit:  # pragma: no cover
         pprint(dictstr)
         raise BadOutput(&#34;Could not find output fields that are valid identifiers (or kwargs[...]):&#34;)
-    return explicit
+    return explicit, meta, meta_ellipsed
 
 
 def extract_implicit_input(dictstr):
@@ -148,8 +165,34 @@ def extract_implicit_input(dictstr):
 <section>
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
+<dt id="ldict.core.inspection.extract_body"><code class="name flex">
+<span>def <span class="ident">extract_body</span></span>(<span>f)</span>
+</code></dt>
+<dd>
+<div class="desc"><pre><code class="language-python-repl">&gt;&gt;&gt; def f(x, y, implicit=[&quot;a&quot;, &quot;b&quot;, &quot;c&quot;]):
+...     return x*y, x+y, x/y
+&gt;&gt;&gt; extract_body(f)
+'return (x * y, x + y, x / y)'
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def extract_body(f):
+    &#34;&#34;&#34;
+    &gt;&gt;&gt; def f(x, y, implicit=[&#34;a&#34;, &#34;b&#34;, &#34;c&#34;]):
+    ...     return x*y, x+y, x/y
+    &gt;&gt;&gt; extract_body(f)
+    &#39;return (x * y, x + y, x / y)&#39;
+    &#34;&#34;&#34;
+    out = StringIO()
+    decompile(bytecode_version=(3, 8, 10), co=f.__code__, out=out)
+    code = &#34;&#34;.join([line for line in out.getvalue().split(&#34;\n&#34;) if not line.startswith(&#34;#&#34;)])
+    return code</code></pre>
+</details>
+</dd>
 <dt id="ldict.core.inspection.extract_dictstr"><code class="name flex">
-<span>def <span class="ident">extract_dictstr</span></span>(<span>returnstr)</span>
+<span>def <span class="ident">extract_dictstr</span></span>(<span>returnstr: str) ‑> str</span>
 </code></dt>
 <dd>
 <div class="desc"><pre><code class="language-python-repl">&gt;&gt;&gt; def f(x, y, implicit=[&quot;a&quot;, &quot;b&quot;, &quot;c&quot;]):
@@ -158,14 +201,14 @@ def extract_implicit_input(dictstr):
 ...         &quot;w&quot;: x+y,
 ...         implicit: x/y
 ...     }
-&gt;&gt;&gt; extract_dictstr(extract_returnstr(f))
+&gt;&gt;&gt; extract_dictstr(extract_returnstr(extract_body(f)))
 &quot;{'z': x * y,  'w': x + y,  implicit: x / y}&quot;
 </code></pre></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def extract_dictstr(returnstr):
+<pre><code class="python">def extract_dictstr(returnstr: str) -&gt; str:
     &#34;&#34;&#34;
     &gt;&gt;&gt; def f(x, y, implicit=[&#34;a&#34;, &#34;b&#34;, &#34;c&#34;]):
     ...     return {
@@ -173,7 +216,7 @@ def extract_implicit_input(dictstr):
     ...         &#34;w&#34;: x+y,
     ...         implicit: x/y
     ...     }
-    &gt;&gt;&gt; extract_dictstr(extract_returnstr(f))
+    &gt;&gt;&gt; extract_dictstr(extract_returnstr(extract_body(f)))
     &#34;{&#39;z&#39;: x * y,  &#39;w&#39;: x + y,  implicit: x / y}&#34;
     &#34;&#34;&#34;
     dict_strs = re.findall(&#34;(?={)(.+?)(?&lt;=})&#34;, returnstr)
@@ -204,12 +247,18 @@ def extract_implicit_input(dictstr):
 <span>def <span class="ident">extract_input</span></span>(<span>f)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><pre><code class="language-python-repl">&gt;&gt;&gt; extract_input(lambda x, y, z=5: None)
+(['x', 'y'], {'z': 5})
+</code></pre></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def extract_input(f):
+    &#34;&#34;&#34;
+    &gt;&gt;&gt; extract_input(lambda x, y, z=5: None)
+    ([&#39;x&#39;, &#39;y&#39;], {&#39;z&#39;: 5})
+    &#34;&#34;&#34;
     pars = dict(signature(f).parameters)
     input, parameters = [], {}
     if &#34;kwargs&#34; in pars:
@@ -230,8 +279,8 @@ def extract_implicit_input(dictstr):
 <dd>
 <div class="desc"><p>Extract output fields.</p>
 <p><a href="https://stackoverflow.com/a/68753149/9681577">https://stackoverflow.com/a/68753149/9681577</a></p>
-<pre><code class="language-python-repl">&gt;&gt;&gt; extract_output(lambda:None, &quot;{'z': x*y, 'w': x+y, implicitfield: y**2}&quot;, {&quot;implicitfield&quot;:&quot;k&quot;})
-['z', 'w', 'k']
+<pre><code class="language-python-repl">&gt;&gt;&gt; extract_output(lambda:None, &quot;{'z': x*y, 'w': x+y, implicitfield: y**2, '_history': ..., '_code': ..., '_metafield2': 'some text'}&quot;, {&quot;implicitfield&quot;: &quot;k&quot;})
+(['z', 'w', 'k'], ['metafield2'], ['history', 'code'])
 </code></pre></div>
 <details class="source">
 <summary>
@@ -242,10 +291,14 @@ def extract_implicit_input(dictstr):
 
     https://stackoverflow.com/a/68753149/9681577
 
-    &gt;&gt;&gt; extract_output(lambda:None, &#34;{&#39;z&#39;: x*y, &#39;w&#39;: x+y, implicitfield: y**2}&#34;, {&#34;implicitfield&#34;:&#34;k&#34;})
-    [&#39;z&#39;, &#39;w&#39;, &#39;k&#39;]
+    &gt;&gt;&gt; extract_output(lambda:None, &#34;{&#39;z&#39;: x*y, &#39;w&#39;: x+y, implicitfield: y**2, &#39;_history&#39;: ..., &#39;_code&#39;: ..., &#39;_metafield2&#39;: &#39;some text&#39;}&#34;, {&#34;implicitfield&#34;: &#34;k&#34;})
+    ([&#39;z&#39;, &#39;w&#39;, &#39;k&#39;], [&#39;metafield2&#39;], [&#39;history&#39;, &#39;code&#39;])
     &#34;&#34;&#34;
-    explicit = re.findall(r&#34;[\&#34;&#39;]([_a-zA-Z]+[_a-zA-Z0-9]*)[\&#34;&#39;]:&#34;, dictstr)
+    explicit = re.findall(r&#34;[\&#34;&#39;]([a-zA-Z]+[_a-zA-Z0-9]*)[\&#34;&#39;]:&#34;, dictstr)
+    meta = re.findall(r&#34;[\&#34;&#39;]_([_a-zA-Z]+[_a-zA-Z0-9]*)[\&#34;&#39;]:&#34;, dictstr)
+    meta_ellipsed = re.findall(r&#34;[\&#34;&#39;]_([_a-zA-Z]+[_a-zA-Z0-9]*)[\&#34;&#39;]:[ ]*?\.\.\.[,}]&#34;, dictstr)
+    meta_ellipsed.extend(re.findall(r&#34;[\&#34;&#39;]_([_a-zA-Z]+[_a-zA-Z0-9]*)[\&#34;&#39;]:[ ]*?Ellipsis[,}]&#34;, dictstr))
+    meta = [item for item in meta if item not in meta_ellipsed]
 
     # REMINDER: seems to be only about field deps like &#39;input_field=&#34;x&#34;&#39;, not a parameter dep.
     implicit = re.findall(r&#34;[ {]([_a-zA-Z]+[_a-zA-Z0-9]*):&#34;, dictstr)
@@ -259,32 +312,29 @@ def extract_implicit_input(dictstr):
     if not explicit:  # pragma: no cover
         pprint(dictstr)
         raise BadOutput(&#34;Could not find output fields that are valid identifiers (or kwargs[...]):&#34;)
-    return explicit</code></pre>
+    return explicit, meta, meta_ellipsed</code></pre>
 </details>
 </dd>
 <dt id="ldict.core.inspection.extract_returnstr"><code class="name flex">
-<span>def <span class="ident">extract_returnstr</span></span>(<span>f)</span>
+<span>def <span class="ident">extract_returnstr</span></span>(<span>code)</span>
 </code></dt>
 <dd>
 <div class="desc"><pre><code class="language-python-repl">&gt;&gt;&gt; def f(x, y, implicit=[&quot;a&quot;, &quot;b&quot;, &quot;c&quot;]):
 ...     return x*y, x+y, x/y
-&gt;&gt;&gt; extract_returnstr(f)
+&gt;&gt;&gt; extract_returnstr(extract_body(f))
 '(x * y, x + y, x / y)'
 </code></pre></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def extract_returnstr(f):
+<pre><code class="python">def extract_returnstr(code):
     &#34;&#34;&#34;
     &gt;&gt;&gt; def f(x, y, implicit=[&#34;a&#34;, &#34;b&#34;, &#34;c&#34;]):
     ...     return x*y, x+y, x/y
-    &gt;&gt;&gt; extract_returnstr(f)
+    &gt;&gt;&gt; extract_returnstr(extract_body(f))
     &#39;(x * y, x + y, x / y)&#39;
     &#34;&#34;&#34;
-    out = StringIO()
-    decompile(bytecode_version=(3, 8, 10), co=f.__code__, out=out)
-    code = &#34;&#34;.join([line for line in out.getvalue().split(&#34;\n&#34;) if not line.startswith(&#34;#&#34;)])
     if &#34;return&#34; not in code:
         raise NoReturnException(f&#34;Missing return statement:&#34;, code)
     strs = re.findall(&#34;(?&lt;=return )(.+)&#34;, code)
@@ -311,6 +361,7 @@ def extract_implicit_input(dictstr):
 </li>
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="">
+<li><code><a title="ldict.core.inspection.extract_body" href="#ldict.core.inspection.extract_body">extract_body</a></code></li>
 <li><code><a title="ldict.core.inspection.extract_dictstr" href="#ldict.core.inspection.extract_dictstr">extract_dictstr</a></code></li>
 <li><code><a title="ldict.core.inspection.extract_implicit_input" href="#ldict.core.inspection.extract_implicit_input">extract_implicit_input</a></code></li>
 <li><code><a title="ldict.core.inspection.extract_input" href="#ldict.core.inspection.extract_input">extract_input</a></code></li>

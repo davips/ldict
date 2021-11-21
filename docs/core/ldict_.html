@@ -63,7 +63,8 @@ VT = TypeVar(&#34;VT&#34;)
 class Ldict(AbstractMutableLazyDict):
     &#34;&#34;&#34;Mutable lazy dict for serializable (picklable) pairs str-&gt;value
 
-    Usage:
+    Metafields like &#39;_history&#39; and &#39;_code&#39; can have Ellipsis (&#39;...&#39;) as a placeholder
+    to be automatically filled.
 
     &gt;&gt;&gt; from ldict import ldict
     &gt;&gt;&gt; ldict()
@@ -111,6 +112,37 @@ class Ldict(AbstractMutableLazyDict):
     &gt;&gt;&gt; d
     {
         &#34;x&#34;: &#34;more content&#34;
+    }
+    &gt;&gt;&gt; def g(x):
+    ...     return {&#34;y&#34;: x**2, &#34;_meta1&#34;: 0, &#34;_history&#34;: Ellipsis, &#34;_code&#34;: ...}
+    &gt;&gt;&gt; g.metadata = {&#34;name&#34;: &#34;squared&#34;, &#34;description&#34;: &#34;Some text.&#34;}
+    &gt;&gt;&gt; ldict(x=5) &gt;&gt; g
+    {
+        &#34;x&#34;: 5,
+        &#34;y&#34;: &#34;→(x)&#34;,
+        &#34;meta1&#34;: &#34;→(x)&#34;,
+        &#34;_code&#34;: &#34;def f(x):\\nreturn {&#39;y&#39;:x ** 2,  &#39;_meta1&#39;:0,  &#39;_history&#39;:Ellipsis,  &#39;_code&#39;:...}&#34;,
+        &#34;_history&#34;: {
+            &#34;0&#34;: {
+                &#34;name&#34;: &#34;squared&#34;,
+                &#34;description&#34;: &#34;Some text.&#34;
+            }
+        }
+    }
+    &gt;&gt;&gt; g.metadata = {&#34;id&#34;: &#34;9bab63dea3289def97aefde79b7aefde79b7c75d&#34;, &#34;name&#34;: &#34;squared&#34;, &#34;description&#34;: &#34;Some text.&#34;}
+    &gt;&gt;&gt; ldict(x=5) &gt;&gt; g
+    {
+        &#34;x&#34;: 5,
+        &#34;y&#34;: &#34;→(x)&#34;,
+        &#34;meta1&#34;: &#34;→(x)&#34;,
+        &#34;_code&#34;: &#34;def f(x):\\nreturn {&#39;y&#39;:x ** 2,  &#39;_meta1&#39;:0,  &#39;_history&#39;:Ellipsis,  &#39;_code&#39;:...}&#34;,
+        &#34;_history&#34;: {
+            &#34;9bab63dea3289def97aefde79b7aefde79b7c75d&#34;: {
+                &#34;id&#34;: &#34;9bab63dea3289def97aefde79b7aefde79b7c75d&#34;,
+                &#34;name&#34;: &#34;squared&#34;,
+                &#34;description&#34;: &#34;Some text.&#34;
+            }
+        }
     }
     &#34;&#34;&#34;
 
@@ -173,7 +205,8 @@ class Ldict(AbstractMutableLazyDict):
 </code></dt>
 <dd>
 <div class="desc"><p>Mutable lazy dict for serializable (picklable) pairs str-&gt;value</p>
-<p>Usage:</p>
+<p>Metafields like '_history' and '_code' can have Ellipsis ('&hellip;') as a placeholder
+to be automatically filled.</p>
 <pre><code class="language-python-repl">&gt;&gt;&gt; from ldict import ldict
 &gt;&gt;&gt; ldict()
 {}
@@ -221,6 +254,37 @@ class Ldict(AbstractMutableLazyDict):
 {
     &quot;x&quot;: &quot;more content&quot;
 }
+&gt;&gt;&gt; def g(x):
+...     return {&quot;y&quot;: x**2, &quot;_meta1&quot;: 0, &quot;_history&quot;: Ellipsis, &quot;_code&quot;: ...}
+&gt;&gt;&gt; g.metadata = {&quot;name&quot;: &quot;squared&quot;, &quot;description&quot;: &quot;Some text.&quot;}
+&gt;&gt;&gt; ldict(x=5) &gt;&gt; g
+{
+    &quot;x&quot;: 5,
+    &quot;y&quot;: &quot;→(x)&quot;,
+    &quot;meta1&quot;: &quot;→(x)&quot;,
+    &quot;_code&quot;: &quot;def f(x):\nreturn {'y':x ** 2,  '_meta1':0,  '_history':Ellipsis,  '_code':...}&quot;,
+    &quot;_history&quot;: {
+        &quot;0&quot;: {
+            &quot;name&quot;: &quot;squared&quot;,
+            &quot;description&quot;: &quot;Some text.&quot;
+        }
+    }
+}
+&gt;&gt;&gt; g.metadata = {&quot;id&quot;: &quot;9bab63dea3289def97aefde79b7aefde79b7c75d&quot;, &quot;name&quot;: &quot;squared&quot;, &quot;description&quot;: &quot;Some text.&quot;}
+&gt;&gt;&gt; ldict(x=5) &gt;&gt; g
+{
+    &quot;x&quot;: 5,
+    &quot;y&quot;: &quot;→(x)&quot;,
+    &quot;meta1&quot;: &quot;→(x)&quot;,
+    &quot;_code&quot;: &quot;def f(x):\nreturn {'y':x ** 2,  '_meta1':0,  '_history':Ellipsis,  '_code':...}&quot;,
+    &quot;_history&quot;: {
+        &quot;9bab63dea3289def97aefde79b7aefde79b7c75d&quot;: {
+            &quot;id&quot;: &quot;9bab63dea3289def97aefde79b7aefde79b7c75d&quot;,
+            &quot;name&quot;: &quot;squared&quot;,
+            &quot;description&quot;: &quot;Some text.&quot;
+        }
+    }
+}
 </code></pre></div>
 <details class="source">
 <summary>
@@ -229,7 +293,8 @@ class Ldict(AbstractMutableLazyDict):
 <pre><code class="python">class Ldict(AbstractMutableLazyDict):
     &#34;&#34;&#34;Mutable lazy dict for serializable (picklable) pairs str-&gt;value
 
-    Usage:
+    Metafields like &#39;_history&#39; and &#39;_code&#39; can have Ellipsis (&#39;...&#39;) as a placeholder
+    to be automatically filled.
 
     &gt;&gt;&gt; from ldict import ldict
     &gt;&gt;&gt; ldict()
@@ -277,6 +342,37 @@ class Ldict(AbstractMutableLazyDict):
     &gt;&gt;&gt; d
     {
         &#34;x&#34;: &#34;more content&#34;
+    }
+    &gt;&gt;&gt; def g(x):
+    ...     return {&#34;y&#34;: x**2, &#34;_meta1&#34;: 0, &#34;_history&#34;: Ellipsis, &#34;_code&#34;: ...}
+    &gt;&gt;&gt; g.metadata = {&#34;name&#34;: &#34;squared&#34;, &#34;description&#34;: &#34;Some text.&#34;}
+    &gt;&gt;&gt; ldict(x=5) &gt;&gt; g
+    {
+        &#34;x&#34;: 5,
+        &#34;y&#34;: &#34;→(x)&#34;,
+        &#34;meta1&#34;: &#34;→(x)&#34;,
+        &#34;_code&#34;: &#34;def f(x):\\nreturn {&#39;y&#39;:x ** 2,  &#39;_meta1&#39;:0,  &#39;_history&#39;:Ellipsis,  &#39;_code&#39;:...}&#34;,
+        &#34;_history&#34;: {
+            &#34;0&#34;: {
+                &#34;name&#34;: &#34;squared&#34;,
+                &#34;description&#34;: &#34;Some text.&#34;
+            }
+        }
+    }
+    &gt;&gt;&gt; g.metadata = {&#34;id&#34;: &#34;9bab63dea3289def97aefde79b7aefde79b7c75d&#34;, &#34;name&#34;: &#34;squared&#34;, &#34;description&#34;: &#34;Some text.&#34;}
+    &gt;&gt;&gt; ldict(x=5) &gt;&gt; g
+    {
+        &#34;x&#34;: 5,
+        &#34;y&#34;: &#34;→(x)&#34;,
+        &#34;meta1&#34;: &#34;→(x)&#34;,
+        &#34;_code&#34;: &#34;def f(x):\\nreturn {&#39;y&#39;:x ** 2,  &#39;_meta1&#39;:0,  &#39;_history&#39;:Ellipsis,  &#39;_code&#39;:...}&#34;,
+        &#34;_history&#34;: {
+            &#34;9bab63dea3289def97aefde79b7aefde79b7c75d&#34;: {
+                &#34;id&#34;: &#34;9bab63dea3289def97aefde79b7aefde79b7c75d&#34;,
+                &#34;name&#34;: &#34;squared&#34;,
+                &#34;description&#34;: &#34;Some text.&#34;
+            }
+        }
     }
     &#34;&#34;&#34;
 
