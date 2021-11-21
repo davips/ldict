@@ -41,6 +41,7 @@ from inspect import signature
 from typing import Union
 
 from lange import AP, GP
+
 from ldict.core.inspection import extract_implicit_input, extract_output, extract_returnstr, extract_dictstr, \
     extract_body
 from ldict.core.inspection import extract_input
@@ -77,15 +78,7 @@ def handle_dict(data, dictlike, rnd):
 
 def lazify(data, output_field: Union[list, str], f, rnd, multi_output) -> Union[dict, LazyVal]:
     """
-    >>> def g(x, _history):
-    ...     return {"y": x**2,
-    ...         "_function": {
-    ...             "name": "squared",
-    ...             "description": "This description of 'g(x)' will appear in history",
-    ...             "code": ...
-    ...         },
-    ...         "_history": ...
-    ...     }
+    Create lazy values and handle meafields.
     """
     config, f = (f.config, f.f) if isinstance(f, AbstractLet) else ({}, f)
     input_fields, parameters = extract_input(f)
@@ -99,9 +92,33 @@ def lazify(data, output_field: Union[list, str], f, rnd, multi_output) -> Union[
         input_fields.append(config[par])
     deps = prepare_deps(data, input_fields, parameters, config, rnd)
     if output_field == "extract":
+        explicit, meta, meta_ellipsed = extract_output(f, returnstr, deps)
         lazies = []
-        dic = {k: LazyVal(k, f, deps, lazies) for k in extract_output(f, returnstr, deps)}
+        dic = {k: LazyVal(k, f, deps, lazies) for k in explicit + meta}
         lazies.extend(dic.values())
+        for metaf in meta_ellipsed:
+            if metaf == "code":
+                head = f"def f{str(signature(f))}:"
+                dic["_code"] = head + "\n" + body
+            elif metaf == "history":
+                newidx = 0
+                if "_history" in data:
+                    last = list(data["_history"].keys())[-1]
+                    if isinstance(last, int):
+                        newidx = last + 1
+                    dic["_history"] = data["_history"].copy()
+                else:
+                    dic["_history"] = {}
+                if hasattr(f, "metadata"):
+                    step = f.metadata
+                    if "id" in f.metadata:
+                        newidx = f.metadata["id"]
+
+                else:
+                    step = {}
+                dic["_history"][newidx] = step
+            else:
+                raise Exception(f"'...' is not defined for {metaf}.")
         return dic
     else:
         return LazyVal(output_field, f, deps, None)

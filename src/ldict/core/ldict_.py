@@ -35,7 +35,8 @@ VT = TypeVar("VT")
 class Ldict(AbstractMutableLazyDict):
     """Mutable lazy dict for serializable (picklable) pairs str->value
 
-    Usage:
+    Metafields like '_history' and '_code' can have Ellipsis ('...') as a placeholder
+    to be automatically filled.
 
     >>> from ldict import ldict
     >>> ldict()
@@ -83,6 +84,37 @@ class Ldict(AbstractMutableLazyDict):
     >>> d
     {
         "x": "more content"
+    }
+    >>> def g(x):
+    ...     return {"y": x**2, "_meta1": 0, "_history": Ellipsis, "_code": ...}
+    >>> g.metadata = {"name": "squared", "description": "Some text."}
+    >>> ldict(x=5) >> g
+    {
+        "x": 5,
+        "y": "→(x)",
+        "meta1": "→(x)",
+        "_code": "def f(x):\\nreturn {'y':x ** 2,  '_meta1':0,  '_history':Ellipsis,  '_code':...}",
+        "_history": {
+            "0": {
+                "name": "squared",
+                "description": "Some text."
+            }
+        }
+    }
+    >>> g.metadata = {"id": "9bab63dea3289def97aefde79b7aefde79b7c75d", "name": "squared", "description": "Some text."}
+    >>> ldict(x=5) >> g
+    {
+        "x": 5,
+        "y": "→(x)",
+        "meta1": "→(x)",
+        "_code": "def f(x):\\nreturn {'y':x ** 2,  '_meta1':0,  '_history':Ellipsis,  '_code':...}",
+        "_history": {
+            "9bab63dea3289def97aefde79b7aefde79b7c75d": {
+                "id": "9bab63dea3289def97aefde79b7aefde79b7c75d",
+                "name": "squared",
+                "description": "Some text."
+            }
+        }
     }
     """
 

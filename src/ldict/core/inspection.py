@@ -102,10 +102,14 @@ def extract_output(f, dictstr, deps):
 
     https://stackoverflow.com/a/68753149/9681577
 
-    >>> extract_output(lambda:None, "{'z': x*y, 'w': x+y, implicitfield: y**2}", {"implicitfield":"k"})
-    ['z', 'w', 'k']
+    >>> extract_output(lambda:None, "{'z': x*y, 'w': x+y, implicitfield: y**2, '_history': ..., '_code': ..., '_metafield2': 'some text'}", {"implicitfield": "k"})
+    (['z', 'w', 'k'], ['metafield2'], ['history', 'code'])
     """
-    explicit = re.findall(r"[\"']([_a-zA-Z]+[_a-zA-Z0-9]*)[\"']:", dictstr)
+    explicit = re.findall(r"[\"']([a-zA-Z]+[_a-zA-Z0-9]*)[\"']:", dictstr)
+    meta = re.findall(r"[\"']_([_a-zA-Z]+[_a-zA-Z0-9]*)[\"']:", dictstr)
+    meta_ellipsed = re.findall(r"[\"']_([_a-zA-Z]+[_a-zA-Z0-9]*)[\"']:[ ]*?\.\.\.[,}]", dictstr)
+    meta_ellipsed.extend(re.findall(r"[\"']_([_a-zA-Z]+[_a-zA-Z0-9]*)[\"']:[ ]*?Ellipsis[,}]", dictstr))
+    meta = [item for item in meta if item not in meta_ellipsed]
 
     # REMINDER: seems to be only about field deps like 'input_field="x"', not a parameter dep.
     implicit = re.findall(r"[ {]([_a-zA-Z]+[_a-zA-Z0-9]*):", dictstr)
@@ -119,7 +123,7 @@ def extract_output(f, dictstr, deps):
     if not explicit:  # pragma: no cover
         pprint(dictstr)
         raise BadOutput("Could not find output fields that are valid identifiers (or kwargs[...]):")
-    return explicit
+    return explicit, meta, meta_ellipsed
 
 
 def extract_implicit_input(dictstr):
