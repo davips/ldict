@@ -123,7 +123,7 @@ def lazify(data, output_field: Union[list, str], f, rnd, multi_output) -> Union[
                     step = {}
                 dic["_history"][newidx] = step
             else:
-                raise Exception(f"'...' is not defined for {metaf}.")
+                raise Exception(f"'...' is not defined for '{metaf}'.")
         return dic
     else:
         return LazyVal(output_field, f, deps, None)
@@ -144,14 +144,14 @@ def prepare_deps(data, input, parameters, config, rnd):
                 raise UndefinedSeed("Missing Random object before parameterized function application.")
             deps[k] = rnd.choice(expand(v))
         elif v is None:  # pragma: no cover
-            raise DependenceException(f"'None' value for parameter {k}.", deps.keys())
+            raise DependenceException(f"'None' value for parameter '{k}'.", deps.keys())
         else:
             deps[k] = v
     for k in input:
         if k not in data:  # pragma: no cover
-            raise DependenceException(f"Missing field {k}.", data.keys())
+            raise DependenceException(f"Missing field '{k}'.", data.keys())
         if data[k] is None:  # pragma: no cover
-            raise DependenceException(f"'None' value for field {k}.", data.keys())
+            raise DependenceException(f"'None' value for field '{k}'.", data.keys())
         deps[k] = data[k]
     return deps
 
