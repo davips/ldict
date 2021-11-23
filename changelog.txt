@@ -1,0 +1,1 @@
+Update garoupa for correct etype inducer on ldict.ø

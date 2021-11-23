@@ -118,7 +118,7 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
 
 [[package]]
 name = "colored"
-version = "1.4.3"
+version = "1.4.2"
 description = "Simple library for color and formatting to terminal"
 category = "main"
 optional = false
@@ -158,7 +158,7 @@ pyflakes = ">=2.4.0,<2.5.0"
 
 [[package]]
 name = "garoupa"
-version = "2.211019.3"
+version = "2.211123.1"
 description = "Predictable operable hash-based identifiers and abstract algebra groups"
 category = "main"
 optional = false
@@ -167,7 +167,7 @@ python-versions = ">=3.8,<3.11"
 [package.dependencies]
 ansi2html = ">=1.6.0,<2.0.0"
 blake3 = ">=0.2.0,<0.3.0"
-colored = ">=1.4.2,<2.0.0"
+colored = "1.4.2"
 
 [package.extras]
 algebra = ["progress (>=1.6,<2.0)", "pathos (>=0.2.8,<0.3.0)", "numpy (>=1.21.2,<2.0.0)"]
@@ -733,7 +733,7 @@ full = ["pandas"]
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.8,<3.10"
-content-hash = "e04c04080d3b5faa64ebc1a34fd7290a4f0e9e715f0a1c0359475daac2f2ea08"
+content-hash = "237d5c88630b3783949c9759790e725a1b72eb3ff99bbbc6ea8ea91e404502bd"
 
 [metadata.files]
 ansi2html = [
@@ -798,7 +798,7 @@ colorama = [
     {file = "colorama-0.4.4.tar.gz", hash = "sha256:5941b2b48a20143d2267e95b1c2a7603ce057ee39fd88e7329b0c292aa16869b"},
 ]
 colored = [
-    {file = "colored-1.4.3.tar.gz", hash = "sha256:b7b48b9f40e8a65bbb54813d5d79dd008dc8b8c5638d5bbfd30fc5a82e6def7a"},
+    {file = "colored-1.4.2.tar.gz", hash = "sha256:056fac09d9e39b34296e7618897ed1b8c274f98423770c2980d829fd670955ed"},
 ]
 coverage = [
     {file = "coverage-6.1.2-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:675adb3b3380967806b3cbb9c5b00ceb29b1c472692100a338730c1d3e59c8b9"},
@@ -858,8 +858,8 @@ flake8 = [
     {file = "flake8-4.0.1.tar.gz", hash = "sha256:806e034dda44114815e23c16ef92f95c91e4c71100ff52813adf7132a6ad870d"},
 ]
 garoupa = [
-    {file = "garoupa-2.211019.3-py3-none-any.whl", hash = "sha256:91415de7e9127284da86d988f5778231ceb1943c7b852b52c4dcd20a67d108aa"},
-    {file = "garoupa-2.211019.3.tar.gz", hash = "sha256:843401fa59312d4212befb45ca60d64f4a84be6678cab81fd400b860216fff8c"},
+    {file = "garoupa-2.211123.1-py3-none-any.whl", hash = "sha256:175817dfd4974dba6daf602593301185631e47a92da6b7909fd5e318be5b5f3b"},
+    {file = "garoupa-2.211123.1.tar.gz", hash = "sha256:ee3b8610965571ac8684e123b1df1e7b5ceeb23875a99ae418c235f2096651be"},
 ]
 importlib-metadata = [
     {file = "importlib_metadata-4.8.2-py3-none-any.whl", hash = "sha256:53ccfd5c134223e497627b9815d5030edf77d2ed573922f7a0b8f8bb81a1c100"},
