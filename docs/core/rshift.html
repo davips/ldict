@@ -70,8 +70,13 @@ from typing import Union
 
 from lange import AP, GP
 
-from ldict.core.inspection import extract_implicit_input, extract_output, extract_returnstr, extract_dictstr, \
-    extract_body
+from ldict.core.inspection import (
+    extract_implicit_input,
+    extract_output,
+    extract_returnstr,
+    extract_dictstr,
+    extract_body,
+)
 from ldict.core.inspection import extract_input
 from ldict.exception import InconsistentLange, UndefinedSeed, DependenceException
 from ldict.lazyval import LazyVal

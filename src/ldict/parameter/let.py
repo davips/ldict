@@ -109,4 +109,5 @@ class lLet(AbstractLet):
 
     def __init__(self, f, **kwargs):
         from ldict.core.ldict_ import Ldict
+
         super().__init__(f, Ldict, **kwargs)

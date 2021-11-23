@@ -156,7 +156,7 @@ class Ldict(AbstractMutableLazyDict):
             "x": 2,
             "y": "→(x)"
         }
-       """
+        """
         clone = self.__class__()
         clone.frozen = self.frozen >> other
         return clone

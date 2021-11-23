@@ -186,6 +186,7 @@ class FrozenLazyDict(AbstractLazyDict):
 
     def __rshift__(self, other: Union[Dict, AbstractLazyDict, Callable, AbstractLet, FunctionSpace, Random]):
         from ldict import Empty
+
         if isinstance(other, Empty):
             return self
         if isinstance(other, Random):

@@ -46,6 +46,7 @@ class AbstractLazyDict(UserDict, Dict[str, VT]):
     >>> {"x": 4} == FrozenLazyDict({"x": 5})
     False
     """
+
     rnd: Random
 
     @property

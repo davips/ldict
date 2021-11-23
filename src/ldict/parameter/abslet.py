@@ -39,7 +39,7 @@ class AbstractLet:
     def asdict(self):
         return self.config
 
-    def __rrshift__(self, left: Union[Dict, Callable, 'AbstractLet']):
+    def __rrshift__(self, left: Union[Dict, Callable, "AbstractLet"]):
         """
         >>> from ldict import empty
         >>> {"x": 5, "y": 7} >> (Random(0) >> (empty >> (lambda x:{"y": 0})))

@@ -67,6 +67,7 @@ class CustomJSONEncoder(JSONEncoder):
         "dd": [[1 2] [3 4]]
     }
     """
+
     width = None
 
     def default(self, obj):
