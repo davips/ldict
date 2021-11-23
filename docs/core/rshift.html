@@ -151,7 +151,7 @@ def lazify(data, output_field: Union[list, str], f, rnd, multi_output) -&gt; Uni
                     step = {}
                 dic[&#34;_history&#34;][newidx] = step
             else:
-                raise Exception(f&#34;&#39;...&#39; is not defined for {metaf}.&#34;)
+                raise Exception(f&#34;&#39;...&#39; is not defined for &#39;{metaf}&#39;.&#34;)
         return dic
     else:
         return LazyVal(output_field, f, deps, None)
@@ -172,14 +172,14 @@ def prepare_deps(data, input, parameters, config, rnd):
                 raise UndefinedSeed(&#34;Missing Random object before parameterized function application.&#34;)
             deps[k] = rnd.choice(expand(v))
         elif v is None:  # pragma: no cover
-            raise DependenceException(f&#34;&#39;None&#39; value for parameter {k}.&#34;, deps.keys())
+            raise DependenceException(f&#34;&#39;None&#39; value for parameter &#39;{k}&#39;.&#34;, deps.keys())
         else:
             deps[k] = v
     for k in input:
         if k not in data:  # pragma: no cover
-            raise DependenceException(f&#34;Missing field {k}.&#34;, data.keys())
+            raise DependenceException(f&#34;Missing field &#39;{k}&#39;.&#34;, data.keys())
         if data[k] is None:  # pragma: no cover
-            raise DependenceException(f&#34;&#39;None&#39; value for field {k}.&#34;, data.keys())
+            raise DependenceException(f&#34;&#39;None&#39; value for field &#39;{k}&#39;.&#34;, data.keys())
         deps[k] = data[k]
     return deps
 
@@ -372,7 +372,7 @@ def list2progression(lst):
                     step = {}
                 dic[&#34;_history&#34;][newidx] = step
             else:
-                raise Exception(f&#34;&#39;...&#39; is not defined for {metaf}.&#34;)
+                raise Exception(f&#34;&#39;...&#39; is not defined for &#39;{metaf}&#39;.&#34;)
         return dic
     else:
         return LazyVal(output_field, f, deps, None)</code></pre>
@@ -454,14 +454,14 @@ A range is specified as the default value of the parameter in the function signa
                 raise UndefinedSeed(&#34;Missing Random object before parameterized function application.&#34;)
             deps[k] = rnd.choice(expand(v))
         elif v is None:  # pragma: no cover
-            raise DependenceException(f&#34;&#39;None&#39; value for parameter {k}.&#34;, deps.keys())
+            raise DependenceException(f&#34;&#39;None&#39; value for parameter &#39;{k}&#39;.&#34;, deps.keys())
         else:
             deps[k] = v
     for k in input:
         if k not in data:  # pragma: no cover
-            raise DependenceException(f&#34;Missing field {k}.&#34;, data.keys())
+            raise DependenceException(f&#34;Missing field &#39;{k}&#39;.&#34;, data.keys())
         if data[k] is None:  # pragma: no cover
-            raise DependenceException(f&#34;&#39;None&#39; value for field {k}.&#34;, data.keys())
+            raise DependenceException(f&#34;&#39;None&#39; value for field &#39;{k}&#39;.&#34;, data.keys())
         deps[k] = data[k]
     return deps</code></pre>
 </details>
