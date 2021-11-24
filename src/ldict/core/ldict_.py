@@ -92,7 +92,7 @@ class Ldict(AbstractMutableLazyDict):
     {
         "x": 5,
         "y": "→(x)",
-        "meta1": "→(x)",
+        "_meta1": "→(x)",
         "_code": "def f(x):\\nreturn {'y':x ** 2,  '_meta1':0,  '_history':Ellipsis,  '_code':...}",
         "_history": {
             "0": {
@@ -106,12 +106,63 @@ class Ldict(AbstractMutableLazyDict):
     {
         "x": 5,
         "y": "→(x)",
-        "meta1": "→(x)",
+        "_meta1": "→(x)",
         "_code": "def f(x):\\nreturn {'y':x ** 2,  '_meta1':0,  '_history':Ellipsis,  '_code':...}",
         "_history": {
             "9bab63dea3289def97aefde79b7aefde79b7c75d": {
                 "id": "9bab63dea3289def97aefde79b7aefde79b7c75d",
                 "name": "squared",
+                "description": "Some text."
+            }
+        }
+    }
+    >>> def g(source=None, **kwargs):
+    ...     return {"y": kwargs[source]**2, "_meta1": 0, "_history": Ellipsis, "_code": ...}
+    >>> g.metadata = {"name": "squared using dynamic field", "description": "Some text."}
+    >>> from ldict import let
+    >>> ldict(x=5) >> let(g, source="x")
+    {
+        "x": 5,
+        "y": "→(source x)",
+        "_meta1": "→(source x)",
+        "_code": "def f(source=None, **kwargs):\\nreturn {'y':kwargs[source] ** 2,  '_meta1':0,  '_history':Ellipsis,  '_code':...}",
+        "_history": {
+            "0": {
+                "name": "squared using dynamic field",
+                "description": "Some text."
+            }
+        }
+    }
+    >>> class MyCallableClass:
+    ...     metadata = {
+    ...         "name": "squared using dynamic field",
+    ...         "description": "Some text.",
+    ...         "input": {
+    ...             "fields": ["a"],
+    ...             "parameters": {"source": None, "target": None},
+    ...             "dynamic": ["source"]
+    ...         },
+    ...         "output": {
+    ...             "fields": ["y"],
+    ...             "dynamic": ["target"],
+    ...             "meta": ["_meta1"],
+    ...             "auto": ["_history"]
+    ...             }
+    ...         }
+    ...     def __call__(self, a, source=None, target=None, **kwargs):
+    ...         return {"a2": a, target: kwargs[source]**a, "_meta1": 0}
+    >>> f = MyCallableClass()
+    >>> d = ldict(a=3, x=5) >> let(f, source="x", target="y")
+    >>> d.evaluate()
+    >>> d
+    {
+        "a": 3,
+        "x": 5,
+        "y": 125,
+        "_meta1": 0,
+        "_history": {
+            "0": {
+                "name": "squared using dynamic field",
                 "description": "Some text."
             }
         }

@@ -24,15 +24,24 @@ from inspect import signature
 from io import StringIO
 from pprint import pprint
 
-from ldict.exception import NoInputException, NoReturnException, BadOutput, MultipleDicts
 from uncompyle6.main import decompile
+
+from ldict.exception import NoInputException, NoReturnException, BadOutput, MultipleDicts
 
 
 def extract_input(f):
     """
-    >>> extract_input(lambda x, y, z=5: None)
+    >>> f = lambda x, y, z=5: None
+    >>> extract_input(f)
     (['x', 'y'], {'z': 5})
+    >>> f.metadata = {"input": {"fields": ["a", "b"], "parameters": {"c": 7}}}
+    >>> extract_input(f)
+    (['a', 'b'], {'c': 7})
     """
+    if hasattr(f, "metadata") and "input" in f.metadata:
+        fields = f.metadata["input"]["fields"] if "fields" in f.metadata["input"] else []
+        parameters = f.metadata["input"]["parameters"] if "parameters" in f.metadata["input"] else {}
+        return fields, parameters
     pars = dict(signature(f).parameters)
     input, parameters = [], {}
     if "kwargs" in pars:
@@ -54,13 +63,15 @@ def extract_body(f):
     >>> extract_body(f)
     'return (x * y, x + y, x / y)'
     """
+    if hasattr(f, "metadata") and "code" in f.metadata:
+        return f.metadata["code"]
     out = StringIO()
     decompile(bytecode_version=(3, 8, 10), co=f.__code__, out=out)
     code = "".join([line for line in out.getvalue().split("\n") if not line.startswith("#")])
     return code
 
 
-def extract_returnstr(code):
+def extract_returnstr(code) -> str:
     """
     >>> def f(x, y, implicit=["a", "b", "c"]):
     ...     return x*y, x+y, x/y
@@ -97,34 +108,48 @@ def extract_dictstr(returnstr: str) -> str:
     return dict_strs[0]
 
 
-def extract_output(f, dictstr, deps):
+def extract_output(f, lazy_dictstr, deps):
     """Extract output fields.
 
     https://stackoverflow.com/a/68753149/9681577
 
-    >>> extract_output(lambda:None, "{'z': x*y, 'w': x+y, implicitfield: y**2, '_history': ..., '_code': ..., '_metafield2': 'some text'}", {"implicitfield": "k"})
+    >>> extract_output(lambda:None, lambda:"{'z': x*y, 'w': x+y, implicitfield: y**2, '_history': ..., '_code': ..., '_metafield2': 'some text'}", {"implicitfield": "k"})
     (['z', 'w', 'k'], ['metafield2'], ['history', 'code'])
     """
-    explicit = re.findall(r"[\"']([a-zA-Z]+[_a-zA-Z0-9]*)[\"']:", dictstr)
-    meta = re.findall(r"[\"']_([_a-zA-Z]+[_a-zA-Z0-9]*)[\"']:", dictstr)
-    meta_ellipsed = re.findall(r"[\"']_([_a-zA-Z]+[_a-zA-Z0-9]*)[\"']:[ ]*?\.\.\.[,}]", dictstr)
-    meta_ellipsed.extend(re.findall(r"[\"']_([_a-zA-Z]+[_a-zA-Z0-9]*)[\"']:[ ]*?Ellipsis[,}]", dictstr))
-    meta = [item for item in meta if item not in meta_ellipsed]
+    metadata_output = f.metadata["output"] if hasattr(f, "metadata") and "output" in f.metadata else {}
+    if "fields" in metadata_output:
+        explicit = f.metadata["output"]["fields"]
+    else:
+        explicit = re.findall(r"[\"']([a-zA-Z]+[_a-zA-Z0-9]*)[\"']:", lazy_dictstr())
+    if "auto" in metadata_output:
+        meta_ellipsed = f.metadata["output"]["auto"]
+    else:
+        meta_ellipsed = re.findall(r"[\"'](_[_a-zA-Z]+[_a-zA-Z0-9]*)[\"']:[ ]*?\.\.\.[,}]", lazy_dictstr())
+        meta_ellipsed.extend(re.findall(r"[\"'](_[_a-zA-Z]+[_a-zA-Z0-9]*)[\"']:[ ]*?Ellipsis[,}]", lazy_dictstr()))
+    if "meta" in metadata_output:
+        meta = f.metadata["output"]["meta"]
+    else:
+        meta = re.findall(r"[\"'](_[_a-zA-Z]+[_a-zA-Z0-9]*)[\"']:", lazy_dictstr())
+        meta = [item for item in meta if item not in meta_ellipsed]
+    if "dynamic" in metadata_output:
+        dynamic = f.metadata["output"]["dynamic"]
+    else:
+        # REMINDER: identify output that comes as a variable; it will be used to check whether we can detect its content
+        # The variable brings the field name.
+        dynamic = re.findall(r"[ {]([_a-zA-Z]+[_a-zA-Z0-9]*):", lazy_dictstr())
 
-    # REMINDER: seems to be only about field deps like 'input_field="x"', not a parameter dep.
-    implicit = re.findall(r"[ {]([_a-zA-Z]+[_a-zA-Z0-9]*):", dictstr)
-
-    for field in implicit:
+    for field in dynamic:
         # if "_" in field:  # pragma: no cover
         #     raise UnderscoreInField("Field names cannot contain underscores:", field, dictstr)
         if field not in deps:  # pragma: no cover
             raise Exception("Missing parameter providing implicit field", field, deps)
         explicit.append(deps[field])
     if not explicit:  # pragma: no cover
-        pprint(dictstr)
+        pprint(lazy_dictstr())
         raise BadOutput("Could not find output fields that are valid identifiers (or kwargs[...]):")
     return explicit, meta, meta_ellipsed
 
 
-def extract_implicit_input(dictstr):
-    return re.findall(r"kwargs\[([a-zA-Z]+[a-zA-Z0-9_]*)][^:]", dictstr)
+def extract_dynamic_input(lazy_dictstr):
+    """The variable brings the field name, so we can get the field content from kwargs."""
+    return re.findall(r"kwargs\[([a-zA-Z]+[a-zA-Z0-9_]*)][^:]", lazy_dictstr())

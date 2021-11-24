@@ -38,16 +38,16 @@
 #  part of this work is illegal and unethical regarding the effort and
 #  time spent here.
 from inspect import signature
+from types import FunctionType
 from typing import Union
 
 from lange import AP, GP
 
 from ldict.core.inspection import (
-    extract_implicit_input,
+    extract_dynamic_input,
     extract_output,
     extract_returnstr,
-    extract_dictstr,
-    extract_body,
+    extract_dictstr, extract_body,
 )
 from ldict.core.inspection import extract_input
 from ldict.exception import InconsistentLange, UndefinedSeed, DependenceException
@@ -82,30 +82,55 @@ def handle_dict(data, dictlike, rnd):
 
 
 def lazify(data, output_field: Union[list, str], f, rnd, multi_output) -> Union[dict, LazyVal]:
-    """
-    Create lazy values and handle meafields.
-    """
+    """    Create lazy values and handle meafields.    """
     config, f = (f.config, f.f) if isinstance(f, AbstractLet) else ({}, f)
+    if isinstance(f, FunctionType):
+        body = extract_body(f)
+        memo = [""]
+
+        def lazy_returnstr():
+            memo[0] = extract_returnstr(body)
+            if multi_output:
+                memo[0] = extract_dictstr(memo[0])
+            return memo[0]
+
+        def lazy_code():
+            head = f"def f{str(signature(f))}:"
+            return head + "\n" + body
+
+        dynamic_input = extract_dynamic_input(lazy_returnstr)
+    else:
+        if not (hasattr(f, "metadata") and "input" in f.metadata and "output" in f.metadata):
+            raise Exception(f"Missing 'metadata' containing 'input' and 'output' keys for custom callable '{type(f)}'")
+        lazy_returnstr = lambda: ""
+
+        def lazy_code():
+            if "code" in f.metadata:
+                return f.metadata["code"]
+            raise Exception(f"Missing 'metadata' containing 'code' key for custom callable '{type(f)}'")
+
+        dynamic_input = f.metadata["input"]["dynamic"] if "dynamic" in f.metadata["input"] else []
+
+    if not dynamic_input and hasattr(f, "metadata") and "input" in f.metadata and "dynamic" in f.metadata["input"]:
+        dynamic_input = f.metadata["input"]["dynamic"]
+
     input_fields, parameters = extract_input(f)
-    body = extract_body(f)
-    returnstr = extract_returnstr(body)
-    if multi_output:
-        returnstr = extract_dictstr(returnstr)
-    for par in extract_implicit_input(returnstr):
+
+    for par in dynamic_input:
         if par not in config:  # pragma: no cover
             raise Exception(f"Parameter '{par}' value is not available:", config)
         input_fields.append(config[par])
+
     deps = prepare_deps(data, input_fields, parameters, config, rnd)
     if output_field == "extract":
-        explicit, meta, meta_ellipsed = extract_output(f, returnstr, deps)
+        explicit, meta, meta_ellipsed = extract_output(f, lazy_returnstr, deps)
         lazies = []
         dic = {k: LazyVal(k, f, deps, lazies) for k in explicit + meta}
         lazies.extend(dic.values())
         for metaf in meta_ellipsed:
-            if metaf == "code":
-                head = f"def f{str(signature(f))}:"
-                dic["_code"] = head + "\n" + body
-            elif metaf == "history":
+            if metaf == "_code":
+                dic["_code"] = lazy_code()
+            elif metaf == "_history":
                 newidx = 0
                 if "_history" in data:
                     last = list(data["_history"].keys())[-1]
@@ -115,10 +140,15 @@ def lazify(data, output_field: Union[list, str], f, rnd, multi_output) -> Union[
                 else:
                     dic["_history"] = {}
                 if hasattr(f, "metadata"):
+                    excluded_keys = ["input", "output" , "code"]
+                    delete_keys = [k for k in excluded_keys if k in f.metadata]
                     step = f.metadata
+                    if delete_keys:
+                        step = step.copy()
+                        for k in delete_keys:
+                            del step[k]
                     if "id" in f.metadata:
                         newidx = f.metadata["id"]
-
                 else:
                     step = {}
                 dic["_history"][newidx] = step
