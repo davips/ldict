@@ -120,7 +120,7 @@ class Ldict(AbstractMutableLazyDict):
     {
         &#34;x&#34;: 5,
         &#34;y&#34;: &#34;→(x)&#34;,
-        &#34;meta1&#34;: &#34;→(x)&#34;,
+        &#34;_meta1&#34;: &#34;→(x)&#34;,
         &#34;_code&#34;: &#34;def f(x):\\nreturn {&#39;y&#39;:x ** 2,  &#39;_meta1&#39;:0,  &#39;_history&#39;:Ellipsis,  &#39;_code&#39;:...}&#34;,
         &#34;_history&#34;: {
             &#34;0&#34;: {
@@ -134,12 +134,63 @@ class Ldict(AbstractMutableLazyDict):
     {
         &#34;x&#34;: 5,
         &#34;y&#34;: &#34;→(x)&#34;,
-        &#34;meta1&#34;: &#34;→(x)&#34;,
+        &#34;_meta1&#34;: &#34;→(x)&#34;,
         &#34;_code&#34;: &#34;def f(x):\\nreturn {&#39;y&#39;:x ** 2,  &#39;_meta1&#39;:0,  &#39;_history&#39;:Ellipsis,  &#39;_code&#39;:...}&#34;,
         &#34;_history&#34;: {
             &#34;9bab63dea3289def97aefde79b7aefde79b7c75d&#34;: {
                 &#34;id&#34;: &#34;9bab63dea3289def97aefde79b7aefde79b7c75d&#34;,
                 &#34;name&#34;: &#34;squared&#34;,
+                &#34;description&#34;: &#34;Some text.&#34;
+            }
+        }
+    }
+    &gt;&gt;&gt; def g(source=None, **kwargs):
+    ...     return {&#34;y&#34;: kwargs[source]**2, &#34;_meta1&#34;: 0, &#34;_history&#34;: Ellipsis, &#34;_code&#34;: ...}
+    &gt;&gt;&gt; g.metadata = {&#34;name&#34;: &#34;squared using dynamic field&#34;, &#34;description&#34;: &#34;Some text.&#34;}
+    &gt;&gt;&gt; from ldict import let
+    &gt;&gt;&gt; ldict(x=5) &gt;&gt; let(g, source=&#34;x&#34;)
+    {
+        &#34;x&#34;: 5,
+        &#34;y&#34;: &#34;→(source x)&#34;,
+        &#34;_meta1&#34;: &#34;→(source x)&#34;,
+        &#34;_code&#34;: &#34;def f(source=None, **kwargs):\\nreturn {&#39;y&#39;:kwargs[source] ** 2,  &#39;_meta1&#39;:0,  &#39;_history&#39;:Ellipsis,  &#39;_code&#39;:...}&#34;,
+        &#34;_history&#34;: {
+            &#34;0&#34;: {
+                &#34;name&#34;: &#34;squared using dynamic field&#34;,
+                &#34;description&#34;: &#34;Some text.&#34;
+            }
+        }
+    }
+    &gt;&gt;&gt; class MyCallableClass:
+    ...     metadata = {
+    ...         &#34;name&#34;: &#34;squared using dynamic field&#34;,
+    ...         &#34;description&#34;: &#34;Some text.&#34;,
+    ...         &#34;input&#34;: {
+    ...             &#34;fields&#34;: [&#34;a&#34;],
+    ...             &#34;parameters&#34;: {&#34;source&#34;: None, &#34;target&#34;: None},
+    ...             &#34;dynamic&#34;: [&#34;source&#34;]
+    ...         },
+    ...         &#34;output&#34;: {
+    ...             &#34;fields&#34;: [&#34;y&#34;],
+    ...             &#34;dynamic&#34;: [&#34;target&#34;],
+    ...             &#34;meta&#34;: [&#34;_meta1&#34;],
+    ...             &#34;auto&#34;: [&#34;_history&#34;]
+    ...             }
+    ...         }
+    ...     def __call__(self, a, source=None, target=None, **kwargs):
+    ...         return {&#34;a2&#34;: a, target: kwargs[source]**a, &#34;_meta1&#34;: 0}
+    &gt;&gt;&gt; f = MyCallableClass()
+    &gt;&gt;&gt; d = ldict(a=3, x=5) &gt;&gt; let(f, source=&#34;x&#34;, target=&#34;y&#34;)
+    &gt;&gt;&gt; d.evaluate()
+    &gt;&gt;&gt; d
+    {
+        &#34;a&#34;: 3,
+        &#34;x&#34;: 5,
+        &#34;y&#34;: 125,
+        &#34;_meta1&#34;: 0,
+        &#34;_history&#34;: {
+            &#34;0&#34;: {
+                &#34;name&#34;: &#34;squared using dynamic field&#34;,
                 &#34;description&#34;: &#34;Some text.&#34;
             }
         }
@@ -261,7 +312,7 @@ to be automatically filled.</p>
 {
     &quot;x&quot;: 5,
     &quot;y&quot;: &quot;→(x)&quot;,
-    &quot;meta1&quot;: &quot;→(x)&quot;,
+    &quot;_meta1&quot;: &quot;→(x)&quot;,
     &quot;_code&quot;: &quot;def f(x):\nreturn {'y':x ** 2,  '_meta1':0,  '_history':Ellipsis,  '_code':...}&quot;,
     &quot;_history&quot;: {
         &quot;0&quot;: {
@@ -275,12 +326,63 @@ to be automatically filled.</p>
 {
     &quot;x&quot;: 5,
     &quot;y&quot;: &quot;→(x)&quot;,
-    &quot;meta1&quot;: &quot;→(x)&quot;,
+    &quot;_meta1&quot;: &quot;→(x)&quot;,
     &quot;_code&quot;: &quot;def f(x):\nreturn {'y':x ** 2,  '_meta1':0,  '_history':Ellipsis,  '_code':...}&quot;,
     &quot;_history&quot;: {
         &quot;9bab63dea3289def97aefde79b7aefde79b7c75d&quot;: {
             &quot;id&quot;: &quot;9bab63dea3289def97aefde79b7aefde79b7c75d&quot;,
             &quot;name&quot;: &quot;squared&quot;,
+            &quot;description&quot;: &quot;Some text.&quot;
+        }
+    }
+}
+&gt;&gt;&gt; def g(source=None, **kwargs):
+...     return {&quot;y&quot;: kwargs[source]**2, &quot;_meta1&quot;: 0, &quot;_history&quot;: Ellipsis, &quot;_code&quot;: ...}
+&gt;&gt;&gt; g.metadata = {&quot;name&quot;: &quot;squared using dynamic field&quot;, &quot;description&quot;: &quot;Some text.&quot;}
+&gt;&gt;&gt; from ldict import let
+&gt;&gt;&gt; ldict(x=5) &gt;&gt; let(g, source=&quot;x&quot;)
+{
+    &quot;x&quot;: 5,
+    &quot;y&quot;: &quot;→(source x)&quot;,
+    &quot;_meta1&quot;: &quot;→(source x)&quot;,
+    &quot;_code&quot;: &quot;def f(source=None, **kwargs):\nreturn {'y':kwargs[source] ** 2,  '_meta1':0,  '_history':Ellipsis,  '_code':...}&quot;,
+    &quot;_history&quot;: {
+        &quot;0&quot;: {
+            &quot;name&quot;: &quot;squared using dynamic field&quot;,
+            &quot;description&quot;: &quot;Some text.&quot;
+        }
+    }
+}
+&gt;&gt;&gt; class MyCallableClass:
+...     metadata = {
+...         &quot;name&quot;: &quot;squared using dynamic field&quot;,
+...         &quot;description&quot;: &quot;Some text.&quot;,
+...         &quot;input&quot;: {
+...             &quot;fields&quot;: [&quot;a&quot;],
+...             &quot;parameters&quot;: {&quot;source&quot;: None, &quot;target&quot;: None},
+...             &quot;dynamic&quot;: [&quot;source&quot;]
+...         },
+...         &quot;output&quot;: {
+...             &quot;fields&quot;: [&quot;y&quot;],
+...             &quot;dynamic&quot;: [&quot;target&quot;],
+...             &quot;meta&quot;: [&quot;_meta1&quot;],
+...             &quot;auto&quot;: [&quot;_history&quot;]
+...             }
+...         }
+...     def __call__(self, a, source=None, target=None, **kwargs):
+...         return {&quot;a2&quot;: a, target: kwargs[source]**a, &quot;_meta1&quot;: 0}
+&gt;&gt;&gt; f = MyCallableClass()
+&gt;&gt;&gt; d = ldict(a=3, x=5) &gt;&gt; let(f, source=&quot;x&quot;, target=&quot;y&quot;)
+&gt;&gt;&gt; d.evaluate()
+&gt;&gt;&gt; d
+{
+    &quot;a&quot;: 3,
+    &quot;x&quot;: 5,
+    &quot;y&quot;: 125,
+    &quot;_meta1&quot;: 0,
+    &quot;_history&quot;: {
+        &quot;0&quot;: {
+            &quot;name&quot;: &quot;squared using dynamic field&quot;,
             &quot;description&quot;: &quot;Some text.&quot;
         }
     }
@@ -350,7 +452,7 @@ to be automatically filled.</p>
     {
         &#34;x&#34;: 5,
         &#34;y&#34;: &#34;→(x)&#34;,
-        &#34;meta1&#34;: &#34;→(x)&#34;,
+        &#34;_meta1&#34;: &#34;→(x)&#34;,
         &#34;_code&#34;: &#34;def f(x):\\nreturn {&#39;y&#39;:x ** 2,  &#39;_meta1&#39;:0,  &#39;_history&#39;:Ellipsis,  &#39;_code&#39;:...}&#34;,
         &#34;_history&#34;: {
             &#34;0&#34;: {
@@ -364,12 +466,63 @@ to be automatically filled.</p>
     {
         &#34;x&#34;: 5,
         &#34;y&#34;: &#34;→(x)&#34;,
-        &#34;meta1&#34;: &#34;→(x)&#34;,
+        &#34;_meta1&#34;: &#34;→(x)&#34;,
         &#34;_code&#34;: &#34;def f(x):\\nreturn {&#39;y&#39;:x ** 2,  &#39;_meta1&#39;:0,  &#39;_history&#39;:Ellipsis,  &#39;_code&#39;:...}&#34;,
         &#34;_history&#34;: {
             &#34;9bab63dea3289def97aefde79b7aefde79b7c75d&#34;: {
                 &#34;id&#34;: &#34;9bab63dea3289def97aefde79b7aefde79b7c75d&#34;,
                 &#34;name&#34;: &#34;squared&#34;,
+                &#34;description&#34;: &#34;Some text.&#34;
+            }
+        }
+    }
+    &gt;&gt;&gt; def g(source=None, **kwargs):
+    ...     return {&#34;y&#34;: kwargs[source]**2, &#34;_meta1&#34;: 0, &#34;_history&#34;: Ellipsis, &#34;_code&#34;: ...}
+    &gt;&gt;&gt; g.metadata = {&#34;name&#34;: &#34;squared using dynamic field&#34;, &#34;description&#34;: &#34;Some text.&#34;}
+    &gt;&gt;&gt; from ldict import let
+    &gt;&gt;&gt; ldict(x=5) &gt;&gt; let(g, source=&#34;x&#34;)
+    {
+        &#34;x&#34;: 5,
+        &#34;y&#34;: &#34;→(source x)&#34;,
+        &#34;_meta1&#34;: &#34;→(source x)&#34;,
+        &#34;_code&#34;: &#34;def f(source=None, **kwargs):\\nreturn {&#39;y&#39;:kwargs[source] ** 2,  &#39;_meta1&#39;:0,  &#39;_history&#39;:Ellipsis,  &#39;_code&#39;:...}&#34;,
+        &#34;_history&#34;: {
+            &#34;0&#34;: {
+                &#34;name&#34;: &#34;squared using dynamic field&#34;,
+                &#34;description&#34;: &#34;Some text.&#34;
+            }
+        }
+    }
+    &gt;&gt;&gt; class MyCallableClass:
+    ...     metadata = {
+    ...         &#34;name&#34;: &#34;squared using dynamic field&#34;,
+    ...         &#34;description&#34;: &#34;Some text.&#34;,
+    ...         &#34;input&#34;: {
+    ...             &#34;fields&#34;: [&#34;a&#34;],
+    ...             &#34;parameters&#34;: {&#34;source&#34;: None, &#34;target&#34;: None},
+    ...             &#34;dynamic&#34;: [&#34;source&#34;]
+    ...         },
+    ...         &#34;output&#34;: {
+    ...             &#34;fields&#34;: [&#34;y&#34;],
+    ...             &#34;dynamic&#34;: [&#34;target&#34;],
+    ...             &#34;meta&#34;: [&#34;_meta1&#34;],
+    ...             &#34;auto&#34;: [&#34;_history&#34;]
+    ...             }
+    ...         }
+    ...     def __call__(self, a, source=None, target=None, **kwargs):
+    ...         return {&#34;a2&#34;: a, target: kwargs[source]**a, &#34;_meta1&#34;: 0}
+    &gt;&gt;&gt; f = MyCallableClass()
+    &gt;&gt;&gt; d = ldict(a=3, x=5) &gt;&gt; let(f, source=&#34;x&#34;, target=&#34;y&#34;)
+    &gt;&gt;&gt; d.evaluate()
+    &gt;&gt;&gt; d
+    {
+        &#34;a&#34;: 3,
+        &#34;x&#34;: 5,
+        &#34;y&#34;: 125,
+        &#34;_meta1&#34;: 0,
+        &#34;_history&#34;: {
+            &#34;0&#34;: {
+                &#34;name&#34;: &#34;squared using dynamic field&#34;,
                 &#34;description&#34;: &#34;Some text.&#34;
             }
         }

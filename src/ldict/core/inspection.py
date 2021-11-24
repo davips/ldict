@@ -114,7 +114,7 @@ def extract_output(f, lazy_dictstr, deps):
     https://stackoverflow.com/a/68753149/9681577
 
     >>> extract_output(lambda:None, lambda:"{'z': x*y, 'w': x+y, implicitfield: y**2, '_history': ..., '_code': ..., '_metafield2': 'some text'}", {"implicitfield": "k"})
-    (['z', 'w', 'k'], ['metafield2'], ['history', 'code'])
+    (['z', 'w', 'k'], ['_metafield2'], ['_history', '_code'])
     """
     metadata_output = f.metadata["output"] if hasattr(f, "metadata") and "output" in f.metadata else {}
     if "fields" in metadata_output:

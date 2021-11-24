@@ -47,7 +47,8 @@ from ldict.core.inspection import (
     extract_dynamic_input,
     extract_output,
     extract_returnstr,
-    extract_dictstr, extract_body,
+    extract_dictstr,
+    extract_body,
 )
 from ldict.core.inspection import extract_input
 from ldict.exception import InconsistentLange, UndefinedSeed, DependenceException
@@ -82,7 +83,7 @@ def handle_dict(data, dictlike, rnd):
 
 
 def lazify(data, output_field: Union[list, str], f, rnd, multi_output) -> Union[dict, LazyVal]:
-    """    Create lazy values and handle meafields.    """
+    """Create lazy values and handle meafields."""
     config, f = (f.config, f.f) if isinstance(f, AbstractLet) else ({}, f)
     if isinstance(f, FunctionType):
         body = extract_body(f)
@@ -140,7 +141,7 @@ def lazify(data, output_field: Union[list, str], f, rnd, multi_output) -> Union[
                 else:
                     dic["_history"] = {}
                 if hasattr(f, "metadata"):
-                    excluded_keys = ["input", "output" , "code"]
+                    excluded_keys = ["input", "output", "code"]
                     delete_keys = [k for k in excluded_keys if k in f.metadata]
                     step = f.metadata
                     if delete_keys:
