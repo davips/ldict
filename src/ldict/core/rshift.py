@@ -83,7 +83,7 @@ def handle_dict(data, dictlike, rnd):
 
 
 def lazify(data, output_field: Union[list, str], f, rnd, multi_output) -> Union[dict, LazyVal]:
-    """Create lazy values and handle meafields."""
+    """Create lazy values and handle metafields."""
     config, f = (f.config, f.f) if isinstance(f, AbstractLet) else ({}, f)
     if isinstance(f, FunctionType):
         body = extract_body(f)
@@ -122,6 +122,17 @@ def lazify(data, output_field: Union[list, str], f, rnd, multi_output) -> Union[
             raise Exception(f"Parameter '{par}' value is not available:", config)
         input_fields.append(config[par])
 
+    newidx = 0
+    if hasattr(f, "metadata"):
+        step = f.metadata.copy()
+        if "id" in step:
+            newidx = step.pop("id")
+        for k in ["input", "output", "code"]:
+            if k in step:
+                del step[k]
+    else:
+        step = {}
+
     deps = prepare_deps(data, input_fields, parameters, config, rnd)
     if output_field == "extract":
         explicit, meta, meta_ellipsed = extract_output(f, lazy_returnstr, deps)
@@ -132,7 +143,6 @@ def lazify(data, output_field: Union[list, str], f, rnd, multi_output) -> Union[
             if metaf == "_code":
                 dic["_code"] = lazy_code()
             elif metaf == "_history":
-                newidx = 0
                 if "_history" in data:
                     last = list(data["_history"].keys())[-1]
                     if isinstance(last, int):
@@ -140,18 +150,6 @@ def lazify(data, output_field: Union[list, str], f, rnd, multi_output) -> Union[
                     dic["_history"] = data["_history"].copy()
                 else:
                     dic["_history"] = {}
-                if hasattr(f, "metadata"):
-                    excluded_keys = ["input", "output", "code"]
-                    delete_keys = [k for k in excluded_keys if k in f.metadata]
-                    step = f.metadata
-                    if delete_keys:
-                        step = step.copy()
-                        for k in delete_keys:
-                            del step[k]
-                    if "id" in f.metadata:
-                        newidx = f.metadata["id"]
-                else:
-                    step = {}
                 dic["_history"][newidx] = step
             else:
                 raise Exception(f"'...' is not defined for '{metaf}'.")

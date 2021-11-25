@@ -110,7 +110,6 @@ class Ldict(AbstractMutableLazyDict):
         "_code": "def f(x):\\nreturn {'y':x ** 2,  '_meta1':0,  '_history':Ellipsis,  '_code':...}",
         "_history": {
             "9bab63dea3289def97aefde79b7aefde79b7c75d": {
-                "id": "9bab63dea3289def97aefde79b7aefde79b7c75d",
                 "name": "squared",
                 "description": "Some text."
             }
