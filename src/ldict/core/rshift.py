@@ -84,6 +84,7 @@ def handle_dict(data, dictlike, rnd):
 
 def lazify(data, output_field: Union[list, str], f, rnd, multi_output) -> Union[dict, LazyVal]:
     """Create lazy values and handle metafields."""
+    # TODO (minor): simplify to improve readability of this function
     config, f = (f.config, f.f) if isinstance(f, AbstractLet) else ({}, f)
     if isinstance(f, FunctionType):
         body = extract_body(f)
@@ -142,6 +143,14 @@ def lazify(data, output_field: Union[list, str], f, rnd, multi_output) -> Union[
         for metaf in meta_ellipsed:
             if metaf == "_code":
                 dic["_code"] = lazy_code()
+            elif metaf == "_function":
+                if hasattr(f, "pickle_dump"):
+                    dic["_function"] = f.pickle_dump
+                else:
+                    import dill
+                    dump = dill.dumps(f, protocol=5)
+                    dic["_function"] = dump
+                    f.pickle_dump = dump  # Memoize
             elif metaf == "_history":
                 if "_history" in data:
                     last = list(data["_history"].keys())[-1]
