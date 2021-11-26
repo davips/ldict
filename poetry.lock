@@ -1,12 +1,4 @@
 [[package]]
-name = "ansi2html"
-version = "1.6.0"
-description = ""
-category = "main"
-optional = false
-python-versions = ">=3.6"
-
-[[package]]
 name = "appnope"
 version = "0.1.2"
 description = "Disable App Nap on macOS >= 10.9"
@@ -80,7 +72,10 @@ pathspec = ">=0.9.0,<1"
 platformdirs = ">=2"
 regex = ">=2021.4.4"
 tomli = ">=0.2.6,<2.0.0"
-typing-extensions = ">=3.10.0.0"
+typing-extensions = [
+    {version = ">=3.10.0.0", markers = "python_version < \"3.10\""},
+    {version = "!=3.10.0.1", markers = "python_version >= \"3.10\""},
+]
 
 [package.extras]
 colorama = ["colorama (>=0.4.3)"]
@@ -88,14 +83,6 @@ d = ["aiohttp (>=3.7.4)"]
 jupyter = ["ipython (>=7.8.0)", "tokenize-rt (>=3.2.0)"]
 python2 = ["typed-ast (>=1.4.3)"]
 uvloop = ["uvloop (>=0.15.2)"]
-
-[[package]]
-name = "blake3"
-version = "0.2.1"
-description = "Python bindings for the Rust blake3 crate"
-category = "main"
-optional = false
-python-versions = "*"
 
 [[package]]
 name = "click"
@@ -115,14 +102,6 @@ description = "Cross-platform colored terminal text."
 category = "main"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
-
-[[package]]
-name = "colored"
-version = "1.4.2"
-description = "Simple library for color and formatting to terminal"
-category = "main"
-optional = false
-python-versions = "*"
 
 [[package]]
 name = "coverage"
@@ -166,23 +145,6 @@ python-versions = ">=3.6"
 mccabe = ">=0.6.0,<0.7.0"
 pycodestyle = ">=2.8.0,<2.9.0"
 pyflakes = ">=2.4.0,<2.5.0"
-
-[[package]]
-name = "garoupa"
-version = "2.211123.1"
-description = "Predictable operable hash-based identifiers and abstract algebra groups"
-category = "main"
-optional = false
-python-versions = ">=3.8,<3.11"
-
-[package.dependencies]
-ansi2html = ">=1.6.0,<2.0.0"
-blake3 = ">=0.2.0,<0.3.0"
-colored = "1.4.2"
-
-[package.extras]
-algebra = ["progress (>=1.6,<2.0)", "pathos (>=0.2.8,<0.3.0)", "numpy (>=1.21.2,<2.0.0)"]
-experiments = ["bigfloat (>=0.4.0,<0.5.0)"]
 
 [[package]]
 name = "importlib-metadata"
@@ -381,6 +343,7 @@ numpy = [
     {version = ">=1.17.3", markers = "platform_machine != \"aarch64\" and platform_machine != \"arm64\" and python_version < \"3.10\""},
     {version = ">=1.19.2", markers = "platform_machine == \"aarch64\" and python_version < \"3.10\""},
     {version = ">=1.20.0", markers = "platform_machine == \"arm64\" and python_version < \"3.10\""},
+    {version = ">=1.21.0", markers = "python_version >= \"3.10\""},
 ]
 python-dateutil = ">=2.7.3"
 pytz = ">=2017.3"
@@ -739,18 +702,14 @@ docs = ["sphinx", "jaraco.packaging (>=8.2)", "rst.linker (>=1.9)"]
 testing = ["pytest (>=4.6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-cov", "pytest-enabler (>=1.0.1)", "jaraco.itertools", "func-timeout", "pytest-black (>=0.3.7)", "pytest-mypy"]
 
 [extras]
-full = ["pandas"]
+full = ["pandas", "dill"]
 
 [metadata]
 lock-version = "1.1"
-python-versions = ">=3.8,<3.10"
-content-hash = "40b1a51f596859062c52c4c91e26a95ab21b2ea2bd0b729ec214f3eacbe9b3b2"
+python-versions = "^3.8"  #">=3.8,<3.10"  <- numpy restriction
+content-hash = "91aff16cc501d12bb8a04d243301746ba2e26f570a97daa111ea2cf8f4ab6db7"
 
 [metadata.files]
-ansi2html = [
-    {file = "ansi2html-1.6.0-py3-none-any.whl", hash = "sha256:9fa44ca8fb8c417a05a9af1c62e192694b0fcec269ab55f130b5b26e260d0b7c"},
-    {file = "ansi2html-1.6.0.tar.gz", hash = "sha256:0f124ea7efcf3f24f1f9398e527e688c9ae6eab26b0b84e1299ef7f94d92c596"},
-]
 appnope = [
     {file = "appnope-0.1.2-py2.py3-none-any.whl", hash = "sha256:93aa393e9d6c54c5cd570ccadd8edad61ea0c4b9ea7a01409020c9aa019eb442"},
     {file = "appnope-0.1.2.tar.gz", hash = "sha256:dd83cd4b5b460958838f6eb3000c660b1f9caf2a5b1de4264e941512f603258a"},
@@ -779,27 +738,6 @@ black = [
     {file = "black-21.11b1-py3-none-any.whl", hash = "sha256:802c6c30b637b28645b7fde282ed2569c0cd777dbe493a41b6a03c1d903f99ac"},
     {file = "black-21.11b1.tar.gz", hash = "sha256:a042adbb18b3262faad5aff4e834ff186bb893f95ba3a8013f09de1e5569def2"},
 ]
-blake3 = [
-    {file = "blake3-0.2.1-cp36-cp36m-macosx_10_7_x86_64.whl", hash = "sha256:de1c8eaa0f17628869e4fa3a2fdd119845950d6c786c67b723267c1988d6b25c"},
-    {file = "blake3-0.2.1-cp36-cp36m-manylinux_2_5_x86_64.manylinux1_x86_64.whl", hash = "sha256:868bff669115ffbeec6e759a89c228648aa58a6fcef8589342de6cb6b9ed8ca9"},
-    {file = "blake3-0.2.1-cp36-none-win32.whl", hash = "sha256:6ea193219f38a37e838a61485df5f549ac151d3a8dbd41d9e3ebd894f5296b19"},
-    {file = "blake3-0.2.1-cp36-none-win_amd64.whl", hash = "sha256:1311f0091cb152c9ec1c2273d64b1c3d166bb0b513734ebcb24329370c4fc08a"},
-    {file = "blake3-0.2.1-cp37-cp37m-macosx_10_7_x86_64.whl", hash = "sha256:abab5b261f32b02a0b42bb5474a7268fe199391961952c38195fd4f357a6e8b0"},
-    {file = "blake3-0.2.1-cp37-cp37m-manylinux_2_5_x86_64.manylinux1_x86_64.whl", hash = "sha256:34b04ef213b78014cef91d9360e29fcaab130dee7fc1e5450add2e4a1fd3e907"},
-    {file = "blake3-0.2.1-cp37-none-win32.whl", hash = "sha256:233eb4125a17908e6d0c733f76c0e4b6cf01ec59aaa1d7810853173749fa9d33"},
-    {file = "blake3-0.2.1-cp37-none-win_amd64.whl", hash = "sha256:136d02fa9c8a14e1894cc4e0865bd98d9f5a41baf2b9b500b3d6690134f951fc"},
-    {file = "blake3-0.2.1-cp38-cp38-macosx_10_7_x86_64.whl", hash = "sha256:41789806873d196be059ace27ab0f5565db20dc74c6da53d29fbd424b87ee271"},
-    {file = "blake3-0.2.1-cp38-cp38-macosx_11_0_arm64.whl", hash = "sha256:3715da23b9555429e15f6b26718a70456f089456e6e1929949808caa383d0cb4"},
-    {file = "blake3-0.2.1-cp38-cp38-manylinux_2_5_x86_64.manylinux1_x86_64.whl", hash = "sha256:16352ab67bdf9da2ba1c92232aabc56a9fd7bfc06ae2ad4d550c777400cfdbc0"},
-    {file = "blake3-0.2.1-cp38-none-win32.whl", hash = "sha256:990631b705a069e485409cc6376495893786b202e80c8bd5e75a936445106654"},
-    {file = "blake3-0.2.1-cp38-none-win_amd64.whl", hash = "sha256:ac01bd4541df763fce1ba3ffa1af1a0fdb39eba73cfbbff02a4108736a7fbc27"},
-    {file = "blake3-0.2.1-cp39-cp39-macosx_10_7_x86_64.whl", hash = "sha256:ebb98db430271fa9814063636f3cbcaf964223d05a1134da8eb8d0af8868ff16"},
-    {file = "blake3-0.2.1-cp39-cp39-macosx_11_0_arm64.whl", hash = "sha256:19f4e5c8eb0660c48b3f0dc70138ab26a7373d083dbdf27e701b81e2096d0cb4"},
-    {file = "blake3-0.2.1-cp39-cp39-manylinux_2_5_x86_64.manylinux1_x86_64.whl", hash = "sha256:5dd0bff49a63839dc649872368b93a51d09098efc9485c84ae910d74058a5dc4"},
-    {file = "blake3-0.2.1-cp39-none-win32.whl", hash = "sha256:381e8ea6403f4c300abb19a009ca643016f57951cc72ec2f74be49642b209a1b"},
-    {file = "blake3-0.2.1-cp39-none-win_amd64.whl", hash = "sha256:355e0a89a569d7f2148a421117a2fb611f3c2e977a9772d46f56ed8e0b75ca84"},
-    {file = "blake3-0.2.1.tar.gz", hash = "sha256:e298e7c8e56ab37a1942b9c595f15f72695b5a31c4e8ac9957fc8e4df14a3109"},
-]
 click = [
     {file = "click-8.0.3-py3-none-any.whl", hash = "sha256:353f466495adaeb40b6b5f592f9f91cb22372351c84caeb068132442a4518ef3"},
     {file = "click-8.0.3.tar.gz", hash = "sha256:410e932b050f5eed773c4cda94de75971c89cdb3155a72a0831139a79e5ecb5b"},
@@ -807,9 +745,6 @@ click = [
 colorama = [
     {file = "colorama-0.4.4-py2.py3-none-any.whl", hash = "sha256:9f47eda37229f68eee03b24b9748937c7dc3868f906e8ba69fbcbdd3bc5dc3e2"},
     {file = "colorama-0.4.4.tar.gz", hash = "sha256:5941b2b48a20143d2267e95b1c2a7603ce057ee39fd88e7329b0c292aa16869b"},
-]
-colored = [
-    {file = "colored-1.4.2.tar.gz", hash = "sha256:056fac09d9e39b34296e7618897ed1b8c274f98423770c2980d829fd670955ed"},
 ]
 coverage = [
     {file = "coverage-6.1.2-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:675adb3b3380967806b3cbb9c5b00ceb29b1c472692100a338730c1d3e59c8b9"},
@@ -871,10 +806,6 @@ dill = [
 flake8 = [
     {file = "flake8-4.0.1-py2.py3-none-any.whl", hash = "sha256:479b1304f72536a55948cb40a32dce8bb0ffe3501e26eaf292c7e60eb5e0428d"},
     {file = "flake8-4.0.1.tar.gz", hash = "sha256:806e034dda44114815e23c16ef92f95c91e4c71100ff52813adf7132a6ad870d"},
-]
-garoupa = [
-    {file = "garoupa-2.211123.1-py3-none-any.whl", hash = "sha256:175817dfd4974dba6daf602593301185631e47a92da6b7909fd5e318be5b5f3b"},
-    {file = "garoupa-2.211123.1.tar.gz", hash = "sha256:ee3b8610965571ac8684e123b1df1e7b5ceeb23875a99ae418c235f2096651be"},
 ]
 importlib-metadata = [
     {file = "importlib_metadata-4.8.2-py3-none-any.whl", hash = "sha256:53ccfd5c134223e497627b9815d5030edf77d2ed573922f7a0b8f8bb81a1c100"},
