@@ -96,21 +96,12 @@ def lazify(data, output_field: Union[list, str], f, rnd, multi_output) -> Union[
                 memo[0] = extract_dictstr(memo[0])
             return memo[0]
 
-        def lazy_code():
-            head = f"def f{str(signature(f))}:"
-            return head + "\n" + body
-
         dynamic_input = extract_dynamic_input(lazy_returnstr)
     else:
+        body = None
         if not (hasattr(f, "metadata") and "input" in f.metadata and "output" in f.metadata):
             raise Exception(f"Missing 'metadata' containing 'input' and 'output' keys for custom callable '{type(f)}'")
         lazy_returnstr = lambda: ""
-
-        def lazy_code():
-            if "code" in f.metadata:
-                return f.metadata["code"]
-            raise Exception(f"Missing 'metadata' containing 'code' key for custom callable '{type(f)}'")
-
         dynamic_input = f.metadata["input"]["dynamic"] if "dynamic" in f.metadata["input"] else []
 
     if not dynamic_input and hasattr(f, "metadata") and "input" in f.metadata and "dynamic" in f.metadata["input"]:
@@ -126,11 +117,18 @@ def lazify(data, output_field: Union[list, str], f, rnd, multi_output) -> Union[
     newidx = 0
     if hasattr(f, "metadata"):
         step = f.metadata.copy()
-        if "id" in step:
+        if "id" in step:  # TODO: f id sem os valores dos parametros não conta a história toda pro oka web
             newidx = step.pop("id")
-        for k in ["input", "output", "code"]:
+        for k in ["input", "output"]:
             if k in step:
                 del step[k]
+        if "code" in f.metadata:
+            if f.metadata["code"] is ...:
+                if body is None:
+                    raise Exception(f"Cannot autofill 'metadata.code' for custom callable '{type(f)}'")
+                head = f"def f{str(signature(f))}:"
+                code = head + "\n" + body
+                f.metadata["code"] = code
     else:
         step = {}
 
@@ -142,7 +140,13 @@ def lazify(data, output_field: Union[list, str], f, rnd, multi_output) -> Union[
         lazies.extend(dic.values())
         for metaf in meta_ellipsed:
             if metaf == "_code":
-                dic["_code"] = lazy_code()
+                if hasattr(f, "metadata") and "code" in f.metadata:
+                    dic["_code"] = f.metadata["code"]
+                else:
+                    if body is None:
+                        raise Exception(f"Missing 'metadata' containing 'code' key for custom callable '{type(f)}'")
+                    head = f"def f{str(signature(f))}:"
+                    dic["_code"] = head + "\n" + body
             elif metaf == "_function":
                 if hasattr(f, "pickle_dump"):
                     dic["_function"] = f.pickle_dump
