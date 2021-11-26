@@ -111,7 +111,8 @@ def handle_dict(data, dictlike, rnd):
 
 
 def lazify(data, output_field: Union[list, str], f, rnd, multi_output) -&gt; Union[dict, LazyVal]:
-    &#34;&#34;&#34;Create lazy values and handle meafields.&#34;&#34;&#34;
+    &#34;&#34;&#34;Create lazy values and handle metafields.&#34;&#34;&#34;
+    # TODO (minor): simplify to improve readability of this function
     config, f = (f.config, f.f) if isinstance(f, AbstractLet) else ({}, f)
     if isinstance(f, FunctionType):
         body = extract_body(f)
@@ -123,21 +124,12 @@ def lazify(data, output_field: Union[list, str], f, rnd, multi_output) -&gt; Uni
                 memo[0] = extract_dictstr(memo[0])
             return memo[0]
 
-        def lazy_code():
-            head = f&#34;def f{str(signature(f))}:&#34;
-            return head + &#34;\n&#34; + body
-
         dynamic_input = extract_dynamic_input(lazy_returnstr)
     else:
+        body = None
         if not (hasattr(f, &#34;metadata&#34;) and &#34;input&#34; in f.metadata and &#34;output&#34; in f.metadata):
             raise Exception(f&#34;Missing &#39;metadata&#39; containing &#39;input&#39; and &#39;output&#39; keys for custom callable &#39;{type(f)}&#39;&#34;)
         lazy_returnstr = lambda: &#34;&#34;
-
-        def lazy_code():
-            if &#34;code&#34; in f.metadata:
-                return f.metadata[&#34;code&#34;]
-            raise Exception(f&#34;Missing &#39;metadata&#39; containing &#39;code&#39; key for custom callable &#39;{type(f)}&#39;&#34;)
-
         dynamic_input = f.metadata[&#34;input&#34;][&#34;dynamic&#34;] if &#34;dynamic&#34; in f.metadata[&#34;input&#34;] else []
 
     if not dynamic_input and hasattr(f, &#34;metadata&#34;) and &#34;input&#34; in f.metadata and &#34;dynamic&#34; in f.metadata[&#34;input&#34;]:
@@ -150,6 +142,24 @@ def lazify(data, output_field: Union[list, str], f, rnd, multi_output) -&gt; Uni
             raise Exception(f&#34;Parameter &#39;{par}&#39; value is not available:&#34;, config)
         input_fields.append(config[par])
 
+    newidx = 0
+    if hasattr(f, &#34;metadata&#34;):
+        step = f.metadata.copy()
+        if &#34;id&#34; in step:  # TODO: f id sem os valores dos parametros não conta a história toda pro oka web
+            newidx = step.pop(&#34;id&#34;)
+        for k in [&#34;input&#34;, &#34;output&#34;]:
+            if k in step:
+                del step[k]
+        if &#34;code&#34; in f.metadata:
+            if f.metadata[&#34;code&#34;] is ...:
+                if body is None:
+                    raise Exception(f&#34;Cannot autofill &#39;metadata.code&#39; for custom callable &#39;{type(f)}&#39;&#34;)
+                head = f&#34;def f{str(signature(f))}:&#34;
+                code = head + &#34;\n&#34; + body
+                f.metadata[&#34;code&#34;] = code
+    else:
+        step = {}
+
     deps = prepare_deps(data, input_fields, parameters, config, rnd)
     if output_field == &#34;extract&#34;:
         explicit, meta, meta_ellipsed = extract_output(f, lazy_returnstr, deps)
@@ -158,9 +168,23 @@ def lazify(data, output_field: Union[list, str], f, rnd, multi_output) -&gt; Uni
         lazies.extend(dic.values())
         for metaf in meta_ellipsed:
             if metaf == &#34;_code&#34;:
-                dic[&#34;_code&#34;] = lazy_code()
+                if hasattr(f, &#34;metadata&#34;) and &#34;code&#34; in f.metadata:
+                    dic[&#34;_code&#34;] = f.metadata[&#34;code&#34;]
+                else:
+                    if body is None:
+                        raise Exception(f&#34;Missing &#39;metadata&#39; containing &#39;code&#39; key for custom callable &#39;{type(f)}&#39;&#34;)
+                    head = f&#34;def f{str(signature(f))}:&#34;
+                    dic[&#34;_code&#34;] = head + &#34;\n&#34; + body
+            elif metaf == &#34;_function&#34;:
+                if hasattr(f, &#34;pickle_dump&#34;):
+                    dic[&#34;_function&#34;] = f.pickle_dump
+                else:
+                    import dill
+
+                    dump = dill.dumps(f, protocol=5)
+                    dic[&#34;_function&#34;] = dump
+                    f.pickle_dump = dump  # Memoize
             elif metaf == &#34;_history&#34;:
-                newidx = 0
                 if &#34;_history&#34; in data:
                     last = list(data[&#34;_history&#34;].keys())[-1]
                     if isinstance(last, int):
@@ -168,18 +192,6 @@ def lazify(data, output_field: Union[list, str], f, rnd, multi_output) -&gt; Uni
                     dic[&#34;_history&#34;] = data[&#34;_history&#34;].copy()
                 else:
                     dic[&#34;_history&#34;] = {}
-                if hasattr(f, &#34;metadata&#34;):
-                    excluded_keys = [&#34;input&#34;, &#34;output&#34;, &#34;code&#34;]
-                    delete_keys = [k for k in excluded_keys if k in f.metadata]
-                    step = f.metadata
-                    if delete_keys:
-                        step = step.copy()
-                        for k in delete_keys:
-                            del step[k]
-                    if &#34;id&#34; in f.metadata:
-                        newidx = f.metadata[&#34;id&#34;]
-                else:
-                    step = {}
                 dic[&#34;_history&#34;][newidx] = step
             else:
                 raise Exception(f&#34;&#39;...&#39; is not defined for &#39;{metaf}&#39;.&#34;)
@@ -356,13 +368,14 @@ def list2progression(lst):
 <span>def <span class="ident">lazify</span></span>(<span>data, output_field: Union[list, str], f, rnd, multi_output) ‑> Union[dict, <a title="ldict.lazyval.LazyVal" href="../lazyval.html#ldict.lazyval.LazyVal">LazyVal</a>]</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Create lazy values and handle meafields.</p></div>
+<div class="desc"><p>Create lazy values and handle metafields.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def lazify(data, output_field: Union[list, str], f, rnd, multi_output) -&gt; Union[dict, LazyVal]:
-    &#34;&#34;&#34;Create lazy values and handle meafields.&#34;&#34;&#34;
+    &#34;&#34;&#34;Create lazy values and handle metafields.&#34;&#34;&#34;
+    # TODO (minor): simplify to improve readability of this function
     config, f = (f.config, f.f) if isinstance(f, AbstractLet) else ({}, f)
     if isinstance(f, FunctionType):
         body = extract_body(f)
@@ -374,21 +387,12 @@ def list2progression(lst):
                 memo[0] = extract_dictstr(memo[0])
             return memo[0]
 
-        def lazy_code():
-            head = f&#34;def f{str(signature(f))}:&#34;
-            return head + &#34;\n&#34; + body
-
         dynamic_input = extract_dynamic_input(lazy_returnstr)
     else:
+        body = None
         if not (hasattr(f, &#34;metadata&#34;) and &#34;input&#34; in f.metadata and &#34;output&#34; in f.metadata):
             raise Exception(f&#34;Missing &#39;metadata&#39; containing &#39;input&#39; and &#39;output&#39; keys for custom callable &#39;{type(f)}&#39;&#34;)
         lazy_returnstr = lambda: &#34;&#34;
-
-        def lazy_code():
-            if &#34;code&#34; in f.metadata:
-                return f.metadata[&#34;code&#34;]
-            raise Exception(f&#34;Missing &#39;metadata&#39; containing &#39;code&#39; key for custom callable &#39;{type(f)}&#39;&#34;)
-
         dynamic_input = f.metadata[&#34;input&#34;][&#34;dynamic&#34;] if &#34;dynamic&#34; in f.metadata[&#34;input&#34;] else []
 
     if not dynamic_input and hasattr(f, &#34;metadata&#34;) and &#34;input&#34; in f.metadata and &#34;dynamic&#34; in f.metadata[&#34;input&#34;]:
@@ -401,6 +405,24 @@ def list2progression(lst):
             raise Exception(f&#34;Parameter &#39;{par}&#39; value is not available:&#34;, config)
         input_fields.append(config[par])
 
+    newidx = 0
+    if hasattr(f, &#34;metadata&#34;):
+        step = f.metadata.copy()
+        if &#34;id&#34; in step:  # TODO: f id sem os valores dos parametros não conta a história toda pro oka web
+            newidx = step.pop(&#34;id&#34;)
+        for k in [&#34;input&#34;, &#34;output&#34;]:
+            if k in step:
+                del step[k]
+        if &#34;code&#34; in f.metadata:
+            if f.metadata[&#34;code&#34;] is ...:
+                if body is None:
+                    raise Exception(f&#34;Cannot autofill &#39;metadata.code&#39; for custom callable &#39;{type(f)}&#39;&#34;)
+                head = f&#34;def f{str(signature(f))}:&#34;
+                code = head + &#34;\n&#34; + body
+                f.metadata[&#34;code&#34;] = code
+    else:
+        step = {}
+
     deps = prepare_deps(data, input_fields, parameters, config, rnd)
     if output_field == &#34;extract&#34;:
         explicit, meta, meta_ellipsed = extract_output(f, lazy_returnstr, deps)
@@ -409,9 +431,23 @@ def list2progression(lst):
         lazies.extend(dic.values())
         for metaf in meta_ellipsed:
             if metaf == &#34;_code&#34;:
-                dic[&#34;_code&#34;] = lazy_code()
+                if hasattr(f, &#34;metadata&#34;) and &#34;code&#34; in f.metadata:
+                    dic[&#34;_code&#34;] = f.metadata[&#34;code&#34;]
+                else:
+                    if body is None:
+                        raise Exception(f&#34;Missing &#39;metadata&#39; containing &#39;code&#39; key for custom callable &#39;{type(f)}&#39;&#34;)
+                    head = f&#34;def f{str(signature(f))}:&#34;
+                    dic[&#34;_code&#34;] = head + &#34;\n&#34; + body
+            elif metaf == &#34;_function&#34;:
+                if hasattr(f, &#34;pickle_dump&#34;):
+                    dic[&#34;_function&#34;] = f.pickle_dump
+                else:
+                    import dill
+
+                    dump = dill.dumps(f, protocol=5)
+                    dic[&#34;_function&#34;] = dump
+                    f.pickle_dump = dump  # Memoize
             elif metaf == &#34;_history&#34;:
-                newidx = 0
                 if &#34;_history&#34; in data:
                     last = list(data[&#34;_history&#34;].keys())[-1]
                     if isinstance(last, int):
@@ -419,18 +455,6 @@ def list2progression(lst):
                     dic[&#34;_history&#34;] = data[&#34;_history&#34;].copy()
                 else:
                     dic[&#34;_history&#34;] = {}
-                if hasattr(f, &#34;metadata&#34;):
-                    excluded_keys = [&#34;input&#34;, &#34;output&#34;, &#34;code&#34;]
-                    delete_keys = [k for k in excluded_keys if k in f.metadata]
-                    step = f.metadata
-                    if delete_keys:
-                        step = step.copy()
-                        for k in delete_keys:
-                            del step[k]
-                    if &#34;id&#34; in f.metadata:
-                        newidx = f.metadata[&#34;id&#34;]
-                else:
-                    step = {}
                 dic[&#34;_history&#34;][newidx] = step
             else:
                 raise Exception(f&#34;&#39;...&#39; is not defined for &#39;{metaf}&#39;.&#34;)

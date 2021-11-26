@@ -152,6 +152,7 @@ def lazify(data, output_field: Union[list, str], f, rnd, multi_output) -> Union[
                     dic["_function"] = f.pickle_dump
                 else:
                     import dill
+
                     dump = dill.dumps(f, protocol=5)
                     dic["_function"] = dump
                     f.pickle_dump = dump  # Memoize
