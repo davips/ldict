@@ -744,7 +744,7 @@ full = ["pandas"]
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.8,<3.10"
-content-hash = "92664bb8664dc2dc7db3e3f28c69e598ff89a2d702ce739d52f89026a3a323ae"
+content-hash = "40b1a51f596859062c52c4c91e26a95ab21b2ea2bd0b729ec214f3eacbe9b3b2"
 
 [metadata.files]
 ansi2html = [
