@@ -61,21 +61,21 @@ def extract_body(f):
     >>> def f(x, y, implicit=["a", "b", "c"]):
     ...     return x*y, x+y, x/y
     >>> extract_body(f)
-    'return (x * y, x + y, x / y)'
+    ['return (x * y, x + y, x / y)']
     """
     if hasattr(f, "metadata") and "code" in f.metadata:
         return f.metadata["code"]
     out = StringIO()
     decompile(bytecode_version=(3, 8, 10), co=f.__code__, out=out)
-    code = "".join([line for line in out.getvalue().split("\n") if not line.startswith("#")])
-    return code
+    code = [line for line in out.getvalue().split("\n") if not line.startswith("#")]
+    return code or None
 
 
 def extract_returnstr(code) -> str:
     """
     >>> def f(x, y, implicit=["a", "b", "c"]):
     ...     return x*y, x+y, x/y
-    >>> extract_returnstr(extract_body(f))
+    >>> extract_returnstr("".join(extract_body(f)))
     '(x * y, x + y, x / y)'
     """
     if "return" not in code:
@@ -94,7 +94,7 @@ def extract_dictstr(returnstr: str) -> str:
     ...         "w": x+y,
     ...         implicit: x/y
     ...     }
-    >>> extract_dictstr(extract_returnstr(extract_body(f)))
+    >>> extract_dictstr(extract_returnstr("".join(extract_body(f))))
     "{'z': x * y,  'w': x + y,  implicit: x / y}"
     """
     dict_strs = re.findall("(?={)(.+?)(?<=})", returnstr)

@@ -42,19 +42,19 @@ class Test(TestCase):
             pass
 
         with pytest.raises(NoReturnException):
-            extract_dictstr(extract_returnstr(extract_body(f)))
+            extract_dictstr(extract_returnstr("".join(extract_body(f))))
 
         def f(x):
             return {"x": 1}, {"y": 2}
 
         with pytest.raises(MultipleDicts):
-            extract_dictstr(extract_returnstr(extract_body(f)))
+            extract_dictstr(extract_returnstr("".join(extract_body(f))))
 
         def f(x):
             return 0
 
         with pytest.raises(BadOutput):
-            extract_dictstr(extract_returnstr(extract_body(f)))
+            extract_dictstr(extract_returnstr("".join(extract_body(f))))
 
     def test_application(self):
         with pytest.raises(BadOutput):

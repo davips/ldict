@@ -120,7 +120,7 @@ def lazify(data, output_field: Union[list, str], f, rnd, multi_output) -> Union[
         memo = [""]
 
         def lazy_returnstr():
-            memo[0] = extract_returnstr(body)
+            memo[0] = extract_returnstr("".join(body))
             if multi_output:
                 memo[0] = extract_dictstr(memo[0])
             return memo[0]
@@ -149,7 +149,7 @@ def lazify(data, output_field: Union[list, str], f, rnd, multi_output) -> Union[
                 if body is None:
                     raise Exception(f"Cannot autofill 'metadata.code' for custom callable '{type(f)}'")
                 head = f"def f{str(signature(f))}:"
-                code = head + "\n" + body
+                code = head + "\n" + body[0]
                 f.metadata["code"] = code
     else:
         step = {}
@@ -178,7 +178,7 @@ def lazify(data, output_field: Union[list, str], f, rnd, multi_output) -> Union[
                     if body is None:
                         raise Exception(f"Missing 'metadata' containing 'code' key for custom callable '{type(f)}'")
                     head = f"def f{str(signature(f))}:"
-                    dic["_code"] = head + "\n" + body
+                    dic["_code"] = head + "\n" + body[0]
             elif metaf == "_parameters":
                 dic["_parameters"] = parameters
             elif metaf == "_function":
