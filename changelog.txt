@@ -1,1 +1,15 @@
-Update garoupa for correct etype inducer on ldict.ø
+Add autofill for metafield _parameters
+
+v3.211126.2
+Remove unneded garoupa and numpy due to restriction on python version
+
+v3.211126.1
+Add option for auto metafield _code from metadata
+Add option for auto metafield _function for f dump
+Remove id from step
+
+v3.211124.1
+Add callable class support
+
+v3.211121.1
+Add support to metadata and metafields (including history and code)

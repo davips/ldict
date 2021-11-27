@@ -117,7 +117,7 @@ def lazify(data, output_field: Union[list, str], f, rnd, multi_output) -> Union[
     newidx = 0
     if hasattr(f, "metadata"):
         step = f.metadata.copy()
-        if "id" in step:  # TODO: f id sem os valores dos parametros não conta a história toda pro oka web
+        if "id" in step:
             newidx = step.pop("id")
         for k in ["input", "output"]:
             if k in step:
@@ -147,6 +147,8 @@ def lazify(data, output_field: Union[list, str], f, rnd, multi_output) -> Union[
                         raise Exception(f"Missing 'metadata' containing 'code' key for custom callable '{type(f)}'")
                     head = f"def f{str(signature(f))}:"
                     dic["_code"] = head + "\n" + body
+            elif metaf == "_parameters":
+                    dic["_parameters"] = config
             elif metaf == "_function":
                 if hasattr(f, "pickle_dump"):
                     dic["_function"] = f.pickle_dump
