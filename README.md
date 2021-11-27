@@ -302,20 +302,20 @@ print(e.z)
 ```python3
 
 # Not all parameters need to be set.
-e = d >> let(simplefun, a=5)
-print(e.z)
+e = d >> Random() >> let(fun, a=5)
+print("e =", e.z)
 """
-35
+e = 70000025.0
 """
 ```
 
 ```python3
 
 # Each run will be a different sample for the missing parameters.
-e = e >> let(simplefun, a=5)
-print(e.z)
+e = e >> Random() >> let(fun, a=5)
+print("e =", e.z)
 """
-35
+e = 700000025.0
 """
 ```
 

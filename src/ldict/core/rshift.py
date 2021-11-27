@@ -217,9 +217,11 @@ def prepare_deps(data, input, parameters, rnd):
     for k, v in parameters.items():
         if isinstance(v, list):
             if rnd is None:  # pragma: no cover
-                raise UndefinedSeed("Missing Random object (or some object with the method 'choice') "
-                                    "before parameterized function application.\n"
-                                    "Example: ldict(x=5) >> Random(42) >> (lambda x, a=[1,2,3]: {'y': a * x**2})")
+                raise UndefinedSeed(
+                    "Missing Random object (or some object with the method 'choice') "
+                    "before parameterized function application.\n"
+                    "Example: ldict(x=5) >> Random(42) >> (lambda x, a=[1,2,3]: {'y': a * x**2})"
+                )
             deps[k] = rnd.choice(expand(v))
         elif v is None:  # pragma: no cover
             raise DependenceException(f"'None' value for parameter '{k}'.", deps.keys())
