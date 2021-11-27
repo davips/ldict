@@ -83,7 +83,36 @@ def handle_dict(data, dictlike, rnd):
 
 
 def lazify(data, output_field: Union[list, str], f, rnd, multi_output) -> Union[dict, LazyVal]:
-    """Create lazy values and handle metafields."""
+    """Create lazy values and handle metafields.
+    >>> from ldict import ldict, let
+    >>> from random import Random
+    >>> (d := ldict(x=5) >> Random(0) >> (lambda x, a=1, b=[1, 2, 3, ... , 8]: {"y": a*x + b, "_parameters": ...}))
+    {
+        "x": 5,
+        "y": "→(a b x)",
+        "_parameters": {
+            "a": 1,
+            "b": 7
+        }
+    }
+    >>> d.y
+    12
+    >>> d = ldict(x=5) >> Random(0) >> let(
+    ...     (lambda x, a=1, b=[1, 2, 3, ... , 8]: {"y": a*x + b, "_parameters": ...}),
+    ...     a=3, b=5
+    ... )
+    >>> d
+    {
+        "x": 5,
+        "y": "→(a b x)",
+        "_parameters": {
+            "a": 3,
+            "b": 5
+        }
+    }
+    >>> d.y
+    20
+    """
     # TODO (minor): simplify to improve readability of this function
     config, f = (f.config, f.f) if isinstance(f, AbstractLet) else ({}, f)
     if isinstance(f, FunctionType):
@@ -107,13 +136,6 @@ def lazify(data, output_field: Union[list, str], f, rnd, multi_output) -> Union[
     if not dynamic_input and hasattr(f, "metadata") and "input" in f.metadata and "dynamic" in f.metadata["input"]:
         dynamic_input = f.metadata["input"]["dynamic"]
 
-    input_fields, parameters = extract_input(f)
-
-    for par in dynamic_input:
-        if par not in config:  # pragma: no cover
-            raise Exception(f"Parameter '{par}' value is not available:", config)
-        input_fields.append(config[par])
-
     newidx = 0
     if hasattr(f, "metadata"):
         step = f.metadata.copy()
@@ -132,7 +154,17 @@ def lazify(data, output_field: Union[list, str], f, rnd, multi_output) -> Union[
     else:
         step = {}
 
-    deps = prepare_deps(data, input_fields, parameters, config, rnd)
+    input_fields, parameters = extract_input(f)
+    for k, v in config.items():
+        parameters[k] = v
+    for par in dynamic_input:
+        if par not in config:  # pragma: no cover
+            raise Exception(f"Parameter '{par}' value is not available:", config)
+        input_fields.append(config[par])
+    deps = prepare_deps(data, input_fields, parameters, rnd)
+    for k, v in parameters.items():
+        parameters[k] = deps[k]
+
     if output_field == "extract":
         explicit, meta, meta_ellipsed = extract_output(f, lazy_returnstr, deps)
         lazies = []
@@ -148,7 +180,7 @@ def lazify(data, output_field: Union[list, str], f, rnd, multi_output) -> Union[
                     head = f"def f{str(signature(f))}:"
                     dic["_code"] = head + "\n" + body
             elif metaf == "_parameters":
-                    dic["_parameters"] = config
+                dic["_parameters"] = parameters
             elif metaf == "_function":
                 if hasattr(f, "pickle_dump"):
                     dic["_function"] = f.pickle_dump
@@ -174,19 +206,20 @@ def lazify(data, output_field: Union[list, str], f, rnd, multi_output) -> Union[
         return LazyVal(output_field, f, deps, None)
 
 
-def prepare_deps(data, input, parameters, config, rnd):
-    """Build a dict containing all needed dependencies (values) to apply a function: input fields and parameters.
+def prepare_deps(data, input, parameters, rnd):
+    """Build a dict containing all needed dependencies (values) to apply a function:
+        input fields and parameters.
 
-    Parameter values are given in config or sampled according to a range using rnd.
+    Parameter values are given in let() or sampled according to a range using a random number generator that provides a 'choice' method.
     A range is specified as the default value of the parameter in the function signature.
     """
     deps = {}
     for k, v in parameters.items():
-        if k in config:
-            v = config[k]
         if isinstance(v, list):
             if rnd is None:  # pragma: no cover
-                raise UndefinedSeed("Missing Random object before parameterized function application.")
+                raise UndefinedSeed("Missing Random object (or some object with the method 'choice') "
+                                    "before parameterized function application.\n"
+                                    "Example: ldict(x=5) >> Random(42) >> (lambda x, a=[1,2,3]: {'y': a * x**2})")
             deps[k] = rnd.choice(expand(v))
         elif v is None:  # pragma: no cover
             raise DependenceException(f"'None' value for parameter '{k}'.", deps.keys())
@@ -237,10 +270,13 @@ def list2progression(lst):
 
     """
     # TODO move this to lange package
-    diff1 = lst[1] - lst[0]
-    diff2 = lst[2] - lst[1]
-    ratio1 = lst[1] / lst[0]
-    ratio2 = lst[2] / lst[1]
+    try:
+        diff1 = lst[1] - lst[0]
+        diff2 = lst[2] - lst[1]
+        ratio1 = lst[1] / lst[0]
+        ratio2 = lst[2] / lst[1]
+    except:
+        raise InconsistentLange(f"Cannot identify whether this is a G. or A. progression: {lst}")
     newlst = [lst[0], lst[1], ..., lst[-1]]
     if diff1 == diff2:
         return AP(*newlst)

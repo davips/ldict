@@ -45,13 +45,13 @@ print(e.z)
 # ...
 
 # Not all parameters need to be set.
-e = d >> let(simplefun, a=5)
-print(e.z)
+e = d >> Random() >> let(fun, a=5)
+print("e =", e.z)
 # ...
 
 # Each run will be a different sample for the missing parameters.
-e = e >> let(simplefun, a=5)
-print(e.z)
+e = e >> Random() >> let(fun, a=5)
+print("e =", e.z)
 # ...
 
 # We can define the initial state of the random sampler.
