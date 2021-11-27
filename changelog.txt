@@ -1,3 +1,6 @@
+v3.211127.2
+Accept default value for parameter
+
 v3.211127.1
 Add option for auto metafield _parameters=...
 

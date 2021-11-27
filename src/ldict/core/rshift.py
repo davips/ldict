@@ -158,9 +158,9 @@ def lazify(data, output_field: Union[list, str], f, rnd, multi_output) -> Union[
     for k, v in config.items():
         parameters[k] = v
     for par in dynamic_input:
-        if par not in config:  # pragma: no cover
-            raise Exception(f"Parameter '{par}' value is not available:", config)
-        input_fields.append(config[par])
+        if par not in parameters:  # pragma: no cover
+            raise Exception(f"Parameter '{par}' value is not available:", parameters)
+        input_fields.append(parameters[par])
     deps = prepare_deps(data, input_fields, parameters, rnd)
     for k, v in parameters.items():
         parameters[k] = deps[k]
