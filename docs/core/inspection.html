@@ -89,21 +89,21 @@ def extract_body(f):
     &gt;&gt;&gt; def f(x, y, implicit=[&#34;a&#34;, &#34;b&#34;, &#34;c&#34;]):
     ...     return x*y, x+y, x/y
     &gt;&gt;&gt; extract_body(f)
-    &#39;return (x * y, x + y, x / y)&#39;
+    [&#39;return (x * y, x + y, x / y)&#39;]
     &#34;&#34;&#34;
     if hasattr(f, &#34;metadata&#34;) and &#34;code&#34; in f.metadata:
         return f.metadata[&#34;code&#34;]
     out = StringIO()
     decompile(bytecode_version=(3, 8, 10), co=f.__code__, out=out)
-    code = &#34;&#34;.join([line for line in out.getvalue().split(&#34;\n&#34;) if not line.startswith(&#34;#&#34;)])
-    return code
+    code = [line for line in out.getvalue().split(&#34;\n&#34;) if not line.startswith(&#34;#&#34;)]
+    return code or None
 
 
 def extract_returnstr(code) -&gt; str:
     &#34;&#34;&#34;
     &gt;&gt;&gt; def f(x, y, implicit=[&#34;a&#34;, &#34;b&#34;, &#34;c&#34;]):
     ...     return x*y, x+y, x/y
-    &gt;&gt;&gt; extract_returnstr(extract_body(f))
+    &gt;&gt;&gt; extract_returnstr(&#34;&#34;.join(extract_body(f)))
     &#39;(x * y, x + y, x / y)&#39;
     &#34;&#34;&#34;
     if &#34;return&#34; not in code:
@@ -122,7 +122,7 @@ def extract_dictstr(returnstr: str) -&gt; str:
     ...         &#34;w&#34;: x+y,
     ...         implicit: x/y
     ...     }
-    &gt;&gt;&gt; extract_dictstr(extract_returnstr(extract_body(f)))
+    &gt;&gt;&gt; extract_dictstr(extract_returnstr(&#34;&#34;.join(extract_body(f))))
     &#34;{&#39;z&#39;: x * y,  &#39;w&#39;: x + y,  implicit: x / y}&#34;
     &#34;&#34;&#34;
     dict_strs = re.findall(&#34;(?={)(.+?)(?&lt;=})&#34;, returnstr)
@@ -197,7 +197,7 @@ def extract_dynamic_input(lazy_dictstr):
 <div class="desc"><pre><code class="language-python-repl">&gt;&gt;&gt; def f(x, y, implicit=[&quot;a&quot;, &quot;b&quot;, &quot;c&quot;]):
 ...     return x*y, x+y, x/y
 &gt;&gt;&gt; extract_body(f)
-'return (x * y, x + y, x / y)'
+['return (x * y, x + y, x / y)']
 </code></pre></div>
 <details class="source">
 <summary>
@@ -208,14 +208,14 @@ def extract_dynamic_input(lazy_dictstr):
     &gt;&gt;&gt; def f(x, y, implicit=[&#34;a&#34;, &#34;b&#34;, &#34;c&#34;]):
     ...     return x*y, x+y, x/y
     &gt;&gt;&gt; extract_body(f)
-    &#39;return (x * y, x + y, x / y)&#39;
+    [&#39;return (x * y, x + y, x / y)&#39;]
     &#34;&#34;&#34;
     if hasattr(f, &#34;metadata&#34;) and &#34;code&#34; in f.metadata:
         return f.metadata[&#34;code&#34;]
     out = StringIO()
     decompile(bytecode_version=(3, 8, 10), co=f.__code__, out=out)
-    code = &#34;&#34;.join([line for line in out.getvalue().split(&#34;\n&#34;) if not line.startswith(&#34;#&#34;)])
-    return code</code></pre>
+    code = [line for line in out.getvalue().split(&#34;\n&#34;) if not line.startswith(&#34;#&#34;)]
+    return code or None</code></pre>
 </details>
 </dd>
 <dt id="ldict.core.inspection.extract_dictstr"><code class="name flex">
@@ -228,7 +228,7 @@ def extract_dynamic_input(lazy_dictstr):
 ...         &quot;w&quot;: x+y,
 ...         implicit: x/y
 ...     }
-&gt;&gt;&gt; extract_dictstr(extract_returnstr(extract_body(f)))
+&gt;&gt;&gt; extract_dictstr(extract_returnstr(&quot;&quot;.join(extract_body(f))))
 &quot;{'z': x * y,  'w': x + y,  implicit: x / y}&quot;
 </code></pre></div>
 <details class="source">
@@ -243,7 +243,7 @@ def extract_dynamic_input(lazy_dictstr):
     ...         &#34;w&#34;: x+y,
     ...         implicit: x/y
     ...     }
-    &gt;&gt;&gt; extract_dictstr(extract_returnstr(extract_body(f)))
+    &gt;&gt;&gt; extract_dictstr(extract_returnstr(&#34;&#34;.join(extract_body(f))))
     &#34;{&#39;z&#39;: x * y,  &#39;w&#39;: x + y,  implicit: x / y}&#34;
     &#34;&#34;&#34;
     dict_strs = re.findall(&#34;(?={)(.+?)(?&lt;=})&#34;, returnstr)
@@ -374,7 +374,7 @@ def extract_dynamic_input(lazy_dictstr):
 <dd>
 <div class="desc"><pre><code class="language-python-repl">&gt;&gt;&gt; def f(x, y, implicit=[&quot;a&quot;, &quot;b&quot;, &quot;c&quot;]):
 ...     return x*y, x+y, x/y
-&gt;&gt;&gt; extract_returnstr(extract_body(f))
+&gt;&gt;&gt; extract_returnstr(&quot;&quot;.join(extract_body(f)))
 '(x * y, x + y, x / y)'
 </code></pre></div>
 <details class="source">
@@ -385,7 +385,7 @@ def extract_dynamic_input(lazy_dictstr):
     &#34;&#34;&#34;
     &gt;&gt;&gt; def f(x, y, implicit=[&#34;a&#34;, &#34;b&#34;, &#34;c&#34;]):
     ...     return x*y, x+y, x/y
-    &gt;&gt;&gt; extract_returnstr(extract_body(f))
+    &gt;&gt;&gt; extract_returnstr(&#34;&#34;.join(extract_body(f)))
     &#39;(x * y, x + y, x / y)&#39;
     &#34;&#34;&#34;
     if &#34;return&#34; not in code:
