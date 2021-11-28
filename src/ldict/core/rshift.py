@@ -46,8 +46,6 @@ from lange import AP, GP
 from ldict.core.inspection import (
     extract_dynamic_input,
     extract_output,
-    extract_returnstr,
-    extract_dictstr,
     extract_body,
 )
 from ldict.core.inspection import extract_input
@@ -138,6 +136,31 @@ def lazify(data, output_field: Union[list, str], f, rnd, multi_output) -> Union[
             }
         }
     }
+    >>> def f(input=["a", "b"], output=None, **kwargs):
+    ...     return {output: kwargs[input[0]] * kwargs[input[1]]}
+    >>> d = ldict(a=5, b=7) >> let(f, output="c")
+    >>> d.c
+    35
+    >>> d
+    {
+        "a": 5,
+        "b": 7,
+        "c": 35
+    }
+    """
+
+    """
+    >>> def f(input=["a", "b"], output=None, **kwargs):
+    ...     return {kwargs[output[0]]: kwargs[input[0]], kwargs[output[1]]: kwargs[input[1]]}
+    >>> d = ldict(a=5, b=7) >> let(f, output=["c", "d"])
+    >>> d.c
+    35
+    >>> d
+    {
+        "a": 5,
+        "b": 7,
+        "c": 35
+    }
     """
     # TODO (minor): simplify to improve readability of this function
     config, f = (f.config, f.f) if isinstance(f, AbstractLet) else ({}, f)
@@ -157,11 +180,19 @@ def lazify(data, output_field: Union[list, str], f, rnd, multi_output) -> Union[
     input_fields, parameters = extract_input(f)
     for k, v in config.items():
         parameters[k] = v
+    multi = set()
     for par in dynamic_input:
         if par not in parameters:  # pragma: no cover
             raise Exception(f"Parameter '{par}' value is not available:", parameters)
-        input_fields.append(parameters[par])
-    deps = prepare_deps(data, input_fields, parameters, rnd)
+        if isinstance(parameters[par], list):
+            input_fields.extend(parameters[par])
+            multi.add(par)
+        elif isinstance(parameters[par], dict):
+            input_fields.extend(parameters[par].values())
+            multi.add(par)
+        else:
+            input_fields.append(parameters[par])
+    deps = prepare_deps(data, input_fields, parameters, rnd, multi)
     for k, v in parameters.items():
         parameters[k] = deps[k]
 
@@ -238,7 +269,7 @@ def lazify(data, output_field: Union[list, str], f, rnd, multi_output) -> Union[
         return LazyVal(output_field, f, deps, None)
 
 
-def prepare_deps(data, input, parameters, rnd):
+def prepare_deps(data, input, parameters, rnd, multi):
     """Build a dict containing all needed dependencies (values) to apply a function:
         input fields and parameters.
 
@@ -247,12 +278,16 @@ def prepare_deps(data, input, parameters, rnd):
     """
     deps = {}
     for k, v in parameters.items():
-        if isinstance(v, list):
+        # TODO existence of multidynamic output is raising exception here
+        #  because it will only be extracted at the end of lazify
+        if isinstance(v, list) and k not in multi:
             if rnd is None:  # pragma: no cover
                 raise UndefinedSeed(
-                    "Missing Random object (or some object with the method 'choice') "
+                    "\nMissing Random object (or some object with the method 'choice') "
                     "before parameterized function application.\n"
-                    "Example: ldict(x=5) >> Random(42) >> (lambda x, a=[1,2,3]: {'y': a * x**2})"
+                    "Example: ldict(x=5) >> Random(42) >> (lambda x, a=[1,2,3]: {'y': a * x**2})\n"
+                    f"field={k}\n"
+                    f"values={v}\n{parameters=}\n{multi=}"
                 )
             deps[k] = rnd.choice(expand(v))
         elif v is None:  # pragma: no cover

@@ -1,3 +1,6 @@
+v3.211127.6
+Add support to multidynamic input and draft for multidynamic output
+
 v3.211127.5
 Expand possible usages for kwargs as implicit input field
 Fix code without \\n

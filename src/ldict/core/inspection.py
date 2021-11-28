@@ -144,9 +144,10 @@ def extract_output(f, body, deps, multi_output):
     if "dynamic" in metadata_output:
         dynamic = f.metadata["output"]["dynamic"]
     else:
-        # REMINDER: identify output that comes as a variable; it will be used to check whether we can detect its content
-        # The variable brings the field name.
+        # REMINDER: The variable brings the field name.
         dynamic = re.findall(r"[ {]([_a-zA-Z]+[_a-zA-Z0-9]*):", lazy_dictstr())
+        multidynamic = re.findall(r"[ {]kwargs\[([_a-zA-Z]+[_a-zA-Z0-9]*)\[[^]]+?]]:", lazy_dictstr())
+        dynamic.extend(multidynamic)
 
     for field in dynamic:
         # if "_" in field:  # pragma: no cover
@@ -163,7 +164,10 @@ def extract_output(f, body, deps, multi_output):
 def extract_dynamic_input(bodystr):
     """The variable brings the field name, so we can get the field content from kwargs.
 
-    >>> extract_dynamic_input("some code kwargs[x].asd * kwargs[y] == 5")
-    ['x', 'y']
+    >>> extract_dynamic_input("some code kwargs[x].asd * kwargs[y] == 5 kwargs[dyn[23rgf]] ")
+    ['dyn', 'x', 'y']
     """
-    return re.findall(r"kwargs\[([a-zA-Z]+[a-zA-Z0-9_]*)][^:]", bodystr)
+    single = set(re.findall(r"kwargs\[([a-zA-Z]+[a-zA-Z0-9_]*)][^:]", bodystr))
+    multi = re.findall(r"kwargs\[([a-zA-Z]+[a-zA-Z0-9_]*)\[[^]]+?]][^:]", bodystr)
+    single.update(multi)
+    return sorted(list(single))
