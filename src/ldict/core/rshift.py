@@ -143,15 +143,7 @@ def lazify(data, output_field: Union[list, str], f, rnd, multi_output) -> Union[
     config, f = (f.config, f.f) if isinstance(f, AbstractLet) else ({}, f)
     if isinstance(f, FunctionType):
         body = extract_body(f)
-        memo = [""]
-
-        def lazy_returnstr():
-            memo[0] = extract_returnstr("".join(body))
-            if multi_output:
-                memo[0] = extract_dictstr(memo[0])
-            return memo[0]
-
-        dynamic_input = extract_dynamic_input(lazy_returnstr)
+        dynamic_input = extract_dynamic_input("".join(body))
     else:
         body = None
         if not (hasattr(f, "metadata") and "input" in f.metadata and "output" in f.metadata):
@@ -185,7 +177,7 @@ def lazify(data, output_field: Union[list, str], f, rnd, multi_output) -> Union[
             if body is None:
                 raise Exception(f"Cannot autofill 'metadata.code' for custom callable '{type(f)}'")
             head = f"def f{str(signature(f))}:"
-            code = head + "\n" + body[0]
+            code = head + "\n" + "\n".join(body)
             f.metadata["code"] = code
             step["code"] = code
         if "parameters" in f.metadata and f.metadata["parameters"] is ...:
@@ -205,7 +197,7 @@ def lazify(data, output_field: Union[list, str], f, rnd, multi_output) -> Union[
         step = {}
 
     if output_field == "extract":
-        explicit, meta, meta_ellipsed = extract_output(f, lazy_returnstr, deps)
+        explicit, meta, meta_ellipsed = extract_output(f, body, deps, multi_output)
         lazies = []
         dic = {k: LazyVal(k, f, deps, lazies) for k in explicit + meta}
         lazies.extend(dic.values())
@@ -217,7 +209,7 @@ def lazify(data, output_field: Union[list, str], f, rnd, multi_output) -> Union[
                     if body is None:
                         raise Exception(f"Missing 'metadata' containing 'code' key for custom callable '{type(f)}'")
                     head = f"def f{str(signature(f))}:"
-                    dic["_code"] = head + "\n" + body[0]
+                    dic["_code"] = head + "\n" + "\n".join(body)
             elif metaf == "_parameters":
                 dic["_parameters"] = parameters
             elif metaf == "_function":

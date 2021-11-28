@@ -115,16 +115,18 @@ class Ldict(AbstractMutableLazyDict):
             }
         }
     }
-    >>> def g(source=None, **kwargs):
-    ...     return {"y": kwargs[source]**2, "_meta1": 0, "_history": Ellipsis, "_code": ...}
+    >>> def g(inp=None, source=None, **kwargs):
+    ...     res = kwargs[inp] ** 3
+    ...     return {"w": res, "y": kwargs[source]**2, "_meta1": 0, "_history": Ellipsis, "_code": ...}
     >>> g.metadata = {"name": "squared using dynamic field", "description": "Some text."}
     >>> from ldict import let
-    >>> ldict(x=5) >> let(g, source="x")
+    >>> (d := ldict(x=5) >> let(g, inp="x", source="x"))
     {
         "x": 5,
-        "y": "→(source x)",
-        "_meta1": "→(source x)",
-        "_code": "def f(source=None, **kwargs):\\nreturn {'y':kwargs[source] ** 2,  '_meta1':0,  '_history':Ellipsis,  '_code':...}",
+        "w": "→(inp source x)",
+        "y": "→(inp source x)",
+        "_meta1": "→(inp source x)",
+        "_code": "def f(inp=None, source=None, **kwargs):\\nres = kwargs[inp] ** 3\\nreturn {'w':res,  'y':kwargs[source] ** 2,  '_meta1':0,  '_history':Ellipsis,  '_code':...}",
         "_history": {
             "0": {
                 "name": "squared using dynamic field",
@@ -132,6 +134,8 @@ class Ldict(AbstractMutableLazyDict):
             }
         }
     }
+    >>> d.w
+    125
     >>> class MyCallableClass:
     ...     metadata = {
     ...         "name": "squared using dynamic field",

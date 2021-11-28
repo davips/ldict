@@ -109,14 +109,23 @@ def extract_dictstr(returnstr: str) -> str:
     return dict_strs[0]
 
 
-def extract_output(f, lazy_dictstr, deps):
+def extract_output(f, body, deps, multi_output):
     """Extract output fields.
 
     https://stackoverflow.com/a/68753149/9681577
 
-    >>> extract_output(lambda:None, lambda:"{'z': x*y, 'w': x+y, implicitfield: y**2, '_history': ..., '_code': ..., '_metafield2': 'some text'}", {"implicitfield": "k"})
+    >>> extract_output(lambda:None, "return {'z': x*y, 'w': x+y, implicitfield: y**2, '_history': ..., '_code': ..., '_metafield2': 'some text'}", {"implicitfield": "k"}, True)
     (['z', 'w', 'k'], ['_metafield2'], ['_history', '_code'])
     """
+
+    memo = [""]
+
+    def lazy_dictstr():
+        memo[0] = extract_returnstr("".join(body))
+        if multi_output:
+            memo[0] = extract_dictstr(memo[0])
+        return memo[0]
+
     metadata_output = f.metadata["output"] if hasattr(f, "metadata") and "output" in f.metadata else {}
     if "fields" in metadata_output:
         explicit = f.metadata["output"]["fields"]
@@ -151,6 +160,10 @@ def extract_output(f, lazy_dictstr, deps):
     return explicit, meta, meta_ellipsed
 
 
-def extract_dynamic_input(lazy_dictstr):
-    """The variable brings the field name, so we can get the field content from kwargs."""
-    return re.findall(r"kwargs\[([a-zA-Z]+[a-zA-Z0-9_]*)][^:]", lazy_dictstr())
+def extract_dynamic_input(bodystr):
+    """The variable brings the field name, so we can get the field content from kwargs.
+
+    >>> extract_dynamic_input("some code kwargs[x].asd * kwargs[y] == 5")
+    ['x', 'y']
+    """
+    return re.findall(r"kwargs\[([a-zA-Z]+[a-zA-Z0-9_]*)][^:]", bodystr)
