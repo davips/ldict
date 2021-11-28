@@ -68,7 +68,8 @@ def extract_input(f):
     &#34;&#34;&#34;
     if hasattr(f, &#34;metadata&#34;) and &#34;input&#34; in f.metadata:
         fields = f.metadata[&#34;input&#34;][&#34;fields&#34;] if &#34;fields&#34; in f.metadata[&#34;input&#34;] else []
-        parameters = f.metadata[&#34;input&#34;][&#34;parameters&#34;] if &#34;parameters&#34; in f.metadata[&#34;input&#34;] else {}
+        hasparams = &#34;parameters&#34; in f.metadata[&#34;input&#34;] and f.metadata[&#34;input&#34;][&#34;parameters&#34;] is not ...
+        parameters = f.metadata[&#34;input&#34;][&#34;parameters&#34;] if hasparams else {}
         return fields, parameters
     pars = dict(signature(f).parameters)
     input, parameters = [], {}
@@ -91,7 +92,7 @@ def extract_body(f):
     &gt;&gt;&gt; extract_body(f)
     [&#39;return (x * y, x + y, x / y)&#39;]
     &#34;&#34;&#34;
-    if hasattr(f, &#34;metadata&#34;) and &#34;code&#34; in f.metadata:
+    if hasattr(f, &#34;metadata&#34;) and &#34;code&#34; in f.metadata and f.metadata[&#34;code&#34;] is not ...:
         return f.metadata[&#34;code&#34;]
     out = StringIO()
     decompile(bytecode_version=(3, 8, 10), co=f.__code__, out=out)
@@ -210,7 +211,7 @@ def extract_dynamic_input(lazy_dictstr):
     &gt;&gt;&gt; extract_body(f)
     [&#39;return (x * y, x + y, x / y)&#39;]
     &#34;&#34;&#34;
-    if hasattr(f, &#34;metadata&#34;) and &#34;code&#34; in f.metadata:
+    if hasattr(f, &#34;metadata&#34;) and &#34;code&#34; in f.metadata and f.metadata[&#34;code&#34;] is not ...:
         return f.metadata[&#34;code&#34;]
     out = StringIO()
     decompile(bytecode_version=(3, 8, 10), co=f.__code__, out=out)
@@ -297,7 +298,8 @@ def extract_dynamic_input(lazy_dictstr):
     &#34;&#34;&#34;
     if hasattr(f, &#34;metadata&#34;) and &#34;input&#34; in f.metadata:
         fields = f.metadata[&#34;input&#34;][&#34;fields&#34;] if &#34;fields&#34; in f.metadata[&#34;input&#34;] else []
-        parameters = f.metadata[&#34;input&#34;][&#34;parameters&#34;] if &#34;parameters&#34; in f.metadata[&#34;input&#34;] else {}
+        hasparams = &#34;parameters&#34; in f.metadata[&#34;input&#34;] and f.metadata[&#34;input&#34;][&#34;parameters&#34;] is not ...
+        parameters = f.metadata[&#34;input&#34;][&#34;parameters&#34;] if hasparams else {}
         return fields, parameters
     pars = dict(signature(f).parameters)
     input, parameters = [], {}
