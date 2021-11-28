@@ -172,9 +172,10 @@ def extract_output(f, body, deps, multi_output):
     if &#34;dynamic&#34; in metadata_output:
         dynamic = f.metadata[&#34;output&#34;][&#34;dynamic&#34;]
     else:
-        # REMINDER: identify output that comes as a variable; it will be used to check whether we can detect its content
-        # The variable brings the field name.
+        # REMINDER: The variable brings the field name.
         dynamic = re.findall(r&#34;[ {]([_a-zA-Z]+[_a-zA-Z0-9]*):&#34;, lazy_dictstr())
+        multidynamic = re.findall(r&#34;[ {]kwargs\[([_a-zA-Z]+[_a-zA-Z0-9]*)\[[^]]+?]]:&#34;, lazy_dictstr())
+        dynamic.extend(multidynamic)
 
     for field in dynamic:
         # if &#34;_&#34; in field:  # pragma: no cover
@@ -191,10 +192,13 @@ def extract_output(f, body, deps, multi_output):
 def extract_dynamic_input(bodystr):
     &#34;&#34;&#34;The variable brings the field name, so we can get the field content from kwargs.
 
-    &gt;&gt;&gt; extract_dynamic_input(&#34;some code kwargs[x].asd * kwargs[y] == 5&#34;)
-    [&#39;x&#39;, &#39;y&#39;]
+    &gt;&gt;&gt; extract_dynamic_input(&#34;some code kwargs[x].asd * kwargs[y] == 5 kwargs[dyn[23rgf]] &#34;)
+    [&#39;dyn&#39;, &#39;x&#39;, &#39;y&#39;]
     &#34;&#34;&#34;
-    return re.findall(r&#34;kwargs\[([a-zA-Z]+[a-zA-Z0-9_]*)][^:]&#34;, bodystr)</code></pre>
+    single = set(re.findall(r&#34;kwargs\[([a-zA-Z]+[a-zA-Z0-9_]*)][^:]&#34;, bodystr))
+    multi = re.findall(r&#34;kwargs\[([a-zA-Z]+[a-zA-Z0-9_]*)\[[^]]+?]][^:]&#34;, bodystr)
+    single.update(multi)
+    return sorted(list(single))</code></pre>
 </details>
 </section>
 <section>
@@ -276,8 +280,8 @@ def extract_dynamic_input(bodystr):
 </code></dt>
 <dd>
 <div class="desc"><p>The variable brings the field name, so we can get the field content from kwargs.</p>
-<pre><code class="language-python-repl">&gt;&gt;&gt; extract_dynamic_input(&quot;some code kwargs[x].asd * kwargs[y] == 5&quot;)
-['x', 'y']
+<pre><code class="language-python-repl">&gt;&gt;&gt; extract_dynamic_input(&quot;some code kwargs[x].asd * kwargs[y] == 5 kwargs[dyn[23rgf]] &quot;)
+['dyn', 'x', 'y']
 </code></pre></div>
 <details class="source">
 <summary>
@@ -286,10 +290,13 @@ def extract_dynamic_input(bodystr):
 <pre><code class="python">def extract_dynamic_input(bodystr):
     &#34;&#34;&#34;The variable brings the field name, so we can get the field content from kwargs.
 
-    &gt;&gt;&gt; extract_dynamic_input(&#34;some code kwargs[x].asd * kwargs[y] == 5&#34;)
-    [&#39;x&#39;, &#39;y&#39;]
+    &gt;&gt;&gt; extract_dynamic_input(&#34;some code kwargs[x].asd * kwargs[y] == 5 kwargs[dyn[23rgf]] &#34;)
+    [&#39;dyn&#39;, &#39;x&#39;, &#39;y&#39;]
     &#34;&#34;&#34;
-    return re.findall(r&#34;kwargs\[([a-zA-Z]+[a-zA-Z0-9_]*)][^:]&#34;, bodystr)</code></pre>
+    single = set(re.findall(r&#34;kwargs\[([a-zA-Z]+[a-zA-Z0-9_]*)][^:]&#34;, bodystr))
+    multi = re.findall(r&#34;kwargs\[([a-zA-Z]+[a-zA-Z0-9_]*)\[[^]]+?]][^:]&#34;, bodystr)
+    single.update(multi)
+    return sorted(list(single))</code></pre>
 </details>
 </dd>
 <dt id="ldict.core.inspection.extract_input"><code class="name flex">
@@ -383,9 +390,10 @@ def extract_dynamic_input(bodystr):
     if &#34;dynamic&#34; in metadata_output:
         dynamic = f.metadata[&#34;output&#34;][&#34;dynamic&#34;]
     else:
-        # REMINDER: identify output that comes as a variable; it will be used to check whether we can detect its content
-        # The variable brings the field name.
+        # REMINDER: The variable brings the field name.
         dynamic = re.findall(r&#34;[ {]([_a-zA-Z]+[_a-zA-Z0-9]*):&#34;, lazy_dictstr())
+        multidynamic = re.findall(r&#34;[ {]kwargs\[([_a-zA-Z]+[_a-zA-Z0-9]*)\[[^]]+?]]:&#34;, lazy_dictstr())
+        dynamic.extend(multidynamic)
 
     for field in dynamic:
         # if &#34;_&#34; in field:  # pragma: no cover
