@@ -112,6 +112,32 @@ def lazify(data, output_field: Union[list, str], f, rnd, multi_output) -> Union[
     }
     >>> d.y
     20
+    >>> def f(input="a", output="b", **kwargs):
+    ...     return {output: kwargs[input], "_history": ...}
+    >>> f.metadata = {"id": "fffffff----------------------------fffff",
+    ...             "name": "f",
+    ...             "description": "Copy.",
+    ...             "code": ...,
+    ...             "parameters": ...}
+    >>> d = ldict(a=5) >> let(f, output="b")
+    >>> d.b
+    5
+    >>> d
+    {
+        "a": 5,
+        "b": 5,
+        "_history": {
+            "fffffff----------------------------fffff": {
+                "name": "f",
+                "description": "Copy.",
+                "code": "def f(input='a', output='b', **kwargs):\\nreturn {output: kwargs[input], '_history': ...}",
+                "parameters": {
+                    "input": "a",
+                    "output": "b"
+                }
+            }
+        }
+    }
     """
     # TODO (minor): simplify to improve readability of this function
     config, f = (f.config, f.f) if isinstance(f, AbstractLet) else ({}, f)
@@ -136,24 +162,6 @@ def lazify(data, output_field: Union[list, str], f, rnd, multi_output) -> Union[
     if not dynamic_input and hasattr(f, "metadata") and "input" in f.metadata and "dynamic" in f.metadata["input"]:
         dynamic_input = f.metadata["input"]["dynamic"]
 
-    newidx = 0
-    if hasattr(f, "metadata"):
-        step = f.metadata.copy()
-        if "id" in step:
-            newidx = step.pop("id")
-        for k in ["input", "output"]:
-            if k in step:
-                del step[k]
-        if "code" in f.metadata:
-            if f.metadata["code"] is ...:
-                if body is None:
-                    raise Exception(f"Cannot autofill 'metadata.code' for custom callable '{type(f)}'")
-                head = f"def f{str(signature(f))}:"
-                code = head + "\n" + body[0]
-                f.metadata["code"] = code
-    else:
-        step = {}
-
     input_fields, parameters = extract_input(f)
     for k, v in config.items():
         parameters[k] = v
@@ -164,6 +172,37 @@ def lazify(data, output_field: Union[list, str], f, rnd, multi_output) -> Union[
     deps = prepare_deps(data, input_fields, parameters, rnd)
     for k, v in parameters.items():
         parameters[k] = deps[k]
+
+    newidx = 0
+    if hasattr(f, "metadata"):
+        step = f.metadata.copy()
+        if "id" in step:
+            newidx = step.pop("id")
+        for k in ["input", "output", "function"]:
+            if k in step:
+                del step[k]
+        if "code" in f.metadata and f.metadata["code"] is ...:
+            if body is None:
+                raise Exception(f"Cannot autofill 'metadata.code' for custom callable '{type(f)}'")
+            head = f"def f{str(signature(f))}:"
+            code = head + "\n" + body[0]
+            f.metadata["code"] = code
+            step["code"] = code
+        if "parameters" in f.metadata and f.metadata["parameters"] is ...:
+            f.metadata["parameters"] = parameters
+            step["parameters"] = parameters
+        if "function" in f.metadata and f.metadata["function"] is ...:
+            # REMINDER: it is not clear yet whether somebody wants this...
+            if hasattr(f, "pickle_dump"):
+                f.metadata["function"] = f.pickle_dump
+            else:
+                import dill
+
+                dump = dill.dumps(f, protocol=5)
+                f.metadata["function"] = dump
+                f.pickle_dump = dump  # Memoize
+    else:
+        step = {}
 
     if output_field == "extract":
         explicit, meta, meta_ellipsed = extract_output(f, lazy_returnstr, deps)
@@ -182,6 +221,7 @@ def lazify(data, output_field: Union[list, str], f, rnd, multi_output) -> Union[
             elif metaf == "_parameters":
                 dic["_parameters"] = parameters
             elif metaf == "_function":
+                # REMINDER: it even more unclear whether somebody wants this...
                 if hasattr(f, "pickle_dump"):
                     dic["_function"] = f.pickle_dump
                 else:

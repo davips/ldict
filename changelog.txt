@@ -1,3 +1,6 @@
+v3.211127.4
+Fix history for auto metafields and add support for auto _function
+
 v3.211127.3
 Fix linebreaks for code
 

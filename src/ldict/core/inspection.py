@@ -40,7 +40,8 @@ def extract_input(f):
     """
     if hasattr(f, "metadata") and "input" in f.metadata:
         fields = f.metadata["input"]["fields"] if "fields" in f.metadata["input"] else []
-        parameters = f.metadata["input"]["parameters"] if "parameters" in f.metadata["input"] else {}
+        hasparams = "parameters" in f.metadata["input"] and f.metadata["input"]["parameters"] is not ...
+        parameters = f.metadata["input"]["parameters"] if hasparams else {}
         return fields, parameters
     pars = dict(signature(f).parameters)
     input, parameters = [], {}
@@ -63,7 +64,7 @@ def extract_body(f):
     >>> extract_body(f)
     ['return (x * y, x + y, x / y)']
     """
-    if hasattr(f, "metadata") and "code" in f.metadata:
+    if hasattr(f, "metadata") and "code" in f.metadata and f.metadata["code"] is not ...:
         return f.metadata["code"]
     out = StringIO()
     decompile(bytecode_version=(3, 8, 10), co=f.__code__, out=out)
