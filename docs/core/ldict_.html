@@ -143,16 +143,18 @@ class Ldict(AbstractMutableLazyDict):
             }
         }
     }
-    &gt;&gt;&gt; def g(source=None, **kwargs):
-    ...     return {&#34;y&#34;: kwargs[source]**2, &#34;_meta1&#34;: 0, &#34;_history&#34;: Ellipsis, &#34;_code&#34;: ...}
+    &gt;&gt;&gt; def g(inp=None, source=None, **kwargs):
+    ...     res = kwargs[inp] ** 3
+    ...     return {&#34;w&#34;: res, &#34;y&#34;: kwargs[source]**2, &#34;_meta1&#34;: 0, &#34;_history&#34;: Ellipsis, &#34;_code&#34;: ...}
     &gt;&gt;&gt; g.metadata = {&#34;name&#34;: &#34;squared using dynamic field&#34;, &#34;description&#34;: &#34;Some text.&#34;}
     &gt;&gt;&gt; from ldict import let
-    &gt;&gt;&gt; ldict(x=5) &gt;&gt; let(g, source=&#34;x&#34;)
+    &gt;&gt;&gt; (d := ldict(x=5) &gt;&gt; let(g, inp=&#34;x&#34;, source=&#34;x&#34;))
     {
         &#34;x&#34;: 5,
-        &#34;y&#34;: &#34;→(source x)&#34;,
-        &#34;_meta1&#34;: &#34;→(source x)&#34;,
-        &#34;_code&#34;: &#34;def f(source=None, **kwargs):\\nreturn {&#39;y&#39;:kwargs[source] ** 2,  &#39;_meta1&#39;:0,  &#39;_history&#39;:Ellipsis,  &#39;_code&#39;:...}&#34;,
+        &#34;w&#34;: &#34;→(inp source x)&#34;,
+        &#34;y&#34;: &#34;→(inp source x)&#34;,
+        &#34;_meta1&#34;: &#34;→(inp source x)&#34;,
+        &#34;_code&#34;: &#34;def f(inp=None, source=None, **kwargs):\\nres = kwargs[inp] ** 3\\nreturn {&#39;w&#39;:res,  &#39;y&#39;:kwargs[source] ** 2,  &#39;_meta1&#39;:0,  &#39;_history&#39;:Ellipsis,  &#39;_code&#39;:...}&#34;,
         &#34;_history&#34;: {
             &#34;0&#34;: {
                 &#34;name&#34;: &#34;squared using dynamic field&#34;,
@@ -160,6 +162,8 @@ class Ldict(AbstractMutableLazyDict):
             }
         }
     }
+    &gt;&gt;&gt; d.w
+    125
     &gt;&gt;&gt; class MyCallableClass:
     ...     metadata = {
     ...         &#34;name&#34;: &#34;squared using dynamic field&#34;,
@@ -334,16 +338,18 @@ to be automatically filled.</p>
         }
     }
 }
-&gt;&gt;&gt; def g(source=None, **kwargs):
-...     return {&quot;y&quot;: kwargs[source]**2, &quot;_meta1&quot;: 0, &quot;_history&quot;: Ellipsis, &quot;_code&quot;: ...}
+&gt;&gt;&gt; def g(inp=None, source=None, **kwargs):
+...     res = kwargs[inp] ** 3
+...     return {&quot;w&quot;: res, &quot;y&quot;: kwargs[source]**2, &quot;_meta1&quot;: 0, &quot;_history&quot;: Ellipsis, &quot;_code&quot;: ...}
 &gt;&gt;&gt; g.metadata = {&quot;name&quot;: &quot;squared using dynamic field&quot;, &quot;description&quot;: &quot;Some text.&quot;}
 &gt;&gt;&gt; from ldict import let
-&gt;&gt;&gt; ldict(x=5) &gt;&gt; let(g, source=&quot;x&quot;)
+&gt;&gt;&gt; (d := ldict(x=5) &gt;&gt; let(g, inp=&quot;x&quot;, source=&quot;x&quot;))
 {
     &quot;x&quot;: 5,
-    &quot;y&quot;: &quot;→(source x)&quot;,
-    &quot;_meta1&quot;: &quot;→(source x)&quot;,
-    &quot;_code&quot;: &quot;def f(source=None, **kwargs):\nreturn {'y':kwargs[source] ** 2,  '_meta1':0,  '_history':Ellipsis,  '_code':...}&quot;,
+    &quot;w&quot;: &quot;→(inp source x)&quot;,
+    &quot;y&quot;: &quot;→(inp source x)&quot;,
+    &quot;_meta1&quot;: &quot;→(inp source x)&quot;,
+    &quot;_code&quot;: &quot;def f(inp=None, source=None, **kwargs):\nres = kwargs[inp] ** 3\nreturn {'w':res,  'y':kwargs[source] ** 2,  '_meta1':0,  '_history':Ellipsis,  '_code':...}&quot;,
     &quot;_history&quot;: {
         &quot;0&quot;: {
             &quot;name&quot;: &quot;squared using dynamic field&quot;,
@@ -351,6 +357,8 @@ to be automatically filled.</p>
         }
     }
 }
+&gt;&gt;&gt; d.w
+125
 &gt;&gt;&gt; class MyCallableClass:
 ...     metadata = {
 ...         &quot;name&quot;: &quot;squared using dynamic field&quot;,
@@ -473,16 +481,18 @@ to be automatically filled.</p>
             }
         }
     }
-    &gt;&gt;&gt; def g(source=None, **kwargs):
-    ...     return {&#34;y&#34;: kwargs[source]**2, &#34;_meta1&#34;: 0, &#34;_history&#34;: Ellipsis, &#34;_code&#34;: ...}
+    &gt;&gt;&gt; def g(inp=None, source=None, **kwargs):
+    ...     res = kwargs[inp] ** 3
+    ...     return {&#34;w&#34;: res, &#34;y&#34;: kwargs[source]**2, &#34;_meta1&#34;: 0, &#34;_history&#34;: Ellipsis, &#34;_code&#34;: ...}
     &gt;&gt;&gt; g.metadata = {&#34;name&#34;: &#34;squared using dynamic field&#34;, &#34;description&#34;: &#34;Some text.&#34;}
     &gt;&gt;&gt; from ldict import let
-    &gt;&gt;&gt; ldict(x=5) &gt;&gt; let(g, source=&#34;x&#34;)
+    &gt;&gt;&gt; (d := ldict(x=5) &gt;&gt; let(g, inp=&#34;x&#34;, source=&#34;x&#34;))
     {
         &#34;x&#34;: 5,
-        &#34;y&#34;: &#34;→(source x)&#34;,
-        &#34;_meta1&#34;: &#34;→(source x)&#34;,
-        &#34;_code&#34;: &#34;def f(source=None, **kwargs):\\nreturn {&#39;y&#39;:kwargs[source] ** 2,  &#39;_meta1&#39;:0,  &#39;_history&#39;:Ellipsis,  &#39;_code&#39;:...}&#34;,
+        &#34;w&#34;: &#34;→(inp source x)&#34;,
+        &#34;y&#34;: &#34;→(inp source x)&#34;,
+        &#34;_meta1&#34;: &#34;→(inp source x)&#34;,
+        &#34;_code&#34;: &#34;def f(inp=None, source=None, **kwargs):\\nres = kwargs[inp] ** 3\\nreturn {&#39;w&#39;:res,  &#39;y&#39;:kwargs[source] ** 2,  &#39;_meta1&#39;:0,  &#39;_history&#39;:Ellipsis,  &#39;_code&#39;:...}&#34;,
         &#34;_history&#34;: {
             &#34;0&#34;: {
                 &#34;name&#34;: &#34;squared using dynamic field&#34;,
@@ -490,6 +500,8 @@ to be automatically filled.</p>
             }
         }
     }
+    &gt;&gt;&gt; d.w
+    125
     &gt;&gt;&gt; class MyCallableClass:
     ...     metadata = {
     ...         &#34;name&#34;: &#34;squared using dynamic field&#34;,

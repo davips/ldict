@@ -137,14 +137,23 @@ def extract_dictstr(returnstr: str) -&gt; str:
     return dict_strs[0]
 
 
-def extract_output(f, lazy_dictstr, deps):
+def extract_output(f, body, deps, multi_output):
     &#34;&#34;&#34;Extract output fields.
 
     https://stackoverflow.com/a/68753149/9681577
 
-    &gt;&gt;&gt; extract_output(lambda:None, lambda:&#34;{&#39;z&#39;: x*y, &#39;w&#39;: x+y, implicitfield: y**2, &#39;_history&#39;: ..., &#39;_code&#39;: ..., &#39;_metafield2&#39;: &#39;some text&#39;}&#34;, {&#34;implicitfield&#34;: &#34;k&#34;})
+    &gt;&gt;&gt; extract_output(lambda:None, &#34;return {&#39;z&#39;: x*y, &#39;w&#39;: x+y, implicitfield: y**2, &#39;_history&#39;: ..., &#39;_code&#39;: ..., &#39;_metafield2&#39;: &#39;some text&#39;}&#34;, {&#34;implicitfield&#34;: &#34;k&#34;}, True)
     ([&#39;z&#39;, &#39;w&#39;, &#39;k&#39;], [&#39;_metafield2&#39;], [&#39;_history&#39;, &#39;_code&#39;])
     &#34;&#34;&#34;
+
+    memo = [&#34;&#34;]
+
+    def lazy_dictstr():
+        memo[0] = extract_returnstr(&#34;&#34;.join(body))
+        if multi_output:
+            memo[0] = extract_dictstr(memo[0])
+        return memo[0]
+
     metadata_output = f.metadata[&#34;output&#34;] if hasattr(f, &#34;metadata&#34;) and &#34;output&#34; in f.metadata else {}
     if &#34;fields&#34; in metadata_output:
         explicit = f.metadata[&#34;output&#34;][&#34;fields&#34;]
@@ -179,9 +188,13 @@ def extract_output(f, lazy_dictstr, deps):
     return explicit, meta, meta_ellipsed
 
 
-def extract_dynamic_input(lazy_dictstr):
-    &#34;&#34;&#34;The variable brings the field name, so we can get the field content from kwargs.&#34;&#34;&#34;
-    return re.findall(r&#34;kwargs\[([a-zA-Z]+[a-zA-Z0-9_]*)][^:]&#34;, lazy_dictstr())</code></pre>
+def extract_dynamic_input(bodystr):
+    &#34;&#34;&#34;The variable brings the field name, so we can get the field content from kwargs.
+
+    &gt;&gt;&gt; extract_dynamic_input(&#34;some code kwargs[x].asd * kwargs[y] == 5&#34;)
+    [&#39;x&#39;, &#39;y&#39;]
+    &#34;&#34;&#34;
+    return re.findall(r&#34;kwargs\[([a-zA-Z]+[a-zA-Z0-9_]*)][^:]&#34;, bodystr)</code></pre>
 </details>
 </section>
 <section>
@@ -259,17 +272,24 @@ def extract_dynamic_input(lazy_dictstr):
 </details>
 </dd>
 <dt id="ldict.core.inspection.extract_dynamic_input"><code class="name flex">
-<span>def <span class="ident">extract_dynamic_input</span></span>(<span>lazy_dictstr)</span>
+<span>def <span class="ident">extract_dynamic_input</span></span>(<span>bodystr)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>The variable brings the field name, so we can get the field content from kwargs.</p></div>
+<div class="desc"><p>The variable brings the field name, so we can get the field content from kwargs.</p>
+<pre><code class="language-python-repl">&gt;&gt;&gt; extract_dynamic_input(&quot;some code kwargs[x].asd * kwargs[y] == 5&quot;)
+['x', 'y']
+</code></pre></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def extract_dynamic_input(lazy_dictstr):
-    &#34;&#34;&#34;The variable brings the field name, so we can get the field content from kwargs.&#34;&#34;&#34;
-    return re.findall(r&#34;kwargs\[([a-zA-Z]+[a-zA-Z0-9_]*)][^:]&#34;, lazy_dictstr())</code></pre>
+<pre><code class="python">def extract_dynamic_input(bodystr):
+    &#34;&#34;&#34;The variable brings the field name, so we can get the field content from kwargs.
+
+    &gt;&gt;&gt; extract_dynamic_input(&#34;some code kwargs[x].asd * kwargs[y] == 5&#34;)
+    [&#39;x&#39;, &#39;y&#39;]
+    &#34;&#34;&#34;
+    return re.findall(r&#34;kwargs\[([a-zA-Z]+[a-zA-Z0-9_]*)][^:]&#34;, bodystr)</code></pre>
 </details>
 </dd>
 <dt id="ldict.core.inspection.extract_input"><code class="name flex">
@@ -316,26 +336,35 @@ def extract_dynamic_input(lazy_dictstr):
 </details>
 </dd>
 <dt id="ldict.core.inspection.extract_output"><code class="name flex">
-<span>def <span class="ident">extract_output</span></span>(<span>f, lazy_dictstr, deps)</span>
+<span>def <span class="ident">extract_output</span></span>(<span>f, body, deps, multi_output)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Extract output fields.</p>
 <p><a href="https://stackoverflow.com/a/68753149/9681577">https://stackoverflow.com/a/68753149/9681577</a></p>
-<pre><code class="language-python-repl">&gt;&gt;&gt; extract_output(lambda:None, lambda:&quot;{'z': x*y, 'w': x+y, implicitfield: y**2, '_history': ..., '_code': ..., '_metafield2': 'some text'}&quot;, {&quot;implicitfield&quot;: &quot;k&quot;})
+<pre><code class="language-python-repl">&gt;&gt;&gt; extract_output(lambda:None, &quot;return {'z': x*y, 'w': x+y, implicitfield: y**2, '_history': ..., '_code': ..., '_metafield2': 'some text'}&quot;, {&quot;implicitfield&quot;: &quot;k&quot;}, True)
 (['z', 'w', 'k'], ['_metafield2'], ['_history', '_code'])
 </code></pre></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def extract_output(f, lazy_dictstr, deps):
+<pre><code class="python">def extract_output(f, body, deps, multi_output):
     &#34;&#34;&#34;Extract output fields.
 
     https://stackoverflow.com/a/68753149/9681577
 
-    &gt;&gt;&gt; extract_output(lambda:None, lambda:&#34;{&#39;z&#39;: x*y, &#39;w&#39;: x+y, implicitfield: y**2, &#39;_history&#39;: ..., &#39;_code&#39;: ..., &#39;_metafield2&#39;: &#39;some text&#39;}&#34;, {&#34;implicitfield&#34;: &#34;k&#34;})
+    &gt;&gt;&gt; extract_output(lambda:None, &#34;return {&#39;z&#39;: x*y, &#39;w&#39;: x+y, implicitfield: y**2, &#39;_history&#39;: ..., &#39;_code&#39;: ..., &#39;_metafield2&#39;: &#39;some text&#39;}&#34;, {&#34;implicitfield&#34;: &#34;k&#34;}, True)
     ([&#39;z&#39;, &#39;w&#39;, &#39;k&#39;], [&#39;_metafield2&#39;], [&#39;_history&#39;, &#39;_code&#39;])
     &#34;&#34;&#34;
+
+    memo = [&#34;&#34;]
+
+    def lazy_dictstr():
+        memo[0] = extract_returnstr(&#34;&#34;.join(body))
+        if multi_output:
+            memo[0] = extract_dictstr(memo[0])
+        return memo[0]
+
     metadata_output = f.metadata[&#34;output&#34;] if hasattr(f, &#34;metadata&#34;) and &#34;output&#34; in f.metadata else {}
     if &#34;fields&#34; in metadata_output:
         explicit = f.metadata[&#34;output&#34;][&#34;fields&#34;]
