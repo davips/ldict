@@ -54,6 +54,8 @@ from functools import reduce
 from random import Random
 from typing import Dict, TypeVar, Union, Callable
 
+from ldict.core.appearance import decolorize
+
 from ldict.core.base import AbstractLazyDict
 from ldict.core.rshift import handle_dict, lazify
 from ldict.customjson import CustomJSONEncoder
@@ -150,7 +152,8 @@ class FrozenLazyDict(AbstractLazyDict):
         txt = json.dumps(self.data, indent=4, ensure_ascii=False, cls=CustomJSONEncoder)
         return txt.replace(&#39;&#34;«&#39;, &#34;&#34;).replace(&#39;»&#34;&#39;, &#34;&#34;)
 
-    __str__ = __repr__
+    def __str__(self):
+        return decolorize(repr(self))
 
     def evaluate(self):
         &#34;&#34;&#34;
@@ -397,7 +400,8 @@ class FrozenLazyDict(AbstractLazyDict):
         txt = json.dumps(self.data, indent=4, ensure_ascii=False, cls=CustomJSONEncoder)
         return txt.replace(&#39;&#34;«&#39;, &#34;&#34;).replace(&#39;»&#34;&#39;, &#34;&#34;)
 
-    __str__ = __repr__
+    def __str__(self):
+        return decolorize(repr(self))
 
     def evaluate(self):
         &#34;&#34;&#34;
