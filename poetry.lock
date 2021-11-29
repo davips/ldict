@@ -715,7 +715,7 @@ full = ["pandas", "dill"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"  #">=3.8,<3.10"  <- numpy restriction
-content-hash = "91aff16cc501d12bb8a04d243301746ba2e26f570a97daa111ea2cf8f4ab6db7"
+content-hash = "c045c56cde1a3c870344f896fb2372dc8ace82a89de604c27fd3b7bbc2239c41"
 
 [metadata.files]
 appnope = [
