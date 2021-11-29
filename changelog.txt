@@ -1,3 +1,6 @@
+v3.211129.2
+Add exception for un-decompilable code (by uncompyle6)
+
 v3.211129.0
 Move decolorize to ldict
 

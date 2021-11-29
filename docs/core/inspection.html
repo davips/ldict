@@ -53,6 +53,7 @@ from io import StringIO
 from pprint import pprint
 
 from uncompyle6.main import decompile
+from uncompyle6.semantics.parser_error import ParserError
 
 from ldict.exception import NoInputException, NoReturnException, BadOutput, MultipleDicts
 
@@ -87,6 +88,10 @@ def extract_input(f):
 
 def extract_body(f):
     &#34;&#34;&#34;
+    Return a readable code
+
+    Doesn&#39;t work well with functions containing dict comprehensions
+
     &gt;&gt;&gt; def f(x, y, implicit=[&#34;a&#34;, &#34;b&#34;, &#34;c&#34;]):
     ...     return x*y, x+y, x/y
     &gt;&gt;&gt; extract_body(f)
@@ -95,7 +100,10 @@ def extract_body(f):
     if hasattr(f, &#34;metadata&#34;) and &#34;code&#34; in f.metadata and f.metadata[&#34;code&#34;] is not ...:
         return f.metadata[&#34;code&#34;]
     out = StringIO()
-    decompile(bytecode_version=(3, 8, 10), co=f.__code__, out=out)
+    try:
+        decompile(bytecode_version=(3, 8, 10), co=f.__code__, out=out)
+    except ParserError:
+        raise CodeExtractionException(&#34;Could not extract function code.&#34;)
     code = [line for line in out.getvalue().split(&#34;\n&#34;) if not line.startswith(&#34;#&#34;)]
     return code or None
 
@@ -198,7 +206,11 @@ def extract_dynamic_input(bodystr):
     single = set(re.findall(r&#34;kwargs\[([a-zA-Z]+[a-zA-Z0-9_]*)][^:]&#34;, bodystr))
     multi = re.findall(r&#34;kwargs\[([a-zA-Z]+[a-zA-Z0-9_]*)\[[^]]+?]][^:]&#34;, bodystr)
     single.update(multi)
-    return sorted(list(single))</code></pre>
+    return sorted(list(single))
+
+
+class CodeExtractionException(Exception):
+    pass</code></pre>
 </details>
 </section>
 <section>
@@ -212,7 +224,9 @@ def extract_dynamic_input(bodystr):
 <span>def <span class="ident">extract_body</span></span>(<span>f)</span>
 </code></dt>
 <dd>
-<div class="desc"><pre><code class="language-python-repl">&gt;&gt;&gt; def f(x, y, implicit=[&quot;a&quot;, &quot;b&quot;, &quot;c&quot;]):
+<div class="desc"><p>Return a readable code</p>
+<p>Doesn't work well with functions containing dict comprehensions</p>
+<pre><code class="language-python-repl">&gt;&gt;&gt; def f(x, y, implicit=[&quot;a&quot;, &quot;b&quot;, &quot;c&quot;]):
 ...     return x*y, x+y, x/y
 &gt;&gt;&gt; extract_body(f)
 ['return (x * y, x + y, x / y)']
@@ -223,6 +237,10 @@ def extract_dynamic_input(bodystr):
 </summary>
 <pre><code class="python">def extract_body(f):
     &#34;&#34;&#34;
+    Return a readable code
+
+    Doesn&#39;t work well with functions containing dict comprehensions
+
     &gt;&gt;&gt; def f(x, y, implicit=[&#34;a&#34;, &#34;b&#34;, &#34;c&#34;]):
     ...     return x*y, x+y, x/y
     &gt;&gt;&gt; extract_body(f)
@@ -231,7 +249,10 @@ def extract_dynamic_input(bodystr):
     if hasattr(f, &#34;metadata&#34;) and &#34;code&#34; in f.metadata and f.metadata[&#34;code&#34;] is not ...:
         return f.metadata[&#34;code&#34;]
     out = StringIO()
-    decompile(bytecode_version=(3, 8, 10), co=f.__code__, out=out)
+    try:
+        decompile(bytecode_version=(3, 8, 10), co=f.__code__, out=out)
+    except ParserError:
+        raise CodeExtractionException(&#34;Could not extract function code.&#34;)
     code = [line for line in out.getvalue().split(&#34;\n&#34;) if not line.startswith(&#34;#&#34;)]
     return code or None</code></pre>
 </details>
@@ -438,6 +459,28 @@ def extract_dynamic_input(bodystr):
 </dl>
 </section>
 <section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="ldict.core.inspection.CodeExtractionException"><code class="flex name class">
+<span>class <span class="ident">CodeExtractionException</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Common base class for all non-exit exceptions.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class CodeExtractionException(Exception):
+    pass</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>builtins.Exception</li>
+<li>builtins.BaseException</li>
+</ul>
+</dd>
+</dl>
 </section>
 </article>
 <nav id="sidebar">
@@ -459,6 +502,13 @@ def extract_dynamic_input(bodystr):
 <li><code><a title="ldict.core.inspection.extract_input" href="#ldict.core.inspection.extract_input">extract_input</a></code></li>
 <li><code><a title="ldict.core.inspection.extract_output" href="#ldict.core.inspection.extract_output">extract_output</a></code></li>
 <li><code><a title="ldict.core.inspection.extract_returnstr" href="#ldict.core.inspection.extract_returnstr">extract_returnstr</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="ldict.core.inspection.CodeExtractionException" href="#ldict.core.inspection.CodeExtractionException">CodeExtractionException</a></code></h4>
+</li>
 </ul>
 </li>
 </ul>

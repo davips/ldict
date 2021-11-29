@@ -47,6 +47,7 @@ from ldict.core.inspection import (
     extract_dynamic_input,
     extract_output,
     extract_body,
+    CodeExtractionException,
 )
 from ldict.core.inspection import extract_input
 from ldict.exception import InconsistentLange, UndefinedSeed, DependenceException
@@ -165,7 +166,10 @@ def lazify(data, output_field: Union[list, str], f, rnd, multi_output) -> Union[
     # TODO (minor): simplify to improve readability of this function
     config, f = (f.config, f.f) if isinstance(f, AbstractLet) else ({}, f)
     if isinstance(f, FunctionType):
-        body = extract_body(f)
+        try:
+            body = extract_body(f)
+        except CodeExtractionException as e:
+            body = f"<{e}>"
         dynamic_input = extract_dynamic_input("".join(body))
     else:
         body = None

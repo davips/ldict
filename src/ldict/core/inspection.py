@@ -25,6 +25,7 @@ from io import StringIO
 from pprint import pprint
 
 from uncompyle6.main import decompile
+from uncompyle6.semantics.parser_error import ParserError
 
 from ldict.exception import NoInputException, NoReturnException, BadOutput, MultipleDicts
 
@@ -59,6 +60,10 @@ def extract_input(f):
 
 def extract_body(f):
     """
+    Return a readable code
+
+    Doesn't work well with functions containing dict comprehensions
+
     >>> def f(x, y, implicit=["a", "b", "c"]):
     ...     return x*y, x+y, x/y
     >>> extract_body(f)
@@ -67,7 +72,10 @@ def extract_body(f):
     if hasattr(f, "metadata") and "code" in f.metadata and f.metadata["code"] is not ...:
         return f.metadata["code"]
     out = StringIO()
-    decompile(bytecode_version=(3, 8, 10), co=f.__code__, out=out)
+    try:
+        decompile(bytecode_version=(3, 8, 10), co=f.__code__, out=out)
+    except ParserError:
+        raise CodeExtractionException("Could not extract function code.")
     code = [line for line in out.getvalue().split("\n") if not line.startswith("#")]
     return code or None
 
@@ -171,3 +179,7 @@ def extract_dynamic_input(bodystr):
     multi = re.findall(r"kwargs\[([a-zA-Z]+[a-zA-Z0-9_]*)\[[^]]+?]][^:]", bodystr)
     single.update(multi)
     return sorted(list(single))
+
+
+class CodeExtractionException(Exception):
+    pass
