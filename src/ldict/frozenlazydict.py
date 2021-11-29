@@ -26,7 +26,7 @@ from functools import reduce
 from random import Random
 from typing import Dict, TypeVar, Union, Callable
 
-from idict.core.appearance import decolorize
+from ldict.core.appearance import decolorize
 
 from ldict.core.base import AbstractLazyDict
 from ldict.core.rshift import handle_dict, lazify
