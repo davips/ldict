@@ -179,6 +179,8 @@ class FrozenLazyDict(AbstractLazyDict):
             return reduce(operator.rshift, (self,) + other.functions)
         if callable(other) or isinstance(other, AbstractLet):
             lazies = lazify(self.data, output_field="extract", f=other, rnd=self.rnd, multi_output=True)
+            if lazies is None:
+                return self
             data = self.data.copy()
             data.update(lazies)
             return self.clone(data, _returned=list(lazies.keys()))

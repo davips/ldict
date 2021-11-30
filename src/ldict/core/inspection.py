@@ -45,12 +45,12 @@ def extract_input(f):
         parameters = f.metadata["input"]["parameters"] if hasparams else {}
         return fields, parameters
     pars = dict(signature(f).parameters)
-    input, parameters = [], {}
+    input, parameters = set(), {}
     if "kwargs" in pars:
         del pars["kwargs"]
     for k, v in pars.items():
         if v.default is v.empty:
-            input.append(k)
+            input.add(k)
         else:
             parameters[k] = v.default
     if not input and not parameters:

@@ -41,9 +41,10 @@ class LazyVal:
     2
     """
 
-    def __init__(self, field, f, deps, lazies):
+    def __init__(self, field, f, deps, data, lazies):
         self.field = field
         self.f = f
+        self.data = data
         self.deps = deps
         self.lazies = lazies
         self.result = None
@@ -54,6 +55,7 @@ class LazyVal:
                 if isinstance(v, LazyVal):
                     self.deps[k] = v()
             ret = self.f(**self.deps)
+            self.data.update(self.deps)
             if self.lazies is None:
                 self.result = ret
             else:

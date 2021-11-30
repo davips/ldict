@@ -73,7 +73,8 @@ def handle_dict(data, dictlike, rnd):
             from ldict.core.ldict_ import Ldict
 
             if callable(v):
-                data[k] = lazify(data, k, v, rnd, multi_output=False)
+                if (r := lazify(data, k, v, rnd, multi_output=False)) is not None:
+                    data[k] = r
             elif isinstance(v, Ldict):
                 data[k] = v.frozen
             else:
@@ -165,6 +166,15 @@ def lazify(data, output_field: Union[list, str], f, rnd, multi_output) -> Union[
     """
     # TODO (minor): simplify to improve readability of this function
     config, f = (f.config, f.f) if isinstance(f, AbstractLet) else ({}, f)
+    input_fields, parameters = extract_input(f)
+    noop = False
+    if "_" in input_fields:
+        noop = True
+        input_fields.remove("_")
+        if isinstance(f, AbstractLet):
+            raise Exception("Cannot let parameters have values for a noop function")
+    for k, v in config.items():
+        parameters[k] = v
     if isinstance(f, FunctionType):
         try:
             body = extract_body(f)
@@ -175,30 +185,36 @@ def lazify(data, output_field: Union[list, str], f, rnd, multi_output) -> Union[
         body = None
         if not (hasattr(f, "metadata") and "input" in f.metadata and "output" in f.metadata):
             raise Exception(f"Missing 'metadata' containing 'input' and 'output' keys for custom callable '{type(f)}'")
-        lazy_returnstr = lambda: ""
         dynamic_input = f.metadata["input"]["dynamic"] if "dynamic" in f.metadata["input"] else []
-
     if not dynamic_input and hasattr(f, "metadata") and "input" in f.metadata and "dynamic" in f.metadata["input"]:
         dynamic_input = f.metadata["input"]["dynamic"]
 
-    input_fields, parameters = extract_input(f)
-    for k, v in config.items():
-        parameters[k] = v
     multi = set()
     for par in dynamic_input:
         if par not in parameters:  # pragma: no cover
             raise Exception(f"Parameter '{par}' value is not available:", parameters)
         if isinstance(parameters[par], list):
-            input_fields.extend(parameters[par])
+            input_fields.update(parameters[par])
             multi.add(par)
         elif isinstance(parameters[par], dict):
-            input_fields.extend(parameters[par].values())
+            input_fields.update(parameters[par].values())
             multi.add(par)
         else:
-            input_fields.append(parameters[par])
+            input_fields.add(parameters[par])
     deps = prepare_deps(data, input_fields, parameters, rnd, multi)
     for k, v in parameters.items():
         parameters[k] = deps[k]
+    if noop:
+        def la(**deps_out):
+            f(**deps_out)
+            return deps_out
+
+        lazies = []
+        # REMINDER: noop uses input fields as output
+        dic = {k: LazyVal(k, la, deps, data, lazies) for k in input_fields}
+        lazies.extend(dic.values())
+        deps["_"] = None
+        return dic
 
     newidx = 0
     if hasattr(f, "metadata"):
@@ -230,11 +246,10 @@ def lazify(data, output_field: Union[list, str], f, rnd, multi_output) -> Union[
                 f.pickle_dump = dump  # Memoize
     else:
         step = {}
-
     if output_field == "extract":
         explicit, meta, meta_ellipsed = extract_output(f, body, deps, multi_output)
         lazies = []
-        dic = {k: LazyVal(k, f, deps, lazies) for k in explicit + meta}
+        dic = {k: LazyVal(k, f, deps, data, lazies) for k in explicit + meta}
         lazies.extend(dic.values())
         for metaf in meta_ellipsed:
             if metaf == "_code":
