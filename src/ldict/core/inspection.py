@@ -34,23 +34,23 @@ def extract_input(f):
     """
     >>> f = lambda x, y, z=5: None
     >>> extract_input(f)
-    (['x', 'y'], {'z': 5})
+    ({'x': None, 'y': None}, {'z': 5})
     >>> f.metadata = {"input": {"fields": ["a", "b"], "parameters": {"c": 7}}}
     >>> extract_input(f)
-    (['a', 'b'], {'c': 7})
+    ({'a': None, 'b': None}, {'c': 7})
     """
     if hasattr(f, "metadata") and "input" in f.metadata:
-        fields = f.metadata["input"]["fields"] if "fields" in f.metadata["input"] else []
+        fields = {k: None for k in f.metadata["input"]["fields"]} if "fields" in f.metadata["input"] else {}
         hasparams = "parameters" in f.metadata["input"] and f.metadata["input"]["parameters"] is not ...
         parameters = f.metadata["input"]["parameters"] if hasparams else {}
         return fields, parameters
     pars = dict(signature(f).parameters)
-    input, parameters = set(), {}
+    input, parameters = {}, {}
     if "kwargs" in pars:
         del pars["kwargs"]
     for k, v in pars.items():
         if v.default is v.empty:
-            input.add(k)
+            input[k] = None
         else:
             parameters[k] = v.default
     if not input and not parameters:
@@ -62,7 +62,7 @@ def extract_body(f):
     """
     Return a readable code
 
-    Doesn't work well with functions containing dict comprehensions
+    Doesn't work well with some functions containing dict comprehensions: raises CodeExtractionException.
 
     >>> def f(x, y, implicit=["a", "b", "c"]):
     ...     return x*y, x+y, x/y

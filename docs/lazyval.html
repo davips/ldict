@@ -53,9 +53,9 @@ class LazyVal:
     &#34;&#34;&#34;
     &gt;&gt;&gt; lazies = []
     &gt;&gt;&gt; f = lambda l: {&#34;y&#34;:1, &#34;z&#34;:2}
-    &gt;&gt;&gt; deps = {&#34;l&#34;:LazyVal(&#34;y&#34;, f, {&#34;l&#34;:0}, None)}
-    &gt;&gt;&gt; a = LazyVal(&#34;y&#34;, f, deps, lazies)
-    &gt;&gt;&gt; b = LazyVal(&#34;z&#34;, f, deps, lazies)
+    &gt;&gt;&gt; deps = {&#34;l&#34;:LazyVal(&#34;y&#34;, f, {&#34;l&#34;:0}, {&#34;l&#34;:0}, None)}
+    &gt;&gt;&gt; a = LazyVal(&#34;y&#34;, f, deps, deps, lazies)
+    &gt;&gt;&gt; b = LazyVal(&#34;z&#34;, f, deps, deps, lazies)
     &gt;&gt;&gt; lazies.extend([a, b])
     &gt;&gt;&gt; a
     →(l→(l))
@@ -69,9 +69,10 @@ class LazyVal:
     2
     &#34;&#34;&#34;
 
-    def __init__(self, field, f, deps, lazies):
+    def __init__(self, field, f, deps, data, lazies):
         self.field = field
         self.f = f
+        self.data = data
         self.deps = deps
         self.lazies = lazies
         self.result = None
@@ -81,6 +82,8 @@ class LazyVal:
             for k, v in self.deps.items():
                 if isinstance(v, LazyVal):
                     self.deps[k] = v()
+                    if k in self.data:
+                        self.data[k] = self.deps[k]
             ret = self.f(**self.deps)
             if self.lazies is None:
                 self.result = ret
@@ -110,14 +113,14 @@ class LazyVal:
 <dl>
 <dt id="ldict.lazyval.LazyVal"><code class="flex name class">
 <span>class <span class="ident">LazyVal</span></span>
-<span>(</span><span>field, f, deps, lazies)</span>
+<span>(</span><span>field, f, deps, data, lazies)</span>
 </code></dt>
 <dd>
 <div class="desc"><pre><code class="language-python-repl">&gt;&gt;&gt; lazies = []
 &gt;&gt;&gt; f = lambda l: {&quot;y&quot;:1, &quot;z&quot;:2}
-&gt;&gt;&gt; deps = {&quot;l&quot;:LazyVal(&quot;y&quot;, f, {&quot;l&quot;:0}, None)}
-&gt;&gt;&gt; a = LazyVal(&quot;y&quot;, f, deps, lazies)
-&gt;&gt;&gt; b = LazyVal(&quot;z&quot;, f, deps, lazies)
+&gt;&gt;&gt; deps = {&quot;l&quot;:LazyVal(&quot;y&quot;, f, {&quot;l&quot;:0}, {&quot;l&quot;:0}, None)}
+&gt;&gt;&gt; a = LazyVal(&quot;y&quot;, f, deps, deps, lazies)
+&gt;&gt;&gt; b = LazyVal(&quot;z&quot;, f, deps, deps, lazies)
 &gt;&gt;&gt; lazies.extend([a, b])
 &gt;&gt;&gt; a
 →(l→(l))
@@ -138,9 +141,9 @@ class LazyVal:
     &#34;&#34;&#34;
     &gt;&gt;&gt; lazies = []
     &gt;&gt;&gt; f = lambda l: {&#34;y&#34;:1, &#34;z&#34;:2}
-    &gt;&gt;&gt; deps = {&#34;l&#34;:LazyVal(&#34;y&#34;, f, {&#34;l&#34;:0}, None)}
-    &gt;&gt;&gt; a = LazyVal(&#34;y&#34;, f, deps, lazies)
-    &gt;&gt;&gt; b = LazyVal(&#34;z&#34;, f, deps, lazies)
+    &gt;&gt;&gt; deps = {&#34;l&#34;:LazyVal(&#34;y&#34;, f, {&#34;l&#34;:0}, {&#34;l&#34;:0}, None)}
+    &gt;&gt;&gt; a = LazyVal(&#34;y&#34;, f, deps, deps, lazies)
+    &gt;&gt;&gt; b = LazyVal(&#34;z&#34;, f, deps, deps, lazies)
     &gt;&gt;&gt; lazies.extend([a, b])
     &gt;&gt;&gt; a
     →(l→(l))
@@ -154,9 +157,10 @@ class LazyVal:
     2
     &#34;&#34;&#34;
 
-    def __init__(self, field, f, deps, lazies):
+    def __init__(self, field, f, deps, data, lazies):
         self.field = field
         self.f = f
+        self.data = data
         self.deps = deps
         self.lazies = lazies
         self.result = None
@@ -166,6 +170,8 @@ class LazyVal:
             for k, v in self.deps.items():
                 if isinstance(v, LazyVal):
                     self.deps[k] = v()
+                    if k in self.data:
+                        self.data[k] = self.deps[k]
             ret = self.f(**self.deps)
             if self.lazies is None:
                 self.result = ret

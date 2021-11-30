@@ -1,41 +1,28 @@
-v3.211129.3
+v3.211130.0
+Fix deps still lazy after showing() evaluation (required pointer to previous data)
+
+v3.211129
 Improve __getattr__ for better messages on failed doctests
-
-v3.211129.2
 Add exception for un-decompilable code (by uncompyle6)
-
-v3.211129.0
 Move decolorize to ldict
 
-v3.211127.6
+v3.211127
 Add support to multidynamic input and draft for multidynamic output
-
-v3.211127.5
 Expand possible usages for kwargs as implicit input field
 Fix code without \\n
-
-v3.211127.4
 Fix history for auto metafields and add support for auto _function
-
-v3.211127.3
 Fix linebreaks for code
-
-v3.211127.2
 Accept default value for parameter
-
-v3.211127.1
 Add option for auto metafield _parameters=...
 
-v3.211126.2
+v3.211126
 Remove unneded garoupa and numpy due to restriction on python version
-
-v3.211126.1
 Add option for auto metafield _code=... from metadata
 Add option for auto metafield _function=... for f dump
 Remove id from step
 
-v3.211124.1
+v3.211124
 Add callable class support
 
-v3.211121.1
+v3.211121
 Add support to metadata and metafields (including history and code)

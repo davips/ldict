@@ -62,23 +62,23 @@ def extract_input(f):
     &#34;&#34;&#34;
     &gt;&gt;&gt; f = lambda x, y, z=5: None
     &gt;&gt;&gt; extract_input(f)
-    ([&#39;x&#39;, &#39;y&#39;], {&#39;z&#39;: 5})
+    ({&#39;x&#39;: None, &#39;y&#39;: None}, {&#39;z&#39;: 5})
     &gt;&gt;&gt; f.metadata = {&#34;input&#34;: {&#34;fields&#34;: [&#34;a&#34;, &#34;b&#34;], &#34;parameters&#34;: {&#34;c&#34;: 7}}}
     &gt;&gt;&gt; extract_input(f)
-    ([&#39;a&#39;, &#39;b&#39;], {&#39;c&#39;: 7})
+    ({&#39;a&#39;: None, &#39;b&#39;: None}, {&#39;c&#39;: 7})
     &#34;&#34;&#34;
     if hasattr(f, &#34;metadata&#34;) and &#34;input&#34; in f.metadata:
-        fields = f.metadata[&#34;input&#34;][&#34;fields&#34;] if &#34;fields&#34; in f.metadata[&#34;input&#34;] else []
+        fields = {k: None for k in f.metadata[&#34;input&#34;][&#34;fields&#34;]} if &#34;fields&#34; in f.metadata[&#34;input&#34;] else {}
         hasparams = &#34;parameters&#34; in f.metadata[&#34;input&#34;] and f.metadata[&#34;input&#34;][&#34;parameters&#34;] is not ...
         parameters = f.metadata[&#34;input&#34;][&#34;parameters&#34;] if hasparams else {}
         return fields, parameters
     pars = dict(signature(f).parameters)
-    input, parameters = [], {}
+    input, parameters = {}, {}
     if &#34;kwargs&#34; in pars:
         del pars[&#34;kwargs&#34;]
     for k, v in pars.items():
         if v.default is v.empty:
-            input.append(k)
+            input[k] = None
         else:
             parameters[k] = v.default
     if not input and not parameters:
@@ -326,10 +326,10 @@ class CodeExtractionException(Exception):
 <dd>
 <div class="desc"><pre><code class="language-python-repl">&gt;&gt;&gt; f = lambda x, y, z=5: None
 &gt;&gt;&gt; extract_input(f)
-(['x', 'y'], {'z': 5})
+({'x': None, 'y': None}, {'z': 5})
 &gt;&gt;&gt; f.metadata = {&quot;input&quot;: {&quot;fields&quot;: [&quot;a&quot;, &quot;b&quot;], &quot;parameters&quot;: {&quot;c&quot;: 7}}}
 &gt;&gt;&gt; extract_input(f)
-(['a', 'b'], {'c': 7})
+({'a': None, 'b': None}, {'c': 7})
 </code></pre></div>
 <details class="source">
 <summary>
@@ -339,23 +339,23 @@ class CodeExtractionException(Exception):
     &#34;&#34;&#34;
     &gt;&gt;&gt; f = lambda x, y, z=5: None
     &gt;&gt;&gt; extract_input(f)
-    ([&#39;x&#39;, &#39;y&#39;], {&#39;z&#39;: 5})
+    ({&#39;x&#39;: None, &#39;y&#39;: None}, {&#39;z&#39;: 5})
     &gt;&gt;&gt; f.metadata = {&#34;input&#34;: {&#34;fields&#34;: [&#34;a&#34;, &#34;b&#34;], &#34;parameters&#34;: {&#34;c&#34;: 7}}}
     &gt;&gt;&gt; extract_input(f)
-    ([&#39;a&#39;, &#39;b&#39;], {&#39;c&#39;: 7})
+    ({&#39;a&#39;: None, &#39;b&#39;: None}, {&#39;c&#39;: 7})
     &#34;&#34;&#34;
     if hasattr(f, &#34;metadata&#34;) and &#34;input&#34; in f.metadata:
-        fields = f.metadata[&#34;input&#34;][&#34;fields&#34;] if &#34;fields&#34; in f.metadata[&#34;input&#34;] else []
+        fields = {k: None for k in f.metadata[&#34;input&#34;][&#34;fields&#34;]} if &#34;fields&#34; in f.metadata[&#34;input&#34;] else {}
         hasparams = &#34;parameters&#34; in f.metadata[&#34;input&#34;] and f.metadata[&#34;input&#34;][&#34;parameters&#34;] is not ...
         parameters = f.metadata[&#34;input&#34;][&#34;parameters&#34;] if hasparams else {}
         return fields, parameters
     pars = dict(signature(f).parameters)
-    input, parameters = [], {}
+    input, parameters = {}, {}
     if &#34;kwargs&#34; in pars:
         del pars[&#34;kwargs&#34;]
     for k, v in pars.items():
         if v.default is v.empty:
-            input.append(k)
+            input[k] = None
         else:
             parameters[k] = v.default
     if not input and not parameters:

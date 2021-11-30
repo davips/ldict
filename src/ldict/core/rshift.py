@@ -170,7 +170,7 @@ def lazify(data, output_field: Union[list, str], f, rnd, multi_output) -> Union[
     noop = False
     if "_" in input_fields:
         noop = True
-        input_fields.remove("_")
+        del input_fields["_"]
         if isinstance(f, AbstractLet):
             raise Exception("Cannot let parameters have values for a noop function")
     for k, v in config.items():
@@ -194,17 +194,20 @@ def lazify(data, output_field: Union[list, str], f, rnd, multi_output) -> Union[
         if par not in parameters:  # pragma: no cover
             raise Exception(f"Parameter '{par}' value is not available:", parameters)
         if isinstance(parameters[par], list):
-            input_fields.update(parameters[par])
+            for k in parameters[par]:
+                input_fields[k] = None
             multi.add(par)
         elif isinstance(parameters[par], dict):
-            input_fields.update(parameters[par].values())
+            for k in parameters[par]:
+                input_fields[k] = None
             multi.add(par)
         else:
-            input_fields.add(parameters[par])
+            input_fields[parameters[par]] = None
     deps = prepare_deps(data, input_fields, parameters, rnd, multi)
     for k, v in parameters.items():
         parameters[k] = deps[k]
     if noop:
+
         def la(**deps_out):
             f(**deps_out)
             return deps_out
@@ -285,7 +288,7 @@ def lazify(data, output_field: Union[list, str], f, rnd, multi_output) -> Union[
                 raise Exception(f"'...' is not defined for '{metaf}'.")
         return dic
     else:
-        return LazyVal(output_field, f, deps, None)
+        return LazyVal(output_field, f, deps, data, None)
 
 
 def prepare_deps(data, input, parameters, rnd, multi):

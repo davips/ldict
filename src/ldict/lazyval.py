@@ -25,9 +25,9 @@ class LazyVal:
     """
     >>> lazies = []
     >>> f = lambda l: {"y":1, "z":2}
-    >>> deps = {"l":LazyVal("y", f, {"l":0}, None)}
-    >>> a = LazyVal("y", f, deps, lazies)
-    >>> b = LazyVal("z", f, deps, lazies)
+    >>> deps = {"l":LazyVal("y", f, {"l":0}, {"l":0}, None)}
+    >>> a = LazyVal("y", f, deps, deps, lazies)
+    >>> b = LazyVal("z", f, deps, deps, lazies)
     >>> lazies.extend([a, b])
     >>> a
     →(l→(l))
@@ -54,8 +54,9 @@ class LazyVal:
             for k, v in self.deps.items():
                 if isinstance(v, LazyVal):
                     self.deps[k] = v()
+                    if k in self.data:
+                        self.data[k] = self.deps[k]
             ret = self.f(**self.deps)
-            self.data.update(self.deps)
             if self.lazies is None:
                 self.result = ret
             else:
