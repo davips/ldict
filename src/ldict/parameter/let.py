@@ -79,7 +79,7 @@ class lLet(AbstractLet):
     }»
     >>> from random import Random
     >>> let(f, a=5) >> ["mycache"]  # Cache implemented in package 'cdict'.
-    «λ{'a': 5} × ^»
+    «λ{'a': 5} × ↑»
     >>> from ldict.parameter.functionspace import FunctionSpace
     >>> let(f, a=5) >> FunctionSpace()
     λ{'a': 5}

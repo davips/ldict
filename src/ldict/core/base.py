@@ -106,7 +106,10 @@ class AbstractMutableLazyDict(AbstractLazyDict, ABC):
         self.frozen >>= {key: value}
 
     def __getattr__(self, item):
-        return self.frozen[item]
+        if item in self.frozen:
+            return self.frozen[item]
+        return self.__getattribute__(item)
+
 
     def __repr__(self):
         return repr(self.frozen)

@@ -1,3 +1,6 @@
+v3.211129.3
+Improve __getattr__ for better messages on failed doctests
+
 v3.211129.2
 Add exception for un-decompilable code (by uncompyle6)
 
