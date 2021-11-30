@@ -83,9 +83,32 @@ class AbstractLazyDict(UserDict, Dict[str, VT]):
         raise NotImplementedError
 
     @property
-    @abstractmethod
-    def evaluate(self):  # pragma: no cover
-        raise NotImplementedError
+    def evaluated(self) -&gt; &#34;AbstractLazyDict&#34;:
+        self.evaluate()
+        return self
+
+    def evaluate(self):
+        &#34;&#34;&#34;
+        &gt;&gt;&gt; from ldict import ldict
+        &gt;&gt;&gt; f = lambda x: {&#34;y&#34;: x+2}
+        &gt;&gt;&gt; d = ldict(x=3)
+        &gt;&gt;&gt; a = d &gt;&gt; f
+        &gt;&gt;&gt; a
+        {
+            &#34;x&#34;: 3,
+            &#34;y&#34;: &#34;→(x)&#34;
+        }
+        &gt;&gt;&gt; a.evaluate()
+        &gt;&gt;&gt; a
+        {
+            &#34;x&#34;: 3,
+            &#34;y&#34;: 5
+        }
+        &#34;&#34;&#34;
+        for field in self:
+            v = self[field]
+            if isinstance(v, AbstractLazyDict):
+                v.evaluate()
 
     def __ne__(self, other):
         return not (self == other)
@@ -111,33 +134,15 @@ class AbstractMutableLazyDict(AbstractLazyDict, ABC):
         self.frozen &gt;&gt;= {key: value}
 
     def __getattr__(self, item):
-        return self.frozen[item]
+        if item in self.frozen:
+            return self.frozen[item]
+        return self.__getattribute__(item)
 
     def __repr__(self):
         return repr(self.frozen)
 
     def __str__(self):
         return str(self.frozen)
-
-    def evaluate(self):
-        &#34;&#34;&#34;
-        &gt;&gt;&gt; from ldict import ldict
-        &gt;&gt;&gt; f = lambda x: {&#34;y&#34;: x+2}
-        &gt;&gt;&gt; d = ldict(x=3)
-        &gt;&gt;&gt; a = d &gt;&gt; f
-        &gt;&gt;&gt; a
-        {
-            &#34;x&#34;: 3,
-            &#34;y&#34;: &#34;→(x)&#34;
-        }
-        &gt;&gt;&gt; a.evaluate()
-        &gt;&gt;&gt; a
-        {
-            &#34;x&#34;: 3,
-            &#34;y&#34;: 5
-        }
-        &#34;&#34;&#34;
-        self.frozen.evaluate()
 
     @property
     def asdict(self):
@@ -212,9 +217,32 @@ False
         raise NotImplementedError
 
     @property
-    @abstractmethod
-    def evaluate(self):  # pragma: no cover
-        raise NotImplementedError
+    def evaluated(self) -&gt; &#34;AbstractLazyDict&#34;:
+        self.evaluate()
+        return self
+
+    def evaluate(self):
+        &#34;&#34;&#34;
+        &gt;&gt;&gt; from ldict import ldict
+        &gt;&gt;&gt; f = lambda x: {&#34;y&#34;: x+2}
+        &gt;&gt;&gt; d = ldict(x=3)
+        &gt;&gt;&gt; a = d &gt;&gt; f
+        &gt;&gt;&gt; a
+        {
+            &#34;x&#34;: 3,
+            &#34;y&#34;: &#34;→(x)&#34;
+        }
+        &gt;&gt;&gt; a.evaluate()
+        &gt;&gt;&gt; a
+        {
+            &#34;x&#34;: 3,
+            &#34;y&#34;: 5
+        }
+        &#34;&#34;&#34;
+        for field in self:
+            v = self[field]
+            if isinstance(v, AbstractLazyDict):
+                v.evaluate()
 
     def __ne__(self, other):
         return not (self == other)</code></pre>
@@ -258,7 +286,7 @@ def asdict(self):  # pragma: no cover
     raise NotImplementedError</code></pre>
 </details>
 </dd>
-<dt id="ldict.core.base.AbstractLazyDict.evaluate"><code class="name">var <span class="ident">evaluate</span></code></dt>
+<dt id="ldict.core.base.AbstractLazyDict.evaluated"><code class="name">var <span class="ident">evaluated</span> : <a title="ldict.core.base.AbstractLazyDict" href="#ldict.core.base.AbstractLazyDict">AbstractLazyDict</a></code></dt>
 <dd>
 <div class="desc"></div>
 <details class="source">
@@ -266,9 +294,60 @@ def asdict(self):  # pragma: no cover
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@property
-@abstractmethod
-def evaluate(self):  # pragma: no cover
-    raise NotImplementedError</code></pre>
+def evaluated(self) -&gt; &#34;AbstractLazyDict&#34;:
+    self.evaluate()
+    return self</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="ldict.core.base.AbstractLazyDict.evaluate"><code class="name flex">
+<span>def <span class="ident">evaluate</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><pre><code class="language-python-repl">&gt;&gt;&gt; from ldict import ldict
+&gt;&gt;&gt; f = lambda x: {&quot;y&quot;: x+2}
+&gt;&gt;&gt; d = ldict(x=3)
+&gt;&gt;&gt; a = d &gt;&gt; f
+&gt;&gt;&gt; a
+{
+    &quot;x&quot;: 3,
+    &quot;y&quot;: &quot;→(x)&quot;
+}
+&gt;&gt;&gt; a.evaluate()
+&gt;&gt;&gt; a
+{
+    &quot;x&quot;: 3,
+    &quot;y&quot;: 5
+}
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def evaluate(self):
+    &#34;&#34;&#34;
+    &gt;&gt;&gt; from ldict import ldict
+    &gt;&gt;&gt; f = lambda x: {&#34;y&#34;: x+2}
+    &gt;&gt;&gt; d = ldict(x=3)
+    &gt;&gt;&gt; a = d &gt;&gt; f
+    &gt;&gt;&gt; a
+    {
+        &#34;x&#34;: 3,
+        &#34;y&#34;: &#34;→(x)&#34;
+    }
+    &gt;&gt;&gt; a.evaluate()
+    &gt;&gt;&gt; a
+    {
+        &#34;x&#34;: 3,
+        &#34;y&#34;: 5
+    }
+    &#34;&#34;&#34;
+    for field in self:
+        v = self[field]
+        if isinstance(v, AbstractLazyDict):
+            v.evaluate()</code></pre>
 </details>
 </dd>
 </dl>
@@ -317,33 +396,15 @@ False
         self.frozen &gt;&gt;= {key: value}
 
     def __getattr__(self, item):
-        return self.frozen[item]
+        if item in self.frozen:
+            return self.frozen[item]
+        return self.__getattribute__(item)
 
     def __repr__(self):
         return repr(self.frozen)
 
     def __str__(self):
         return str(self.frozen)
-
-    def evaluate(self):
-        &#34;&#34;&#34;
-        &gt;&gt;&gt; from ldict import ldict
-        &gt;&gt;&gt; f = lambda x: {&#34;y&#34;: x+2}
-        &gt;&gt;&gt; d = ldict(x=3)
-        &gt;&gt;&gt; a = d &gt;&gt; f
-        &gt;&gt;&gt; a
-        {
-            &#34;x&#34;: 3,
-            &#34;y&#34;: &#34;→(x)&#34;
-        }
-        &gt;&gt;&gt; a.evaluate()
-        &gt;&gt;&gt; a
-        {
-            &#34;x&#34;: 3,
-            &#34;y&#34;: 5
-        }
-        &#34;&#34;&#34;
-        self.frozen.evaluate()
 
     @property
     def asdict(self):
@@ -432,54 +493,14 @@ def rnd(self):
 </details>
 </dd>
 </dl>
-<h3>Methods</h3>
-<dl>
-<dt id="ldict.core.base.AbstractMutableLazyDict.evaluate"><code class="name flex">
-<span>def <span class="ident">evaluate</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<div class="desc"><pre><code class="language-python-repl">&gt;&gt;&gt; from ldict import ldict
-&gt;&gt;&gt; f = lambda x: {&quot;y&quot;: x+2}
-&gt;&gt;&gt; d = ldict(x=3)
-&gt;&gt;&gt; a = d &gt;&gt; f
-&gt;&gt;&gt; a
-{
-    &quot;x&quot;: 3,
-    &quot;y&quot;: &quot;→(x)&quot;
-}
-&gt;&gt;&gt; a.evaluate()
-&gt;&gt;&gt; a
-{
-    &quot;x&quot;: 3,
-    &quot;y&quot;: 5
-}
-</code></pre></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def evaluate(self):
-    &#34;&#34;&#34;
-    &gt;&gt;&gt; from ldict import ldict
-    &gt;&gt;&gt; f = lambda x: {&#34;y&#34;: x+2}
-    &gt;&gt;&gt; d = ldict(x=3)
-    &gt;&gt;&gt; a = d &gt;&gt; f
-    &gt;&gt;&gt; a
-    {
-        &#34;x&#34;: 3,
-        &#34;y&#34;: &#34;→(x)&#34;
-    }
-    &gt;&gt;&gt; a.evaluate()
-    &gt;&gt;&gt; a
-    {
-        &#34;x&#34;: 3,
-        &#34;y&#34;: 5
-    }
-    &#34;&#34;&#34;
-    self.frozen.evaluate()</code></pre>
-</details>
-</dd>
-</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="ldict.core.base.AbstractLazyDict" href="#ldict.core.base.AbstractLazyDict">AbstractLazyDict</a></b></code>:
+<ul class="hlist">
+<li><code><a title="ldict.core.base.AbstractLazyDict.evaluate" href="#ldict.core.base.AbstractLazyDict.evaluate">evaluate</a></code></li>
+</ul>
+</li>
+</ul>
 </dd>
 </dl>
 </section>
@@ -502,6 +523,7 @@ def rnd(self):
 <ul class="">
 <li><code><a title="ldict.core.base.AbstractLazyDict.asdict" href="#ldict.core.base.AbstractLazyDict.asdict">asdict</a></code></li>
 <li><code><a title="ldict.core.base.AbstractLazyDict.evaluate" href="#ldict.core.base.AbstractLazyDict.evaluate">evaluate</a></code></li>
+<li><code><a title="ldict.core.base.AbstractLazyDict.evaluated" href="#ldict.core.base.AbstractLazyDict.evaluated">evaluated</a></code></li>
 <li><code><a title="ldict.core.base.AbstractLazyDict.rnd" href="#ldict.core.base.AbstractLazyDict.rnd">rnd</a></code></li>
 </ul>
 </li>
@@ -510,7 +532,6 @@ def rnd(self):
 <ul class="">
 <li><code><a title="ldict.core.base.AbstractMutableLazyDict.asdict" href="#ldict.core.base.AbstractMutableLazyDict.asdict">asdict</a></code></li>
 <li><code><a title="ldict.core.base.AbstractMutableLazyDict.data" href="#ldict.core.base.AbstractMutableLazyDict.data">data</a></code></li>
-<li><code><a title="ldict.core.base.AbstractMutableLazyDict.evaluate" href="#ldict.core.base.AbstractMutableLazyDict.evaluate">evaluate</a></code></li>
 <li><code><a title="ldict.core.base.AbstractMutableLazyDict.frozen" href="#ldict.core.base.AbstractMutableLazyDict.frozen">frozen</a></code></li>
 <li><code><a title="ldict.core.base.AbstractMutableLazyDict.rnd" href="#ldict.core.base.AbstractMutableLazyDict.rnd">rnd</a></code></li>
 </ul>

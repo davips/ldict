@@ -55,7 +55,7 @@ class AbstractLazyDict(UserDict, Dict[str, VT]):
         raise NotImplementedError
 
     @property
-    def evaluated(self) -> 'AbstractLazyDict':
+    def evaluated(self) -> "AbstractLazyDict":
         self.evaluate()
         return self
 
@@ -109,7 +109,6 @@ class AbstractMutableLazyDict(AbstractLazyDict, ABC):
         if item in self.frozen:
             return self.frozen[item]
         return self.__getattribute__(item)
-
 
     def __repr__(self):
         return repr(self.frozen)

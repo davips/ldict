@@ -155,29 +155,6 @@ class FrozenLazyDict(AbstractLazyDict):
     def __str__(self):
         return decolorize(repr(self))
 
-    def evaluate(self):
-        &#34;&#34;&#34;
-        &gt;&gt;&gt; from ldict import ldict
-        &gt;&gt;&gt; f = lambda x: {&#34;y&#34;: x+2}
-        &gt;&gt;&gt; d = ldict(x=3)
-        &gt;&gt;&gt; a = d &gt;&gt; f
-        &gt;&gt;&gt; a
-        {
-            &#34;x&#34;: 3,
-            &#34;y&#34;: &#34;→(x)&#34;
-        }
-        &gt;&gt;&gt; a.evaluate()
-        &gt;&gt;&gt; a
-        {
-            &#34;x&#34;: 3,
-            &#34;y&#34;: 5
-        }
-        &#34;&#34;&#34;
-        for field in self:
-            v = self[field]
-            if isinstance(v, FrozenLazyDict):
-                v.evaluate()
-
     @property
     def asdict(self):
         &#34;&#34;&#34;
@@ -403,29 +380,6 @@ class FrozenLazyDict(AbstractLazyDict):
     def __str__(self):
         return decolorize(repr(self))
 
-    def evaluate(self):
-        &#34;&#34;&#34;
-        &gt;&gt;&gt; from ldict import ldict
-        &gt;&gt;&gt; f = lambda x: {&#34;y&#34;: x+2}
-        &gt;&gt;&gt; d = ldict(x=3)
-        &gt;&gt;&gt; a = d &gt;&gt; f
-        &gt;&gt;&gt; a
-        {
-            &#34;x&#34;: 3,
-            &#34;y&#34;: &#34;→(x)&#34;
-        }
-        &gt;&gt;&gt; a.evaluate()
-        &gt;&gt;&gt; a
-        {
-            &#34;x&#34;: 3,
-            &#34;y&#34;: 5
-        }
-        &#34;&#34;&#34;
-        for field in self:
-            v = self[field]
-            if isinstance(v, FrozenLazyDict):
-                v.evaluate()
-
     @property
     def asdict(self):
         &#34;&#34;&#34;
@@ -563,55 +517,15 @@ def asdict(self):
     return FrozenLazyDict(self.data if data is None else data, rnd=rnd or self.rnd, _returned=_returned)</code></pre>
 </details>
 </dd>
-<dt id="ldict.frozenlazydict.FrozenLazyDict.evaluate"><code class="name flex">
-<span>def <span class="ident">evaluate</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<div class="desc"><pre><code class="language-python-repl">&gt;&gt;&gt; from ldict import ldict
-&gt;&gt;&gt; f = lambda x: {&quot;y&quot;: x+2}
-&gt;&gt;&gt; d = ldict(x=3)
-&gt;&gt;&gt; a = d &gt;&gt; f
-&gt;&gt;&gt; a
-{
-    &quot;x&quot;: 3,
-    &quot;y&quot;: &quot;→(x)&quot;
-}
-&gt;&gt;&gt; a.evaluate()
-&gt;&gt;&gt; a
-{
-    &quot;x&quot;: 3,
-    &quot;y&quot;: 5
-}
-</code></pre></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def evaluate(self):
-    &#34;&#34;&#34;
-    &gt;&gt;&gt; from ldict import ldict
-    &gt;&gt;&gt; f = lambda x: {&#34;y&#34;: x+2}
-    &gt;&gt;&gt; d = ldict(x=3)
-    &gt;&gt;&gt; a = d &gt;&gt; f
-    &gt;&gt;&gt; a
-    {
-        &#34;x&#34;: 3,
-        &#34;y&#34;: &#34;→(x)&#34;
-    }
-    &gt;&gt;&gt; a.evaluate()
-    &gt;&gt;&gt; a
-    {
-        &#34;x&#34;: 3,
-        &#34;y&#34;: 5
-    }
-    &#34;&#34;&#34;
-    for field in self:
-        v = self[field]
-        if isinstance(v, FrozenLazyDict):
-            v.evaluate()</code></pre>
-</details>
-</dd>
 </dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="ldict.core.base.AbstractLazyDict" href="core/base.html#ldict.core.base.AbstractLazyDict">AbstractLazyDict</a></b></code>:
+<ul class="hlist">
+<li><code><a title="ldict.core.base.AbstractLazyDict.evaluate" href="core/base.html#ldict.core.base.AbstractLazyDict.evaluate">evaluate</a></code></li>
+</ul>
+</li>
+</ul>
 </dd>
 </dl>
 </section>
@@ -634,7 +548,6 @@ def asdict(self):
 <ul class="">
 <li><code><a title="ldict.frozenlazydict.FrozenLazyDict.asdict" href="#ldict.frozenlazydict.FrozenLazyDict.asdict">asdict</a></code></li>
 <li><code><a title="ldict.frozenlazydict.FrozenLazyDict.clone" href="#ldict.frozenlazydict.FrozenLazyDict.clone">clone</a></code></li>
-<li><code><a title="ldict.frozenlazydict.FrozenLazyDict.evaluate" href="#ldict.frozenlazydict.FrozenLazyDict.evaluate">evaluate</a></code></li>
 <li><code><a title="ldict.frozenlazydict.FrozenLazyDict.rnd" href="#ldict.frozenlazydict.FrozenLazyDict.rnd">rnd</a></code></li>
 </ul>
 </li>
