@@ -55,9 +55,32 @@ class AbstractLazyDict(UserDict, Dict[str, VT]):
         raise NotImplementedError
 
     @property
-    @abstractmethod
-    def evaluate(self):  # pragma: no cover
-        raise NotImplementedError
+    def evaluated(self) -> 'AbstractLazyDict':
+        self.evaluate()
+        return self
+
+    def evaluate(self):
+        """
+        >>> from ldict import ldict
+        >>> f = lambda x: {"y": x+2}
+        >>> d = ldict(x=3)
+        >>> a = d >> f
+        >>> a
+        {
+            "x": 3,
+            "y": "→(x)"
+        }
+        >>> a.evaluate()
+        >>> a
+        {
+            "x": 3,
+            "y": 5
+        }
+        """
+        for field in self:
+            v = self[field]
+            if isinstance(v, AbstractLazyDict):
+                v.evaluate()
 
     def __ne__(self, other):
         return not (self == other)
@@ -90,26 +113,6 @@ class AbstractMutableLazyDict(AbstractLazyDict, ABC):
 
     def __str__(self):
         return str(self.frozen)
-
-    def evaluate(self):
-        """
-        >>> from ldict import ldict
-        >>> f = lambda x: {"y": x+2}
-        >>> d = ldict(x=3)
-        >>> a = d >> f
-        >>> a
-        {
-            "x": 3,
-            "y": "→(x)"
-        }
-        >>> a.evaluate()
-        >>> a
-        {
-            "x": 3,
-            "y": 5
-        }
-        """
-        self.frozen.evaluate()
 
     @property
     def asdict(self):

@@ -68,7 +68,7 @@ class FunctionSpace:
         txt = []
         for f in self.functions:
             if isinstance(f, list):
-                s = "^"
+                s = "↑"
             elif isinstance(f, Random):
                 s = "~"
             elif str(f).startswith("<function "):

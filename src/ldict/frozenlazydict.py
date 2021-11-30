@@ -127,29 +127,6 @@ class FrozenLazyDict(AbstractLazyDict):
     def __str__(self):
         return decolorize(repr(self))
 
-    def evaluate(self):
-        """
-        >>> from ldict import ldict
-        >>> f = lambda x: {"y": x+2}
-        >>> d = ldict(x=3)
-        >>> a = d >> f
-        >>> a
-        {
-            "x": 3,
-            "y": "→(x)"
-        }
-        >>> a.evaluate()
-        >>> a
-        {
-            "x": 3,
-            "y": 5
-        }
-        """
-        for field in self:
-            v = self[field]
-            if isinstance(v, FrozenLazyDict):
-                v.evaluate()
-
     @property
     def asdict(self):
         """
