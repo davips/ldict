@@ -224,6 +224,8 @@ def lazify(data, output_field: Union[list, str], f, rnd, multi_output) -> Union[
         step = f.metadata.copy()
         if "id" in step:
             newidx = step.pop("id")
+            if "_" in newidx:
+                raise Exception(f"'id' cannot have '_': {newidx}")
         for k in ["input", "output", "function"]:
             if k in step:
                 del step[k]
