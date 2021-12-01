@@ -22,7 +22,7 @@
 #
 import json
 import operator
-from functools import reduce
+from functools import reduce, cached_property
 from random import Random
 from typing import Dict, TypeVar, Union, Callable
 
@@ -127,7 +127,7 @@ class FrozenLazyDict(AbstractLazyDict):
     def __str__(self):
         return decolorize(repr(self))
 
-    @property
+    @cached_property
     def asdict(self):
         """
         >>> from ldict.frozenlazydict import FrozenLazyDict as ldict
