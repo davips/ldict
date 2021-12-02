@@ -1,4 +1,9 @@
-v3.211130.0
+v3.211202
+    Fix history step id for f with no metaid
+    Implement recovering of hashes in build()
+    Add "_" check for id from metadata
+
+v3.211130
 Fix deps still lazy after showing() evaluation (required pointer to previous data)
 
 v3.211129

@@ -207,7 +207,6 @@ def lazify(data, output_field: Union[list, str], f, rnd, multi_output) -> Union[
     for k, v in parameters.items():
         parameters[k] = deps[k]
     if noop:
-
         def la(**deps_out):
             f(**deps_out)
             return deps_out
@@ -282,6 +281,8 @@ def lazify(data, output_field: Union[list, str], f, rnd, multi_output) -> Union[
                     last = list(data["_history"].keys())[-1]
                     if isinstance(last, int):
                         newidx = last + 1
+                    elif newidx == 0:
+                        newidx = ...
                     dic["_history"] = data["_history"].copy()
                 else:
                     dic["_history"] = {}
