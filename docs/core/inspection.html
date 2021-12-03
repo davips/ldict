@@ -90,7 +90,7 @@ def extract_body(f):
     &#34;&#34;&#34;
     Return a readable code
 
-    Doesn&#39;t work well with functions containing dict comprehensions
+    Doesn&#39;t work well with some functions containing dict comprehensions: raises CodeExtractionException.
 
     &gt;&gt;&gt; def f(x, y, implicit=[&#34;a&#34;, &#34;b&#34;, &#34;c&#34;]):
     ...     return x*y, x+y, x/y
@@ -225,7 +225,7 @@ class CodeExtractionException(Exception):
 </code></dt>
 <dd>
 <div class="desc"><p>Return a readable code</p>
-<p>Doesn't work well with functions containing dict comprehensions</p>
+<p>Doesn't work well with some functions containing dict comprehensions: raises CodeExtractionException.</p>
 <pre><code class="language-python-repl">&gt;&gt;&gt; def f(x, y, implicit=[&quot;a&quot;, &quot;b&quot;, &quot;c&quot;]):
 ...     return x*y, x+y, x/y
 &gt;&gt;&gt; extract_body(f)
@@ -239,7 +239,7 @@ class CodeExtractionException(Exception):
     &#34;&#34;&#34;
     Return a readable code
 
-    Doesn&#39;t work well with functions containing dict comprehensions
+    Doesn&#39;t work well with some functions containing dict comprehensions: raises CodeExtractionException.
 
     &gt;&gt;&gt; def f(x, y, implicit=[&#34;a&#34;, &#34;b&#34;, &#34;c&#34;]):
     ...     return x*y, x+y, x/y

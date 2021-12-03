@@ -252,6 +252,8 @@ def lazify(data, output_field: Union[list, str], f, rnd, multi_output) -&gt; Uni
         step = f.metadata.copy()
         if &#34;id&#34; in step:
             newidx = step.pop(&#34;id&#34;)
+            if &#34;_&#34; in newidx:
+                raise Exception(f&#34;&#39;id&#39; cannot have &#39;_&#39;: {newidx}&#34;)
         for k in [&#34;input&#34;, &#34;output&#34;, &#34;function&#34;]:
             if k in step:
                 del step[k]
@@ -308,6 +310,8 @@ def lazify(data, output_field: Union[list, str], f, rnd, multi_output) -&gt; Uni
                     last = list(data[&#34;_history&#34;].keys())[-1]
                     if isinstance(last, int):
                         newidx = last + 1
+                    elif newidx == 0:
+                        newidx = ...
                     dic[&#34;_history&#34;] = data[&#34;_history&#34;].copy()
                 else:
                     dic[&#34;_history&#34;] = {}
@@ -711,6 +715,8 @@ def list2progression(lst):
         step = f.metadata.copy()
         if &#34;id&#34; in step:
             newidx = step.pop(&#34;id&#34;)
+            if &#34;_&#34; in newidx:
+                raise Exception(f&#34;&#39;id&#39; cannot have &#39;_&#39;: {newidx}&#34;)
         for k in [&#34;input&#34;, &#34;output&#34;, &#34;function&#34;]:
             if k in step:
                 del step[k]
@@ -767,6 +773,8 @@ def list2progression(lst):
                     last = list(data[&#34;_history&#34;].keys())[-1]
                     if isinstance(last, int):
                         newidx = last + 1
+                    elif newidx == 0:
+                        newidx = ...
                     dic[&#34;_history&#34;] = data[&#34;_history&#34;].copy()
                 else:
                     dic[&#34;_history&#34;] = {}
