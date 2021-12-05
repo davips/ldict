@@ -94,5 +94,5 @@ class Test(TestCase):
             }
         }
     },
-    "_function":"""
+    "_function":""",
         )
