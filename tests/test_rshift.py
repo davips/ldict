@@ -79,21 +79,20 @@ class Test(TestCase):
         }
         d = Ldict(a=5) >> let(f, output="b")
         self.assertEqual(
-            str(d),
-            """{
+            str(d)[:442],
+            r"""{
     "a": 5,
     "b": "→(input output a)",
     "_history": {
         "fffffff----------------------------fffff": {
             "name": "f",
             "description": "Copy.",
-            "code": "def f(input='a', output='b', **kwargs):\\nreturn {output: kwargs[input], '_history': ..., '_function': ...}",
+            "code": "def f(input='a', output='b', **kwargs):\nreturn {output: kwargs[input], '_history': ..., '_function': ...}",
             "parameters": {
                 "input": "a",
                 "output": "b"
             }
         }
     },
-    "_function": "b\\"\\\\x80\\\\x05\\\\x95\\\\x18\\\\x02\\\\x00\\\\x00\\\\x00\\\\x00\\\\x00\\\\x00\\\\x8c\\\\ndill._dill\\\\x94\\\\x8c\\\\x10_create_function\\\\x94\\\\x93\\\\x94(h\\\\x00\\\\x8c\\\\x0c_create_code\\\\x94\\\\x93\\\\x94(K\\\\x02K\\\\x00K\\\\x00K\\\\x03K\\\\x06K[C\\\\x14|\\\\x01|\\\\x02|\\\\x00\\\\x19\\\\x00d\\\\x01d\\\\x02d\\\\x03d\\\\x02i\\\\x03S\\\\x00\\\\x94(N\\\\x8c\\\\x08_history\\\\x94h\\\\x00\\\\x8c\\\\n_eval_repr\\\\x94\\\\x93\\\\x94\\\\x8c\\\\x08Ellipsis\\\\x94\\\\x85\\\\x94R\\\\x94\\\\x8c\\\\t_function\\\\x94t\\\\x94)\\\\x8c\\\\x05input\\\\x94\\\\x8c\\\\x06output\\\\x94\\\\x8c\\\\x06kwargs\\\\x94\\\\x87\\\\x94\\\\x8c)/home/davi/git/ldict/tests/test_rshift.py\\\\x94\\\\x8c\\\\x01f\\\\x94KEC\\\\x02\\\\x00\\\\x01\\\\x94))t\\\\x94R\\\\x94ctests.test_rshift\\\\n__dict__\\\\nh\\\\x13\\\\x8c\\\\x01a\\\\x94\\\\x8c\\\\x01b\\\\x94\\\\x86\\\\x94N}\\\\x94\\\\x8c\\\\x08metadata\\\\x94}\\\\x94(\\\\x8c\\\\x02id\\\\x94\\\\x8c(fffffff----------------------------fffff\\\\x94\\\\x8c\\\\x04name\\\\x94h\\\\x13\\\\x8c\\\\x0bdescription\\\\x94\\\\x8c\\\\x05Copy.\\\\x94\\\\x8c\\\\x04code\\\\x94\\\\x8cidef f(input='a', output='b', **kwargs):\\\\nreturn {output: kwargs[input], '_history': ..., '_function': ...}\\\\x94\\\\x8c\\\\nparameters\\\\x94}\\\\x94(h\\\\x0eh\\\\x17h\\\\x0fh\\\\x18u\\\\x8c\\\\x08function\\\\x94h\\\\x0busNt\\\\x94R\\\\x94.\\""
-}""",
+    "_function":"""
         )
