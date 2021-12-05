@@ -1,3 +1,6 @@
+v3.211204
+    Fix release system
+
 v3.211202
     Fix history step id for f with no metaid
     Implement recovering of hashes in build()
