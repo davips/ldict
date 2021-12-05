@@ -171,7 +171,7 @@ def lazify(data, output_field: Union[list, str], f, rnd, multi_output) -> Union[
     if "_" in input_fields:
         noop = True
         del input_fields["_"]
-        if isinstance(f, AbstractLet):
+        if isinstance(f, AbstractLet):  # pragma: no cover
             raise Exception("Cannot let parameters have values for a noop function")
     for k, v in config.items():
         parameters[k] = v
@@ -183,7 +183,7 @@ def lazify(data, output_field: Union[list, str], f, rnd, multi_output) -> Union[
         dynamic_input = extract_dynamic_input("".join(body))
     else:
         body = None
-        if not (hasattr(f, "metadata") and "input" in f.metadata and "output" in f.metadata):
+        if not (hasattr(f, "metadata") and "input" in f.metadata and "output" in f.metadata):  # pragma: no cover
             raise Exception(f"Missing 'metadata' containing 'input' and 'output' keys for custom callable '{type(f)}'")
         dynamic_input = f.metadata["input"]["dynamic"] if "dynamic" in f.metadata["input"] else []
     if not dynamic_input and hasattr(f, "metadata") and "input" in f.metadata and "dynamic" in f.metadata["input"]:
@@ -224,13 +224,13 @@ def lazify(data, output_field: Union[list, str], f, rnd, multi_output) -> Union[
         step = f.metadata.copy()
         if "id" in step:
             newidx = step.pop("id")
-            if "_" in newidx:
+            if "_" in newidx:  # pragma: no cover
                 raise Exception(f"'id' cannot have '_': {newidx}")
         for k in ["input", "output", "function"]:
             if k in step:
                 del step[k]
         if "code" in f.metadata and f.metadata["code"] is ...:
-            if body is None:
+            if body is None:  # pragma: no cover
                 raise Exception(f"Cannot autofill 'metadata.code' for custom callable '{type(f)}'")
             head = f"def f{str(signature(f))}:"
             code = head + "\n" + "\n".join(body)
@@ -261,7 +261,7 @@ def lazify(data, output_field: Union[list, str], f, rnd, multi_output) -> Union[
                 if hasattr(f, "metadata") and "code" in f.metadata:
                     dic["_code"] = f.metadata["code"]
                 else:
-                    if body is None:
+                    if body is None:  # pragma: no cover
                         raise Exception(f"Missing 'metadata' containing 'code' key for custom callable '{type(f)}'")
                     head = f"def f{str(signature(f))}:"
                     dic["_code"] = head + "\n" + "\n".join(body)
@@ -288,7 +288,7 @@ def lazify(data, output_field: Union[list, str], f, rnd, multi_output) -> Union[
                 else:
                     dic["_history"] = {}
                 dic["_history"][newidx] = step
-            else:
+            else:  # pragma: no cover
                 raise Exception(f"'...' is not defined for '{metaf}'.")
         return dic
     else:
@@ -307,7 +307,7 @@ def prepare_deps(data, input, parameters, rnd, multi):
         # TODO existence of multidynamic output is raising exception here
         #  because it will only be extracted at the end of lazify
         if isinstance(v, list) and k not in multi:
-            if rnd is None:  # pragma: no cover
+            if rnd is None:
                 raise UndefinedSeed(
                     "\nMissing Random object (or some object with the method 'choice') "
                     "before parameterized function application.\n"
@@ -316,14 +316,14 @@ def prepare_deps(data, input, parameters, rnd, multi):
                     f"values={v}\n{parameters=}\n{multi=}"
                 )
             deps[k] = rnd.choice(expand(v))
-        elif v is None:  # pragma: no cover
+        elif v is None:
             raise DependenceException(f"'None' value for parameter '{k}'.", deps.keys())
         else:
             deps[k] = v
     for k in input:
-        if k not in data:  # pragma: no cover
+        if k not in data:
             raise DependenceException(f"Missing field '{k}'.", data.keys())
-        if data[k] is None:  # pragma: no cover
+        if data[k] is None:
             raise DependenceException(f"'None' value for field '{k}'.", data.keys())
         deps[k] = data[k]
     return deps
