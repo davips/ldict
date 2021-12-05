@@ -199,7 +199,7 @@ def lazify(data, output_field: Union[list, str], f, rnd, multi_output) -&gt; Uni
     if &#34;_&#34; in input_fields:
         noop = True
         del input_fields[&#34;_&#34;]
-        if isinstance(f, AbstractLet):
+        if isinstance(f, AbstractLet):  # pragma: no cover
             raise Exception(&#34;Cannot let parameters have values for a noop function&#34;)
     for k, v in config.items():
         parameters[k] = v
@@ -211,7 +211,7 @@ def lazify(data, output_field: Union[list, str], f, rnd, multi_output) -&gt; Uni
         dynamic_input = extract_dynamic_input(&#34;&#34;.join(body))
     else:
         body = None
-        if not (hasattr(f, &#34;metadata&#34;) and &#34;input&#34; in f.metadata and &#34;output&#34; in f.metadata):
+        if not (hasattr(f, &#34;metadata&#34;) and &#34;input&#34; in f.metadata and &#34;output&#34; in f.metadata):  # pragma: no cover
             raise Exception(f&#34;Missing &#39;metadata&#39; containing &#39;input&#39; and &#39;output&#39; keys for custom callable &#39;{type(f)}&#39;&#34;)
         dynamic_input = f.metadata[&#34;input&#34;][&#34;dynamic&#34;] if &#34;dynamic&#34; in f.metadata[&#34;input&#34;] else []
     if not dynamic_input and hasattr(f, &#34;metadata&#34;) and &#34;input&#34; in f.metadata and &#34;dynamic&#34; in f.metadata[&#34;input&#34;]:
@@ -252,13 +252,13 @@ def lazify(data, output_field: Union[list, str], f, rnd, multi_output) -&gt; Uni
         step = f.metadata.copy()
         if &#34;id&#34; in step:
             newidx = step.pop(&#34;id&#34;)
-            if &#34;_&#34; in newidx:
+            if &#34;_&#34; in newidx:  # pragma: no cover
                 raise Exception(f&#34;&#39;id&#39; cannot have &#39;_&#39;: {newidx}&#34;)
         for k in [&#34;input&#34;, &#34;output&#34;, &#34;function&#34;]:
             if k in step:
                 del step[k]
         if &#34;code&#34; in f.metadata and f.metadata[&#34;code&#34;] is ...:
-            if body is None:
+            if body is None:  # pragma: no cover
                 raise Exception(f&#34;Cannot autofill &#39;metadata.code&#39; for custom callable &#39;{type(f)}&#39;&#34;)
             head = f&#34;def f{str(signature(f))}:&#34;
             code = head + &#34;\n&#34; + &#34;\n&#34;.join(body)
@@ -289,7 +289,7 @@ def lazify(data, output_field: Union[list, str], f, rnd, multi_output) -&gt; Uni
                 if hasattr(f, &#34;metadata&#34;) and &#34;code&#34; in f.metadata:
                     dic[&#34;_code&#34;] = f.metadata[&#34;code&#34;]
                 else:
-                    if body is None:
+                    if body is None:  # pragma: no cover
                         raise Exception(f&#34;Missing &#39;metadata&#39; containing &#39;code&#39; key for custom callable &#39;{type(f)}&#39;&#34;)
                     head = f&#34;def f{str(signature(f))}:&#34;
                     dic[&#34;_code&#34;] = head + &#34;\n&#34; + &#34;\n&#34;.join(body)
@@ -316,7 +316,7 @@ def lazify(data, output_field: Union[list, str], f, rnd, multi_output) -&gt; Uni
                 else:
                     dic[&#34;_history&#34;] = {}
                 dic[&#34;_history&#34;][newidx] = step
-            else:
+            else:  # pragma: no cover
                 raise Exception(f&#34;&#39;...&#39; is not defined for &#39;{metaf}&#39;.&#34;)
         return dic
     else:
@@ -335,7 +335,7 @@ def prepare_deps(data, input, parameters, rnd, multi):
         # TODO existence of multidynamic output is raising exception here
         #  because it will only be extracted at the end of lazify
         if isinstance(v, list) and k not in multi:
-            if rnd is None:  # pragma: no cover
+            if rnd is None:
                 raise UndefinedSeed(
                     &#34;\nMissing Random object (or some object with the method &#39;choice&#39;) &#34;
                     &#34;before parameterized function application.\n&#34;
@@ -344,14 +344,14 @@ def prepare_deps(data, input, parameters, rnd, multi):
                     f&#34;values={v}\n{parameters=}\n{multi=}&#34;
                 )
             deps[k] = rnd.choice(expand(v))
-        elif v is None:  # pragma: no cover
+        elif v is None:
             raise DependenceException(f&#34;&#39;None&#39; value for parameter &#39;{k}&#39;.&#34;, deps.keys())
         else:
             deps[k] = v
     for k in input:
-        if k not in data:  # pragma: no cover
+        if k not in data:
             raise DependenceException(f&#34;Missing field &#39;{k}&#39;.&#34;, data.keys())
-        if data[k] is None:  # pragma: no cover
+        if data[k] is None:
             raise DependenceException(f&#34;&#39;None&#39; value for field &#39;{k}&#39;.&#34;, data.keys())
         deps[k] = data[k]
     return deps
@@ -662,7 +662,7 @@ def list2progression(lst):
     if &#34;_&#34; in input_fields:
         noop = True
         del input_fields[&#34;_&#34;]
-        if isinstance(f, AbstractLet):
+        if isinstance(f, AbstractLet):  # pragma: no cover
             raise Exception(&#34;Cannot let parameters have values for a noop function&#34;)
     for k, v in config.items():
         parameters[k] = v
@@ -674,7 +674,7 @@ def list2progression(lst):
         dynamic_input = extract_dynamic_input(&#34;&#34;.join(body))
     else:
         body = None
-        if not (hasattr(f, &#34;metadata&#34;) and &#34;input&#34; in f.metadata and &#34;output&#34; in f.metadata):
+        if not (hasattr(f, &#34;metadata&#34;) and &#34;input&#34; in f.metadata and &#34;output&#34; in f.metadata):  # pragma: no cover
             raise Exception(f&#34;Missing &#39;metadata&#39; containing &#39;input&#39; and &#39;output&#39; keys for custom callable &#39;{type(f)}&#39;&#34;)
         dynamic_input = f.metadata[&#34;input&#34;][&#34;dynamic&#34;] if &#34;dynamic&#34; in f.metadata[&#34;input&#34;] else []
     if not dynamic_input and hasattr(f, &#34;metadata&#34;) and &#34;input&#34; in f.metadata and &#34;dynamic&#34; in f.metadata[&#34;input&#34;]:
@@ -715,13 +715,13 @@ def list2progression(lst):
         step = f.metadata.copy()
         if &#34;id&#34; in step:
             newidx = step.pop(&#34;id&#34;)
-            if &#34;_&#34; in newidx:
+            if &#34;_&#34; in newidx:  # pragma: no cover
                 raise Exception(f&#34;&#39;id&#39; cannot have &#39;_&#39;: {newidx}&#34;)
         for k in [&#34;input&#34;, &#34;output&#34;, &#34;function&#34;]:
             if k in step:
                 del step[k]
         if &#34;code&#34; in f.metadata and f.metadata[&#34;code&#34;] is ...:
-            if body is None:
+            if body is None:  # pragma: no cover
                 raise Exception(f&#34;Cannot autofill &#39;metadata.code&#39; for custom callable &#39;{type(f)}&#39;&#34;)
             head = f&#34;def f{str(signature(f))}:&#34;
             code = head + &#34;\n&#34; + &#34;\n&#34;.join(body)
@@ -752,7 +752,7 @@ def list2progression(lst):
                 if hasattr(f, &#34;metadata&#34;) and &#34;code&#34; in f.metadata:
                     dic[&#34;_code&#34;] = f.metadata[&#34;code&#34;]
                 else:
-                    if body is None:
+                    if body is None:  # pragma: no cover
                         raise Exception(f&#34;Missing &#39;metadata&#39; containing &#39;code&#39; key for custom callable &#39;{type(f)}&#39;&#34;)
                     head = f&#34;def f{str(signature(f))}:&#34;
                     dic[&#34;_code&#34;] = head + &#34;\n&#34; + &#34;\n&#34;.join(body)
@@ -779,7 +779,7 @@ def list2progression(lst):
                 else:
                     dic[&#34;_history&#34;] = {}
                 dic[&#34;_history&#34;][newidx] = step
-            else:
+            else:  # pragma: no cover
                 raise Exception(f&#34;&#39;...&#39; is not defined for &#39;{metaf}&#39;.&#34;)
         return dic
     else:
@@ -863,7 +863,7 @@ A range is specified as the default value of the parameter in the function signa
         # TODO existence of multidynamic output is raising exception here
         #  because it will only be extracted at the end of lazify
         if isinstance(v, list) and k not in multi:
-            if rnd is None:  # pragma: no cover
+            if rnd is None:
                 raise UndefinedSeed(
                     &#34;\nMissing Random object (or some object with the method &#39;choice&#39;) &#34;
                     &#34;before parameterized function application.\n&#34;
@@ -872,14 +872,14 @@ A range is specified as the default value of the parameter in the function signa
                     f&#34;values={v}\n{parameters=}\n{multi=}&#34;
                 )
             deps[k] = rnd.choice(expand(v))
-        elif v is None:  # pragma: no cover
+        elif v is None:
             raise DependenceException(f&#34;&#39;None&#39; value for parameter &#39;{k}&#39;.&#34;, deps.keys())
         else:
             deps[k] = v
     for k in input:
-        if k not in data:  # pragma: no cover
+        if k not in data:
             raise DependenceException(f&#34;Missing field &#39;{k}&#39;.&#34;, data.keys())
-        if data[k] is None:  # pragma: no cover
+        if data[k] is None:
             raise DependenceException(f&#34;&#39;None&#39; value for field &#39;{k}&#39;.&#34;, data.keys())
         deps[k] = data[k]
     return deps</code></pre>
