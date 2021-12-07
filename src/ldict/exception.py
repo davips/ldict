@@ -20,7 +20,6 @@
 #  part of this work is illegal and unethical regarding the effort and
 #  time spent here.
 #
-import importlib
 
 
 def check_access(id, readonly, key):
@@ -28,18 +27,6 @@ def check_access(id, readonly, key):
         raise ReadOnlyLdict(f"Cannot change a readonly ldict ({id}).", key)
     if not isinstance(key, str):
         raise WrongKeyType(f"Key must be string, not {type(key)}.", key)
-
-
-def check_package(module_name, obj=None):
-    if obj is not None and not obj.__class__.__module__.startswith(module_name):
-        return None
-    try:
-        return importlib.import_module(module_name)
-    except ImportError:
-        package = module_name.split(".")[0]
-        raise MissingLibraryDependence(
-            f"Package {package} should be installed to be able to handle objects of type {type(obj)}."
-        )
 
 
 class OverwriteException(Exception):
