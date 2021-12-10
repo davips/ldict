@@ -279,6 +279,8 @@ def lazify(data, output_field: Union[list, str], f, rnd, multi_output) -> Union[
                     f.pickle_dump = dump  # Memoize
             elif metaf == "_history":
                 if "_history" in data:
+                    if isinstance(data["_history"], LazyVal):
+                        data["_history"] = data["_history"]()
                     last = list(data["_history"].keys())[-1]
                     if isinstance(last, int):
                         newidx = last + 1
