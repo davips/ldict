@@ -307,6 +307,8 @@ def lazify(data, output_field: Union[list, str], f, rnd, multi_output) -&gt; Uni
                     f.pickle_dump = dump  # Memoize
             elif metaf == &#34;_history&#34;:
                 if &#34;_history&#34; in data:
+                    if isinstance(data[&#34;_history&#34;], LazyVal):
+                        data[&#34;_history&#34;] = data[&#34;_history&#34;]()
                     last = list(data[&#34;_history&#34;].keys())[-1]
                     if isinstance(last, int):
                         newidx = last + 1
@@ -770,6 +772,8 @@ def list2progression(lst):
                     f.pickle_dump = dump  # Memoize
             elif metaf == &#34;_history&#34;:
                 if &#34;_history&#34; in data:
+                    if isinstance(data[&#34;_history&#34;], LazyVal):
+                        data[&#34;_history&#34;] = data[&#34;_history&#34;]()
                     last = list(data[&#34;_history&#34;].keys())[-1]
                     if isinstance(last, int):
                         newidx = last + 1

@@ -48,7 +48,6 @@
 #  part of this work is illegal and unethical regarding the effort and
 #  time spent here.
 #
-import importlib
 
 
 def check_access(id, readonly, key):
@@ -56,18 +55,6 @@ def check_access(id, readonly, key):
         raise ReadOnlyLdict(f&#34;Cannot change a readonly ldict ({id}).&#34;, key)
     if not isinstance(key, str):
         raise WrongKeyType(f&#34;Key must be string, not {type(key)}.&#34;, key)
-
-
-def check_package(module_name, obj=None):
-    if obj is not None and not obj.__class__.__module__.startswith(module_name):
-        return None
-    try:
-        return importlib.import_module(module_name)
-    except ImportError:
-        package = module_name.split(&#34;.&#34;)[0]
-        raise MissingLibraryDependence(
-            f&#34;Package {package} should be installed to be able to handle objects of type {type(obj)}.&#34;
-        )
 
 
 class OverwriteException(Exception):
@@ -179,27 +166,6 @@ class ReadOnlyLdict(Exception):
         raise ReadOnlyLdict(f&#34;Cannot change a readonly ldict ({id}).&#34;, key)
     if not isinstance(key, str):
         raise WrongKeyType(f&#34;Key must be string, not {type(key)}.&#34;, key)</code></pre>
-</details>
-</dd>
-<dt id="ldict.exception.check_package"><code class="name flex">
-<span>def <span class="ident">check_package</span></span>(<span>module_name, obj=None)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def check_package(module_name, obj=None):
-    if obj is not None and not obj.__class__.__module__.startswith(module_name):
-        return None
-    try:
-        return importlib.import_module(module_name)
-    except ImportError:
-        package = module_name.split(&#34;.&#34;)[0]
-        raise MissingLibraryDependence(
-            f&#34;Package {package} should be installed to be able to handle objects of type {type(obj)}.&#34;
-        )</code></pre>
 </details>
 </dd>
 </dl>
@@ -642,7 +608,6 @@ class ReadOnlyLdict(Exception):
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="">
 <li><code><a title="ldict.exception.check_access" href="#ldict.exception.check_access">check_access</a></code></li>
-<li><code><a title="ldict.exception.check_package" href="#ldict.exception.check_package">check_package</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-classes">Classes</a></h3>
