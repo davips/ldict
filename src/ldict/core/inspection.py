@@ -34,28 +34,34 @@ def extract_input(f):
     """
     >>> f = lambda x, y, z=5: None
     >>> extract_input(f)
-    ({'x': None, 'y': None}, {'z': 5})
+    ({'x': None, 'y': None}, {'z': 5}, [])
     >>> f.metadata = {"input": {"fields": ["a", "b"], "parameters": {"c": 7}}}
     >>> extract_input(f)
-    ({'a': None, 'b': None}, {'c': 7})
+    ({'a': None, 'b': None}, {'c': 7}, {})
     """
     if hasattr(f, "metadata") and "input" in f.metadata:
         fields = {k: None for k in f.metadata["input"]["fields"]} if "fields" in f.metadata["input"] else {}
         hasparams = "parameters" in f.metadata["input"] and f.metadata["input"]["parameters"] is not ...
         parameters = f.metadata["input"]["parameters"] if hasparams else {}
-        return fields, parameters
+        hasoptional = "optional" in f.metadata["input"] and f.metadata["input"]["optional"] is not ...
+        optional = f.metadata["input"]["optional"] if hasoptional else {}
+        return fields, parameters, optional
     pars = dict(signature(f).parameters)
-    input, parameters = {}, {}
+    input, parameters, optional = {}, {}, []
     if "kwargs" in pars:
         del pars["kwargs"]
     for k, v in pars.items():
         if v.default is v.empty:
             input[k] = None
         else:
-            parameters[k] = v.default
+            val = v.default
+            if isinstance(val, str) and "=None" in val:
+                val = val.split("=")[0]
+                optional.append(val)
+            parameters[k] = val
     if not input and not parameters:
         raise NoInputException(f"Missing function input parameters.")
-    return input, parameters
+    return input, parameters, optional
 
 
 def extract_body(f):
@@ -117,12 +123,12 @@ def extract_dictstr(returnstr: str) -> str:
     return dict_strs[0]
 
 
-def extract_output(f, body, deps, multi_output):
+def extract_output(f, body, deps, ismulti_output, dynamic):
     """Extract output fields.
 
     https://stackoverflow.com/a/68753149/9681577
 
-    >>> extract_output(lambda:None, "return {'z': x*y, 'w': x+y, implicitfield: y**2, '_history': ..., '_code': ..., '_metafield2': 'some text'}", {"implicitfield": "k"}, True)
+    >>> extract_output(lambda:None, "return {'z': x*y, 'w': x+y, implicitfield: y**2, '_history': ..., '_code': ..., '_metafield2': 'some text'}", {"implicitfield": "k"}, True, dynamic=[])
     (['z', 'w', 'k'], ['_metafield2'], ['_history', '_code'])
     """
 
@@ -130,7 +136,7 @@ def extract_output(f, body, deps, multi_output):
 
     def lazy_dictstr():
         memo[0] = extract_returnstr("".join(body))
-        if multi_output:
+        if ismulti_output:
             memo[0] = extract_dictstr(memo[0])
         return memo[0]
 
@@ -149,20 +155,21 @@ def extract_output(f, body, deps, multi_output):
     else:
         meta = re.findall(r"[\"'](_[_a-zA-Z]+[_a-zA-Z0-9]*)[\"']:", lazy_dictstr())
         meta = [item for item in meta if item not in meta_ellipsed]
-    if "dynamic" in metadata_output:
-        dynamic = f.metadata["output"]["dynamic"]
-    else:
-        # REMINDER: The variable brings the field name.
+    if not dynamic:
+        # REMINDER: The variable brings the field name. E.g.: Xout="X"
         dynamic = re.findall(r"[ {]([_a-zA-Z]+[_a-zA-Z0-9]*):", lazy_dictstr())
-        multidynamic = re.findall(r"[ {]kwargs\[([_a-zA-Z]+[_a-zA-Z0-9]*)\[[^]]+?]]:", lazy_dictstr())
-        dynamic.extend(multidynamic)
+        # multidynamic = re.findall(r"[ {]kwargs\[([_a-zA-Z]+[_a-zA-Z0-9]*)\[[^]]+?]]:", lazy_dictstr())
+        # dynamic.extend(multidynamic)
 
     for field in dynamic:
         # if "_" in field:  # pragma: no cover
         #     raise UnderscoreInField("Field names cannot contain underscores:", field, dictstr)
         if field not in deps:  # pragma: no cover
             raise Exception("Missing parameter providing implicit field", field, deps)
-        explicit.append(deps[field])
+        if isinstance(deps[field], list):
+            explicit.extend(deps[field])
+        else:
+            explicit.append(deps[field])
     if not explicit:  # pragma: no cover
         pprint(lazy_dictstr())
         raise BadOutput("Could not find output fields that are valid identifiers (or kwargs[...]):")

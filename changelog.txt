@@ -1,1 +1,2 @@
-Evaluate data["_history"] if needed to expand it (e.g., it comes from a cache)
+    Add optional dynamic parameter with suffix "=None"
+    Fix multidynamic input in extract_output()

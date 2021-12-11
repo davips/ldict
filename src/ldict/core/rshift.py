@@ -73,7 +73,7 @@ def handle_dict(data, dictlike, rnd):
             from ldict.core.ldict_ import Ldict
 
             if callable(v):
-                if (r := lazify(data, k, v, rnd, multi_output=False)) is not None:
+                if (r := lazify(data, k, v, rnd, is_multi_output=False)) is not None:
                     data[k] = r
             elif isinstance(v, Ldict):
                 data[k] = v.frozen
@@ -82,7 +82,7 @@ def handle_dict(data, dictlike, rnd):
     return data
 
 
-def lazify(data, output_field: Union[list, str], f, rnd, multi_output) -> Union[dict, LazyVal]:
+def lazify(data, output_field: Union[list, str], f, rnd, is_multi_output) -> Union[dict, LazyVal]:
     """Create lazy values and handle metafields.
     >>> from ldict import ldict, let
     >>> from random import Random
@@ -166,7 +166,7 @@ def lazify(data, output_field: Union[list, str], f, rnd, multi_output) -> Union[
     """
     # TODO (minor): simplify to improve readability of this function
     config, f = (f.config, f.f) if isinstance(f, AbstractLet) else ({}, f)
-    input_fields, parameters = extract_input(f)
+    input_fields, parameters, optional = extract_input(f)
     noop = False
     if "_" in input_fields:
         noop = True
@@ -185,29 +185,35 @@ def lazify(data, output_field: Union[list, str], f, rnd, multi_output) -> Union[
         body = None
         if not (hasattr(f, "metadata") and "input" in f.metadata and "output" in f.metadata):  # pragma: no cover
             raise Exception(f"Missing 'metadata' containing 'input' and 'output' keys for custom callable '{type(f)}'")
-        dynamic_input = f.metadata["input"]["dynamic"] if "dynamic" in f.metadata["input"] else []
-    if not dynamic_input and hasattr(f, "metadata") and "input" in f.metadata and "dynamic" in f.metadata["input"]:
-        dynamic_input = f.metadata["input"]["dynamic"]
+        dynamic_input = []
+    dynamic_output = []
+    if hasattr(f, "metadata"):
+        if not dynamic_input and "input" in f.metadata and "dynamic" in f.metadata["input"]:
+            dynamic_input = f.metadata["input"]["dynamic"]
+        if "output" in f.metadata and "dynamic" in f.metadata["output"]:
+            dynamic_output = f.metadata["output"]["dynamic"]
 
-    multi = set()
+    # Process dynamic_input.
+    multidynamicinput = set()
     for par in dynamic_input:
         if par not in parameters:  # pragma: no cover
             raise Exception(f"Parameter '{par}' value is not available:", parameters)
         if isinstance(parameters[par], list):
             for k in parameters[par]:
                 input_fields[k] = None
-            multi.add(par)
+            multidynamicinput.add(par)
         elif isinstance(parameters[par], dict):
             for k in parameters[par]:
                 input_fields[k] = None
-            multi.add(par)
+            multidynamicinput.add(par)
         else:
             input_fields[parameters[par]] = None
-    deps = prepare_deps(data, input_fields, parameters, rnd, multi)
+
+    dynio = multidynamicinput | set(dynamic_output)
+    deps = prepare_deps(data, input_fields, parameters, rnd, dynio, optional)
     for k, v in parameters.items():
         parameters[k] = deps[k]
     if noop:
-
         def la(**deps_out):
             f(**deps_out)
             return deps_out
@@ -252,7 +258,7 @@ def lazify(data, output_field: Union[list, str], f, rnd, multi_output) -> Union[
     else:
         step = {}
     if output_field == "extract":
-        explicit, meta, meta_ellipsed = extract_output(f, body, deps, multi_output)
+        explicit, meta, meta_ellipsed = extract_output(f, body, deps, is_multi_output, dynamic_output)
         lazies = []
         dic = {k: LazyVal(k, f, deps, data, lazies) for k in explicit + meta}
         lazies.extend(dic.values())
@@ -297,7 +303,7 @@ def lazify(data, output_field: Union[list, str], f, rnd, multi_output) -> Union[
         return LazyVal(output_field, f, deps, data, None)
 
 
-def prepare_deps(data, input, parameters, rnd, multi):
+def prepare_deps(data, input, parameters, rnd, multi, optional):
     """Build a dict containing all needed dependencies (values) to apply a function:
         input fields and parameters.
 
@@ -308,6 +314,7 @@ def prepare_deps(data, input, parameters, rnd, multi):
     for k, v in parameters.items():
         # TODO existence of multidynamic output is raising exception here
         #  because it will only be extracted at the end of lazify
+        #  A workaround is to declare multidynamic output at f.metadata, instead of detecting it.
         if isinstance(v, list) and k not in multi:
             if rnd is None:
                 raise UndefinedSeed(
@@ -315,7 +322,9 @@ def prepare_deps(data, input, parameters, rnd, multi):
                     "before parameterized function application.\n"
                     "Example: ldict(x=5) >> Random(42) >> (lambda x, a=[1,2,3]: {'y': a * x**2})\n"
                     f"field={k}\n"
-                    f"values={v}\n{parameters=}\n{multi=}"
+                    f"values={v}\n{parameters=}\n{multi=}\n"
+                    f"Another possible cause: Multidynamic output cannot be detected by now, "
+                    f"please declare multidynamic output at f.metadata['output']"
                 )
             deps[k] = rnd.choice(expand(v))
         elif v is None:
@@ -323,11 +332,13 @@ def prepare_deps(data, input, parameters, rnd, multi):
         else:
             deps[k] = v
     for k in input:
-        if k not in data:
-            raise DependenceException(f"Missing field '{k}'.", data.keys())
-        if data[k] is None:
-            raise DependenceException(f"'None' value for field '{k}'.", data.keys())
-        deps[k] = data[k]
+        if k in data:
+            deps[k] = data[k]
+        if k not in optional:
+            if k not in deps:
+                raise DependenceException(f"Missing field '{k}'.", data.keys())
+            if deps[k] is None:
+                raise DependenceException(f"'None' value for field '{k}'.", data.keys())
     return deps
 
 
