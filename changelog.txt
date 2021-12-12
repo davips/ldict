@@ -1,7 +1,1 @@
-Finish multidynamic input/output (without detection for output)
-
-Put 'translated_input' hardwired as optional
-Fix metadata change inside extract_input()
-Add "[]" to avoid mixing dynamic io with sampling
-
-Disable global memoizer
+Fix split order
