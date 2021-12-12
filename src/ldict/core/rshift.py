@@ -216,6 +216,7 @@ def lazify(data, output_field: Union[list, str], f, rnd, is_multi_output) -> Uni
     for k, v in parameters.items():
         parameters[k] = deps[k]
     if noop:
+
         def la(**deps_out):
             f(**deps_out)
             return deps_out

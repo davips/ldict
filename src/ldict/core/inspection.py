@@ -34,7 +34,7 @@ def extract_input(f):
     """
     >>> f = lambda x, y, z=5: None
     >>> extract_input(f)
-    ({'x': None, 'y': None}, {'z': 5}, [])
+    ({'x': None, 'y': None}, {'z': 5}, ['translated_input'])
     >>> f.metadata = {"input": {"fields": ["a", "b"], "parameters": {"c": 7}}}
     >>> extract_input(f)
     ({'a': None, 'b': None}, {'c': 7}, {})

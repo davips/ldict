@@ -62,28 +62,34 @@ def extract_input(f):
     &#34;&#34;&#34;
     &gt;&gt;&gt; f = lambda x, y, z=5: None
     &gt;&gt;&gt; extract_input(f)
-    ({&#39;x&#39;: None, &#39;y&#39;: None}, {&#39;z&#39;: 5})
+    ({&#39;x&#39;: None, &#39;y&#39;: None}, {&#39;z&#39;: 5}, [&#39;translated_input&#39;])
     &gt;&gt;&gt; f.metadata = {&#34;input&#34;: {&#34;fields&#34;: [&#34;a&#34;, &#34;b&#34;], &#34;parameters&#34;: {&#34;c&#34;: 7}}}
     &gt;&gt;&gt; extract_input(f)
-    ({&#39;a&#39;: None, &#39;b&#39;: None}, {&#39;c&#39;: 7})
+    ({&#39;a&#39;: None, &#39;b&#39;: None}, {&#39;c&#39;: 7}, {})
     &#34;&#34;&#34;
     if hasattr(f, &#34;metadata&#34;) and &#34;input&#34; in f.metadata:
         fields = {k: None for k in f.metadata[&#34;input&#34;][&#34;fields&#34;]} if &#34;fields&#34; in f.metadata[&#34;input&#34;] else {}
         hasparams = &#34;parameters&#34; in f.metadata[&#34;input&#34;] and f.metadata[&#34;input&#34;][&#34;parameters&#34;] is not ...
         parameters = f.metadata[&#34;input&#34;][&#34;parameters&#34;] if hasparams else {}
-        return fields, parameters
+        hasoptional = &#34;optional&#34; in f.metadata[&#34;input&#34;] and f.metadata[&#34;input&#34;][&#34;optional&#34;] is not ...
+        optional = f.metadata[&#34;input&#34;][&#34;optional&#34;] if hasoptional else {}
+        return fields, parameters, optional
     pars = dict(signature(f).parameters)
-    input, parameters = {}, {}
+    input, parameters, optional = {}, {}, [&#34;translated_input&#34;]
     if &#34;kwargs&#34; in pars:
         del pars[&#34;kwargs&#34;]
     for k, v in pars.items():
         if v.default is v.empty:
             input[k] = None
         else:
-            parameters[k] = v.default
+            val = v.default
+            if isinstance(val, str) and &#34;=None&#34; in val:
+                val = val.split(&#34;=&#34;)[0]
+                optional.append(val)
+            parameters[k] = val
     if not input and not parameters:
         raise NoInputException(f&#34;Missing function input parameters.&#34;)
-    return input, parameters
+    return input, parameters, optional
 
 
 def extract_body(f):
@@ -145,12 +151,12 @@ def extract_dictstr(returnstr: str) -&gt; str:
     return dict_strs[0]
 
 
-def extract_output(f, body, deps, multi_output):
+def extract_output(f, body, deps, ismulti_output, dynamic):
     &#34;&#34;&#34;Extract output fields.
 
     https://stackoverflow.com/a/68753149/9681577
 
-    &gt;&gt;&gt; extract_output(lambda:None, &#34;return {&#39;z&#39;: x*y, &#39;w&#39;: x+y, implicitfield: y**2, &#39;_history&#39;: ..., &#39;_code&#39;: ..., &#39;_metafield2&#39;: &#39;some text&#39;}&#34;, {&#34;implicitfield&#34;: &#34;k&#34;}, True)
+    &gt;&gt;&gt; extract_output(lambda:None, &#34;return {&#39;z&#39;: x*y, &#39;w&#39;: x+y, implicitfield: y**2, &#39;_history&#39;: ..., &#39;_code&#39;: ..., &#39;_metafield2&#39;: &#39;some text&#39;}&#34;, {&#34;implicitfield&#34;: &#34;k&#34;}, True, dynamic=[])
     ([&#39;z&#39;, &#39;w&#39;, &#39;k&#39;], [&#39;_metafield2&#39;], [&#39;_history&#39;, &#39;_code&#39;])
     &#34;&#34;&#34;
 
@@ -158,39 +164,40 @@ def extract_output(f, body, deps, multi_output):
 
     def lazy_dictstr():
         memo[0] = extract_returnstr(&#34;&#34;.join(body))
-        if multi_output:
+        if ismulti_output:
             memo[0] = extract_dictstr(memo[0])
         return memo[0]
 
     metadata_output = f.metadata[&#34;output&#34;] if hasattr(f, &#34;metadata&#34;) and &#34;output&#34; in f.metadata else {}
     if &#34;fields&#34; in metadata_output:
-        explicit = f.metadata[&#34;output&#34;][&#34;fields&#34;]
+        explicit = metadata_output[&#34;fields&#34;].copy()
     else:
         explicit = re.findall(r&#34;[\&#34;&#39;]([a-zA-Z]+[_a-zA-Z0-9]*)[\&#34;&#39;]:&#34;, lazy_dictstr())
     if &#34;auto&#34; in metadata_output:
-        meta_ellipsed = f.metadata[&#34;output&#34;][&#34;auto&#34;]
+        meta_ellipsed = metadata_output[&#34;auto&#34;]
     else:
         meta_ellipsed = re.findall(r&#34;[\&#34;&#39;](_[_a-zA-Z]+[_a-zA-Z0-9]*)[\&#34;&#39;]:[ ]*?\.\.\.[,}]&#34;, lazy_dictstr())
         meta_ellipsed.extend(re.findall(r&#34;[\&#34;&#39;](_[_a-zA-Z]+[_a-zA-Z0-9]*)[\&#34;&#39;]:[ ]*?Ellipsis[,}]&#34;, lazy_dictstr()))
     if &#34;meta&#34; in metadata_output:
-        meta = f.metadata[&#34;output&#34;][&#34;meta&#34;]
+        meta = metadata_output[&#34;meta&#34;]
     else:
         meta = re.findall(r&#34;[\&#34;&#39;](_[_a-zA-Z]+[_a-zA-Z0-9]*)[\&#34;&#39;]:&#34;, lazy_dictstr())
         meta = [item for item in meta if item not in meta_ellipsed]
-    if &#34;dynamic&#34; in metadata_output:
-        dynamic = f.metadata[&#34;output&#34;][&#34;dynamic&#34;]
-    else:
-        # REMINDER: The variable brings the field name.
+    if not dynamic:
+        # REMINDER: The variable brings the field name. E.g.: Xout=&#34;X&#34;
         dynamic = re.findall(r&#34;[ {]([_a-zA-Z]+[_a-zA-Z0-9]*):&#34;, lazy_dictstr())
-        multidynamic = re.findall(r&#34;[ {]kwargs\[([_a-zA-Z]+[_a-zA-Z0-9]*)\[[^]]+?]]:&#34;, lazy_dictstr())
-        dynamic.extend(multidynamic)
+        # multidynamic = re.findall(r&#34;[ {]kwargs\[([_a-zA-Z]+[_a-zA-Z0-9]*)\[[^]]+?]]:&#34;, lazy_dictstr())
+        # dynamic.extend(multidynamic)
 
     for field in dynamic:
         # if &#34;_&#34; in field:  # pragma: no cover
         #     raise UnderscoreInField(&#34;Field names cannot contain underscores:&#34;, field, dictstr)
         if field not in deps:  # pragma: no cover
             raise Exception(&#34;Missing parameter providing implicit field&#34;, field, deps)
-        explicit.append(deps[field])
+        if isinstance(deps[field], list):
+            explicit.extend(deps[field])
+        else:
+            explicit.append(deps[field])
     if not explicit:  # pragma: no cover
         pprint(lazy_dictstr())
         raise BadOutput(&#34;Could not find output fields that are valid identifiers (or kwargs[...]):&#34;)
@@ -326,10 +333,10 @@ class CodeExtractionException(Exception):
 <dd>
 <div class="desc"><pre><code class="language-python-repl">&gt;&gt;&gt; f = lambda x, y, z=5: None
 &gt;&gt;&gt; extract_input(f)
-({'x': None, 'y': None}, {'z': 5})
+({'x': None, 'y': None}, {'z': 5}, ['translated_input'])
 &gt;&gt;&gt; f.metadata = {&quot;input&quot;: {&quot;fields&quot;: [&quot;a&quot;, &quot;b&quot;], &quot;parameters&quot;: {&quot;c&quot;: 7}}}
 &gt;&gt;&gt; extract_input(f)
-({'a': None, 'b': None}, {'c': 7})
+({'a': None, 'b': None}, {'c': 7}, {})
 </code></pre></div>
 <details class="source">
 <summary>
@@ -339,49 +346,55 @@ class CodeExtractionException(Exception):
     &#34;&#34;&#34;
     &gt;&gt;&gt; f = lambda x, y, z=5: None
     &gt;&gt;&gt; extract_input(f)
-    ({&#39;x&#39;: None, &#39;y&#39;: None}, {&#39;z&#39;: 5})
+    ({&#39;x&#39;: None, &#39;y&#39;: None}, {&#39;z&#39;: 5}, [&#39;translated_input&#39;])
     &gt;&gt;&gt; f.metadata = {&#34;input&#34;: {&#34;fields&#34;: [&#34;a&#34;, &#34;b&#34;], &#34;parameters&#34;: {&#34;c&#34;: 7}}}
     &gt;&gt;&gt; extract_input(f)
-    ({&#39;a&#39;: None, &#39;b&#39;: None}, {&#39;c&#39;: 7})
+    ({&#39;a&#39;: None, &#39;b&#39;: None}, {&#39;c&#39;: 7}, {})
     &#34;&#34;&#34;
     if hasattr(f, &#34;metadata&#34;) and &#34;input&#34; in f.metadata:
         fields = {k: None for k in f.metadata[&#34;input&#34;][&#34;fields&#34;]} if &#34;fields&#34; in f.metadata[&#34;input&#34;] else {}
         hasparams = &#34;parameters&#34; in f.metadata[&#34;input&#34;] and f.metadata[&#34;input&#34;][&#34;parameters&#34;] is not ...
         parameters = f.metadata[&#34;input&#34;][&#34;parameters&#34;] if hasparams else {}
-        return fields, parameters
+        hasoptional = &#34;optional&#34; in f.metadata[&#34;input&#34;] and f.metadata[&#34;input&#34;][&#34;optional&#34;] is not ...
+        optional = f.metadata[&#34;input&#34;][&#34;optional&#34;] if hasoptional else {}
+        return fields, parameters, optional
     pars = dict(signature(f).parameters)
-    input, parameters = {}, {}
+    input, parameters, optional = {}, {}, [&#34;translated_input&#34;]
     if &#34;kwargs&#34; in pars:
         del pars[&#34;kwargs&#34;]
     for k, v in pars.items():
         if v.default is v.empty:
             input[k] = None
         else:
-            parameters[k] = v.default
+            val = v.default
+            if isinstance(val, str) and &#34;=None&#34; in val:
+                val = val.split(&#34;=&#34;)[0]
+                optional.append(val)
+            parameters[k] = val
     if not input and not parameters:
         raise NoInputException(f&#34;Missing function input parameters.&#34;)
-    return input, parameters</code></pre>
+    return input, parameters, optional</code></pre>
 </details>
 </dd>
 <dt id="ldict.core.inspection.extract_output"><code class="name flex">
-<span>def <span class="ident">extract_output</span></span>(<span>f, body, deps, multi_output)</span>
+<span>def <span class="ident">extract_output</span></span>(<span>f, body, deps, ismulti_output, dynamic)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Extract output fields.</p>
 <p><a href="https://stackoverflow.com/a/68753149/9681577">https://stackoverflow.com/a/68753149/9681577</a></p>
-<pre><code class="language-python-repl">&gt;&gt;&gt; extract_output(lambda:None, &quot;return {'z': x*y, 'w': x+y, implicitfield: y**2, '_history': ..., '_code': ..., '_metafield2': 'some text'}&quot;, {&quot;implicitfield&quot;: &quot;k&quot;}, True)
+<pre><code class="language-python-repl">&gt;&gt;&gt; extract_output(lambda:None, &quot;return {'z': x*y, 'w': x+y, implicitfield: y**2, '_history': ..., '_code': ..., '_metafield2': 'some text'}&quot;, {&quot;implicitfield&quot;: &quot;k&quot;}, True, dynamic=[])
 (['z', 'w', 'k'], ['_metafield2'], ['_history', '_code'])
 </code></pre></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def extract_output(f, body, deps, multi_output):
+<pre><code class="python">def extract_output(f, body, deps, ismulti_output, dynamic):
     &#34;&#34;&#34;Extract output fields.
 
     https://stackoverflow.com/a/68753149/9681577
 
-    &gt;&gt;&gt; extract_output(lambda:None, &#34;return {&#39;z&#39;: x*y, &#39;w&#39;: x+y, implicitfield: y**2, &#39;_history&#39;: ..., &#39;_code&#39;: ..., &#39;_metafield2&#39;: &#39;some text&#39;}&#34;, {&#34;implicitfield&#34;: &#34;k&#34;}, True)
+    &gt;&gt;&gt; extract_output(lambda:None, &#34;return {&#39;z&#39;: x*y, &#39;w&#39;: x+y, implicitfield: y**2, &#39;_history&#39;: ..., &#39;_code&#39;: ..., &#39;_metafield2&#39;: &#39;some text&#39;}&#34;, {&#34;implicitfield&#34;: &#34;k&#34;}, True, dynamic=[])
     ([&#39;z&#39;, &#39;w&#39;, &#39;k&#39;], [&#39;_metafield2&#39;], [&#39;_history&#39;, &#39;_code&#39;])
     &#34;&#34;&#34;
 
@@ -389,39 +402,40 @@ class CodeExtractionException(Exception):
 
     def lazy_dictstr():
         memo[0] = extract_returnstr(&#34;&#34;.join(body))
-        if multi_output:
+        if ismulti_output:
             memo[0] = extract_dictstr(memo[0])
         return memo[0]
 
     metadata_output = f.metadata[&#34;output&#34;] if hasattr(f, &#34;metadata&#34;) and &#34;output&#34; in f.metadata else {}
     if &#34;fields&#34; in metadata_output:
-        explicit = f.metadata[&#34;output&#34;][&#34;fields&#34;]
+        explicit = metadata_output[&#34;fields&#34;].copy()
     else:
         explicit = re.findall(r&#34;[\&#34;&#39;]([a-zA-Z]+[_a-zA-Z0-9]*)[\&#34;&#39;]:&#34;, lazy_dictstr())
     if &#34;auto&#34; in metadata_output:
-        meta_ellipsed = f.metadata[&#34;output&#34;][&#34;auto&#34;]
+        meta_ellipsed = metadata_output[&#34;auto&#34;]
     else:
         meta_ellipsed = re.findall(r&#34;[\&#34;&#39;](_[_a-zA-Z]+[_a-zA-Z0-9]*)[\&#34;&#39;]:[ ]*?\.\.\.[,}]&#34;, lazy_dictstr())
         meta_ellipsed.extend(re.findall(r&#34;[\&#34;&#39;](_[_a-zA-Z]+[_a-zA-Z0-9]*)[\&#34;&#39;]:[ ]*?Ellipsis[,}]&#34;, lazy_dictstr()))
     if &#34;meta&#34; in metadata_output:
-        meta = f.metadata[&#34;output&#34;][&#34;meta&#34;]
+        meta = metadata_output[&#34;meta&#34;]
     else:
         meta = re.findall(r&#34;[\&#34;&#39;](_[_a-zA-Z]+[_a-zA-Z0-9]*)[\&#34;&#39;]:&#34;, lazy_dictstr())
         meta = [item for item in meta if item not in meta_ellipsed]
-    if &#34;dynamic&#34; in metadata_output:
-        dynamic = f.metadata[&#34;output&#34;][&#34;dynamic&#34;]
-    else:
-        # REMINDER: The variable brings the field name.
+    if not dynamic:
+        # REMINDER: The variable brings the field name. E.g.: Xout=&#34;X&#34;
         dynamic = re.findall(r&#34;[ {]([_a-zA-Z]+[_a-zA-Z0-9]*):&#34;, lazy_dictstr())
-        multidynamic = re.findall(r&#34;[ {]kwargs\[([_a-zA-Z]+[_a-zA-Z0-9]*)\[[^]]+?]]:&#34;, lazy_dictstr())
-        dynamic.extend(multidynamic)
+        # multidynamic = re.findall(r&#34;[ {]kwargs\[([_a-zA-Z]+[_a-zA-Z0-9]*)\[[^]]+?]]:&#34;, lazy_dictstr())
+        # dynamic.extend(multidynamic)
 
     for field in dynamic:
         # if &#34;_&#34; in field:  # pragma: no cover
         #     raise UnderscoreInField(&#34;Field names cannot contain underscores:&#34;, field, dictstr)
         if field not in deps:  # pragma: no cover
             raise Exception(&#34;Missing parameter providing implicit field&#34;, field, deps)
-        explicit.append(deps[field])
+        if isinstance(deps[field], list):
+            explicit.extend(deps[field])
+        else:
+            explicit.append(deps[field])
     if not explicit:  # pragma: no cover
         pprint(lazy_dictstr())
         raise BadOutput(&#34;Could not find output fields that are valid identifiers (or kwargs[...]):&#34;)
