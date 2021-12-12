@@ -44,8 +44,8 @@ class LazyVal:
     def __init__(self, field, f, deps, data, lazies):
         self.field = field
         self.f = f
-        self.data = data
         self.deps = deps
+        self.data = data
         self.lazies = lazies
         self.result = None
 

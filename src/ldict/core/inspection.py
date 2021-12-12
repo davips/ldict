@@ -47,7 +47,7 @@ def extract_input(f):
         optional = f.metadata["input"]["optional"] if hasoptional else {}
         return fields, parameters, optional
     pars = dict(signature(f).parameters)
-    input, parameters, optional = {}, {}, []
+    input, parameters, optional = {}, {}, ["translated_input"]
     if "kwargs" in pars:
         del pars["kwargs"]
     for k, v in pars.items():
@@ -142,16 +142,16 @@ def extract_output(f, body, deps, ismulti_output, dynamic):
 
     metadata_output = f.metadata["output"] if hasattr(f, "metadata") and "output" in f.metadata else {}
     if "fields" in metadata_output:
-        explicit = f.metadata["output"]["fields"]
+        explicit = metadata_output["fields"].copy()
     else:
         explicit = re.findall(r"[\"']([a-zA-Z]+[_a-zA-Z0-9]*)[\"']:", lazy_dictstr())
     if "auto" in metadata_output:
-        meta_ellipsed = f.metadata["output"]["auto"]
+        meta_ellipsed = metadata_output["auto"]
     else:
         meta_ellipsed = re.findall(r"[\"'](_[_a-zA-Z]+[_a-zA-Z0-9]*)[\"']:[ ]*?\.\.\.[,}]", lazy_dictstr())
         meta_ellipsed.extend(re.findall(r"[\"'](_[_a-zA-Z]+[_a-zA-Z0-9]*)[\"']:[ ]*?Ellipsis[,}]", lazy_dictstr()))
     if "meta" in metadata_output:
-        meta = f.metadata["output"]["meta"]
+        meta = metadata_output["meta"]
     else:
         meta = re.findall(r"[\"'](_[_a-zA-Z]+[_a-zA-Z0-9]*)[\"']:", lazy_dictstr())
         meta = [item for item in meta if item not in meta_ellipsed]

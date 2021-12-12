@@ -198,6 +198,8 @@ def lazify(data, output_field: Union[list, str], f, rnd, is_multi_output) -> Uni
     for par in dynamic_input:
         if par not in parameters:  # pragma: no cover
             raise Exception(f"Parameter '{par}' value is not available:", parameters)
+        if parameters[par] == "[]":
+            parameters[par] = []
         if isinstance(parameters[par], list):
             for k in parameters[par]:
                 input_fields[k] = None
@@ -243,7 +245,6 @@ def lazify(data, output_field: Union[list, str], f, rnd, is_multi_output) -> Uni
             f.metadata["code"] = code
             step["code"] = code
         if "parameters" in f.metadata and f.metadata["parameters"] is ...:
-            f.metadata["parameters"] = parameters
             step["parameters"] = parameters
         if "function" in f.metadata and f.metadata["function"] is ...:
             # REMINDER: it is not clear yet whether somebody wants this...
@@ -315,7 +316,7 @@ def prepare_deps(data, input, parameters, rnd, multi, optional):
         # TODO existence of multidynamic output is raising exception here
         #  because it will only be extracted at the end of lazify
         #  A workaround is to declare multidynamic output at f.metadata, instead of detecting it.
-        if isinstance(v, list) and k not in multi:
+        if isinstance(v, list) and k not in multi and k not in optional:
             if rnd is None:
                 raise UndefinedSeed(
                     "\nMissing Random object (or some object with the method 'choice') "
