@@ -13,6 +13,14 @@ echo "----------------- tested -----------------------"
 echo; echo
 
 echo
+echo "----------------- gh workflow testing... -----------------------"
+read -p "press enter"
+act -j build
+echo "----------------- gh workflow -----------------------"
+echo; echo
+
+
+echo
 echo "----------------- checking... -----------------------"
 read -p "press enter"
 poetry run flake8 src --count --select=E9,F63,F7,F82 --show-source --statistics --ignore E741
