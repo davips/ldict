@@ -24,9 +24,6 @@ from inspect import signature
 from io import StringIO
 from pprint import pprint
 
-from uncompyle6.main import decompile
-from uncompyle6.semantics.parser_error import ParserError
-
 from ldict.exception import NoInputException, NoReturnException, BadOutput, MultipleDicts
 
 
@@ -78,6 +75,8 @@ def extract_body(f):
     if hasattr(f, "metadata") and "code" in f.metadata and f.metadata["code"] is not ...:
         return f.metadata["code"]
     out = StringIO()
+    from uncompyle6.main import decompile
+    from uncompyle6.semantics.parser_error import ParserError
     try:
         decompile(bytecode_version=(3, 8, 10), co=f.__code__, out=out)
     except ParserError:
