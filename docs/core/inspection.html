@@ -52,9 +52,6 @@ from inspect import signature
 from io import StringIO
 from pprint import pprint
 
-from uncompyle6.main import decompile
-from uncompyle6.semantics.parser_error import ParserError
-
 from ldict.exception import NoInputException, NoReturnException, BadOutput, MultipleDicts
 
 
@@ -106,6 +103,8 @@ def extract_body(f):
     if hasattr(f, &#34;metadata&#34;) and &#34;code&#34; in f.metadata and f.metadata[&#34;code&#34;] is not ...:
         return f.metadata[&#34;code&#34;]
     out = StringIO()
+    from uncompyle6.main import decompile
+    from uncompyle6.semantics.parser_error import ParserError
     try:
         decompile(bytecode_version=(3, 8, 10), co=f.__code__, out=out)
     except ParserError:
@@ -256,6 +255,8 @@ class CodeExtractionException(Exception):
     if hasattr(f, &#34;metadata&#34;) and &#34;code&#34; in f.metadata and f.metadata[&#34;code&#34;] is not ...:
         return f.metadata[&#34;code&#34;]
     out = StringIO()
+    from uncompyle6.main import decompile
+    from uncompyle6.semantics.parser_error import ParserError
     try:
         decompile(bytecode_version=(3, 8, 10), co=f.__code__, out=out)
     except ParserError:
