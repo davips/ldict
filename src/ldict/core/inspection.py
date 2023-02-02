@@ -78,7 +78,7 @@ def extract_body(f):
     from uncompyle6.main import decompile
     from uncompyle6.semantics.parser_error import ParserError
     try:
-        decompile(bytecode_version=(3, 8, 10), co=f.__code__, out=out)
+        decompile(bytecode_version=(3, 8, 16), co=f.__code__, out=out)
     except ParserError:
         raise CodeExtractionException("Could not extract function code.")
     code = [line for line in out.getvalue().split("\n") if not line.startswith("#")]

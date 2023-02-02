@@ -1,1 +1,3 @@
+Change uncompile v. to 3.8.16
 Fix py version for github actions (3.8.10→3.8.16) and update pypi
+Update README to point to successor rewritten more robust library
