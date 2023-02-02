@@ -11,9 +11,13 @@
 [![API documentation](https://img.shields.io/badge/doc-API%20%28auto%29-a0a0a0.svg)](https://davips.github.io/ldict)
 
 # ldict
-
 A lazy `dict`.
+### **This project was succeeded by [hdict](https://pypi.org/project/hdict).**
 
+---
+---
+---
+---
 [Latest release](https://pypi.org/project/ldict) |
 [Current code](https://github.com/davips/ldict) |
 [API documentation](https://davips.github.io/ldict)

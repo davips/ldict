@@ -1,1 +1,1 @@
-Update dependences
+Fix py version for github actions (3.8.10→3.8.16) and update pypi
